@@ -1,0 +1,8 @@
+packages:
+  - backend
+  - desktop
+
+onlyBuiltDependencies:
+  - electron
+  - electron-winstaller
+  - esbuild

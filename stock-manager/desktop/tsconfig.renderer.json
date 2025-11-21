@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2017",
+    "moduleResolution": "Node",
+    "outDir": "dist/renderer",
+    "noEmitOnError": true,
+    "lib": ["DOM", "ES2017"],
+    "types": [] // importante para no inyectar tipos de node en el renderer
+  },
+  "include": ["src/renderer/**/*.ts"],
+  "exclude": []
+}

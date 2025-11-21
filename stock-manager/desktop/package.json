@@ -1,0 +1,48 @@
+{
+  "name": "stock-manager-desktop",
+  "version": "1.0.0",
+  "description": "Sistema de gestion de stock con auto-actualizacion",
+  "main": "dist/main/main.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && node ./scripts/copy-static.mjs",
+    "watch:main": "tsc -w -p tsconfig.json",
+    "watch:renderer": "tsc -w -p tsconfig.renderer.json",
+    "watch": "concurrently \"pnpm:watch:main\" \"pnpm:watch:renderer\"",
+    "electron:dev": "electronmon .",
+    "dev": "concurrently \"pnpm:watch\" \"pnpm:electron:dev\"",
+    "start": "electron .",
+    "build:win": "pnpm run build && electron-builder -w"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.3",
+    "electron-updater": "^6.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.9.3"
+  },
+  "build": {
+    "appId": "com.stockmanager.desktop",
+    "productName": "StockManagerDesktop",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://TU-SERVIDOR/updates/"
+      }
+    ]
+  }
+}
