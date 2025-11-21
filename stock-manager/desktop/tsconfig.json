@@ -1,21 +1,27 @@
-﻿{
+{
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "node16",
-    "moduleResolution": "node16",
-    "rootDir": "src",
-    "outDir": "dist",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "types": ["vite/client"],
     "skipLibCheck": true,
-    "lib": ["ES2020"], // aquí ya no necesitas DOM
-    "types": ["node"]
+    "noEmit": true,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
-    "src/main/**/*.ts",
-    "src/preload.ts"
-  ],
-  "exclude": [
-    "src/renderer/**"
+    "src",
+    "electron",
+    "vite.config.ts",
+    "tsup.config.ts"
   ]
 }

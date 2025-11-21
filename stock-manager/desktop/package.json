@@ -1,48 +1,38 @@
 {
   "name": "stock-manager-desktop",
-  "version": "1.0.0",
-  "description": "Sistema de gestion de stock con auto-actualizacion",
-  "main": "dist/main/main.js",
-  "license": "MIT",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.cjs",
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && node ./scripts/copy-static.mjs",
-    "watch:main": "tsc -w -p tsconfig.json",
-    "watch:renderer": "tsc -w -p tsconfig.renderer.json",
-    "watch": "concurrently \"pnpm:watch:main\" \"pnpm:watch:renderer\"",
-    "electron:dev": "electronmon .",
-    "dev": "concurrently \"pnpm:watch\" \"pnpm:electron:dev\"",
-    "start": "electron .",
-    "build:win": "pnpm run build && electron-builder -w"
+    "dev": "concurrently -k \"pnpm dev:renderer\" \"pnpm dev:main\" \"pnpm dev:electron\"",
+    "dev:renderer": "vite --host --port 5173",
+    "dev:main": "cross-env NODE_ENV=development tsup --watch --config tsup.config.ts",
+    "dev:electron": "cross-env NODE_ENV=development ELECTRON_DISABLE_SECURITY_WARNINGS=true wait-on file:dist-electron/main.cjs http-get://localhost:5173 && electron .",
+    "build": "pnpm clean && pnpm build:renderer && pnpm build:main",
+    "build:renderer": "vite build",
+    "build:main": "cross-env NODE_ENV=production tsup --config tsup.config.ts",
+    "clean": "rimraf dist dist-electron",
+    "lint": "eslint . --ext .ts,.tsx --ignore-path ../.gitignore",
+    "preview": "pnpm build && electron .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "electron-log": "^5.4.3",
-    "electron-updater": "^6.6.2"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "electron": "^39.2.3",
-    "electron-builder": "^26.0.12",
-    "typescript": "^5.9.3"
-  },
-  "build": {
-    "appId": "com.stockmanager.desktop",
-    "productName": "StockManagerDesktop",
-    "directories": {
-      "buildResources": "build",
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "package.json"
-    ],
-    "win": {
-      "target": "nsis"
-    },
-    "publish": [
-      {
-        "provider": "generic",
-        "url": "http://TU-SERVIDOR/updates/"
-      }
-    ]
+    "@types/node": "^22.9.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.9",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "wait-on": "^8.0.1"
   }
 }

@@ -1,0 +1,33 @@
+.movements {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.movement {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.movement:last-child {
+  border-bottom: none;
+}
+
+.name {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin: 0;
+}
+
+.description {
+  margin: 0.2rem 0 0;
+  color: var(--text-muted);
+}
+
+.qty {
+  font-weight: 700;
+  color: var(--accent-400);
+}

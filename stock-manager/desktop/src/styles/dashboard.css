@@ -1,0 +1,34 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-charts .card {
+  height: 100%;
+}
+
+.card-body {
+  margin-top: 10px;
+}
+
+.table-actions {
+  text-align: right;
+}
+
+.link-button {
+  color: var(--accent-1);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tables-grid .card-header h3,
+.card-header h3,
+.card-header h2,
+.card-header h1 {
+  color: var(--text-primary);
+}
+
+.loading-banner#dashboard-error {
+  border-color: rgba(239, 68, 68, 0.4);
+}
