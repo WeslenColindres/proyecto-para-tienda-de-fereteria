@@ -7,14 +7,14 @@
 -- MODULO DE SEGURIDAD Y USUARIOS
 -- =====================================================
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id_rol SERIAL PRIMARY KEY,
     nombre VARCHAR(50) UNIQUE NOT NULL,
     descripcion TEXT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
     id_usuario SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE usuarios (
     fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE permisos (
+CREATE TABLE IF NOT EXISTS permisos (
     id_permiso SERIAL PRIMARY KEY,
     modulo VARCHAR(50) NOT NULL,
     accion VARCHAR(50) NOT NULL,
@@ -37,14 +37,14 @@ CREATE TABLE permisos (
     UNIQUE(modulo, accion)
 );
 
-CREATE TABLE roles_permisos (
+CREATE TABLE IF NOT EXISTS roles_permisos (
     id_rol INT REFERENCES roles(id_rol) ON DELETE CASCADE,
     id_permiso INT REFERENCES permisos(id_permiso) ON DELETE CASCADE,
     fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_rol, id_permiso)
 );
 
-CREATE TABLE sesiones (
+CREATE TABLE IF NOT EXISTS sesiones (
     id_sesion UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_usuario INT REFERENCES usuarios(id_usuario),
     token_sesion VARCHAR(255) UNIQUE NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE sesiones (
 -- MODULO DE CONFIGURACION EMPRESARIAL
 -- =====================================================
 
-CREATE TABLE empresa (
+CREATE TABLE IF NOT EXISTS empresa (
     id_empresa SERIAL PRIMARY KEY,
     nombre_comercial VARCHAR(150) NOT NULL,
     razon_social VARCHAR(150) NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE empresa (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE sucursales (
+CREATE TABLE IF NOT EXISTS sucursales (
     id_sucursal SERIAL PRIMARY KEY,
     id_empresa INT REFERENCES empresa(id_empresa),
     codigo_sucursal VARCHAR(20) UNIQUE NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE sucursales (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE configuracion_fel (
+CREATE TABLE IF NOT EXISTS configuracion_fel (
     id_config_fel SERIAL PRIMARY KEY,
     id_sucursal INT REFERENCES sucursales(id_sucursal),
     proveedor_certificador VARCHAR(50) NOT NULL,
@@ -112,14 +112,14 @@ CREATE TABLE configuracion_fel (
 -- MODULO DE CLIENTES
 -- =====================================================
 
-CREATE TABLE tipos_cliente (
+CREATE TABLE IF NOT EXISTS tipos_cliente (
     id_tipo_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(50) UNIQUE NOT NULL,
     descuento_predeterminado DECIMAL(5,2) DEFAULT 0.00,
     descripcion TEXT
 );
 
-CREATE TABLE clientes (
+CREATE TABLE IF NOT EXISTS clientes (
     id_cliente SERIAL PRIMARY KEY,
     nit VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(150) NOT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE clientes (
     fecha_ultima_compra TIMESTAMP
 );
 
-CREATE TABLE direcciones_cliente (
+CREATE TABLE IF NOT EXISTS direcciones_cliente (
     id_direccion SERIAL PRIMARY KEY,
     id_cliente INT REFERENCES clientes(id_cliente) ON DELETE CASCADE,
     tipo_direccion VARCHAR(20),
@@ -148,7 +148,7 @@ CREATE TABLE direcciones_cliente (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE contactos_cliente (
+CREATE TABLE IF NOT EXISTS contactos_cliente (
     id_contacto SERIAL PRIMARY KEY,
     id_cliente INT REFERENCES clientes(id_cliente) ON DELETE CASCADE,
     nombre_contacto VARCHAR(100) NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE contactos_cliente (
 -- MODULO DE PROVEEDORES
 -- =====================================================
 
-CREATE TABLE proveedores (
+CREATE TABLE IF NOT EXISTS proveedores (
     id_proveedor SERIAL PRIMARY KEY,
     nit VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(150) NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE proveedores (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE contactos_proveedor (
+CREATE TABLE IF NOT EXISTS contactos_proveedor (
     id_contacto SERIAL PRIMARY KEY,
     id_proveedor INT REFERENCES proveedores(id_proveedor) ON DELETE CASCADE,
     nombre_contacto VARCHAR(100) NOT NULL,
@@ -191,7 +191,7 @@ CREATE TABLE contactos_proveedor (
 -- MODULO DE PRODUCTOS E INVENTARIO
 -- =====================================================
 
-CREATE TABLE categorias (
+CREATE TABLE IF NOT EXISTS categorias (
     id_categoria SERIAL PRIMARY KEY,
     nombre VARCHAR(100) UNIQUE NOT NULL,
     descripcion TEXT,
@@ -200,14 +200,14 @@ CREATE TABLE categorias (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE unidades_medida (
+CREATE TABLE IF NOT EXISTS unidades_medida (
     id_unidad SERIAL PRIMARY KEY,
     codigo VARCHAR(10) UNIQUE NOT NULL,
     nombre VARCHAR(50) NOT NULL,
     descripcion TEXT
 );
 
-CREATE TABLE productos (
+CREATE TABLE IF NOT EXISTS productos (
     id_producto SERIAL PRIMARY KEY,
     sku VARCHAR(50) UNIQUE NOT NULL,
     codigo_barras VARCHAR(50) UNIQUE,
@@ -224,7 +224,7 @@ CREATE TABLE productos (
     fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE precios_producto (
+CREATE TABLE IF NOT EXISTS precios_producto (
     id_precio SERIAL PRIMARY KEY,
     id_producto INT REFERENCES productos(id_producto) ON DELETE CASCADE,
     tipo_precio VARCHAR(20) NOT NULL,
@@ -237,7 +237,7 @@ CREATE TABLE precios_producto (
     UNIQUE(id_producto, tipo_precio, fecha_vigencia_inicio)
 );
 
-CREATE TABLE configuracion_inventario (
+CREATE TABLE IF NOT EXISTS configuracion_inventario (
     id_config SERIAL PRIMARY KEY,
     id_producto INT REFERENCES productos(id_producto) ON DELETE CASCADE,
     id_sucursal INT REFERENCES sucursales(id_sucursal),
@@ -250,7 +250,7 @@ CREATE TABLE configuracion_inventario (
     UNIQUE(id_producto, id_sucursal)
 );
 
-CREATE TABLE stock_producto (
+CREATE TABLE IF NOT EXISTS stock_producto (
     id_stock SERIAL PRIMARY KEY,
     id_producto INT REFERENCES productos(id_producto),
     id_sucursal INT REFERENCES sucursales(id_sucursal),
@@ -265,7 +265,7 @@ CREATE TABLE stock_producto (
 -- MODULO DE IMPUESTOS
 -- =====================================================
 
-CREATE TABLE tipos_impuesto (
+CREATE TABLE IF NOT EXISTS tipos_impuesto (
     id_tipo_impuesto SERIAL PRIMARY KEY,
     codigo VARCHAR(10) UNIQUE NOT NULL,
     nombre VARCHAR(50) NOT NULL,
@@ -277,7 +277,7 @@ CREATE TABLE tipos_impuesto (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE productos_impuestos (
+CREATE TABLE IF NOT EXISTS productos_impuestos (
     id_producto INT REFERENCES productos(id_producto) ON DELETE CASCADE,
     id_tipo_impuesto INT REFERENCES tipos_impuesto(id_tipo_impuesto),
     exento BOOLEAN DEFAULT FALSE,
@@ -289,7 +289,7 @@ CREATE TABLE productos_impuestos (
 -- MODULO DE VENTAS (COMPLETO)
 -- =====================================================
 
-CREATE TABLE formas_pago (
+CREATE TABLE IF NOT EXISTS formas_pago (
     id_forma_pago SERIAL PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(50) NOT NULL,
@@ -298,7 +298,7 @@ CREATE TABLE formas_pago (
     activa BOOLEAN DEFAULT TRUE
 );
 
-CREATE TABLE series_documentos (
+CREATE TABLE IF NOT EXISTS series_documentos (
     id_serie SERIAL PRIMARY KEY,
     id_sucursal INT REFERENCES sucursales(id_sucursal),
     tipo_documento VARCHAR(20) NOT NULL,
@@ -313,7 +313,7 @@ CREATE TABLE series_documentos (
     UNIQUE(id_sucursal, tipo_documento, serie)
 );
 
-CREATE TABLE ventas (
+CREATE TABLE IF NOT EXISTS ventas (
     id_venta SERIAL PRIMARY KEY,
     uuid_interno UUID UNIQUE DEFAULT gen_random_uuid(),
     id_sucursal INT REFERENCES sucursales(id_sucursal),
@@ -346,7 +346,7 @@ CREATE TABLE ventas (
     fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE detalle_ventas (
+CREATE TABLE IF NOT EXISTS detalle_ventas (
     id_detalle_venta SERIAL PRIMARY KEY,
     id_venta INT REFERENCES ventas(id_venta) ON DELETE CASCADE,
     numero_linea INT NOT NULL,
@@ -364,14 +364,14 @@ CREATE TABLE detalle_ventas (
     UNIQUE(id_venta, numero_linea)
 );
 
-CREATE TABLE detalle_ventas_impuestos (
+CREATE TABLE IF NOT EXISTS detalle_ventas_impuestos (
     id_detalle_venta INT REFERENCES detalle_ventas(id_detalle_venta) ON DELETE CASCADE,
     id_tipo_impuesto INT REFERENCES tipos_impuesto(id_tipo_impuesto),
     monto_impuesto DECIMAL(12,2) NOT NULL,
     PRIMARY KEY (id_detalle_venta, id_tipo_impuesto)
 );
 
-CREATE TABLE pagos_venta (
+CREATE TABLE IF NOT EXISTS pagos_venta (
     id_pago SERIAL PRIMARY KEY,
     id_venta INT REFERENCES ventas(id_venta) ON DELETE CASCADE,
     id_forma_pago INT REFERENCES formas_pago(id_forma_pago),
@@ -391,7 +391,7 @@ CREATE TABLE pagos_venta (
 -- MODULO DE COMPRAS
 -- =====================================================
 
-CREATE TABLE ordenes_compra (
+CREATE TABLE IF NOT EXISTS ordenes_compra (
     id_orden_compra SERIAL PRIMARY KEY,
     numero_orden VARCHAR(50) UNIQUE NOT NULL,
     id_proveedor INT REFERENCES proveedores(id_proveedor),
@@ -407,7 +407,7 @@ CREATE TABLE ordenes_compra (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE detalle_orden_compra (
+CREATE TABLE IF NOT EXISTS detalle_orden_compra (
     id_detalle_orden SERIAL PRIMARY KEY,
     id_orden_compra INT REFERENCES ordenes_compra(id_orden_compra) ON DELETE CASCADE,
     numero_linea INT NOT NULL,
@@ -423,7 +423,7 @@ CREATE TABLE detalle_orden_compra (
 -- KARDEX Y MOVIMIENTOS DE INVENTARIO
 -- =====================================================
 
-CREATE TABLE tipos_movimiento (
+CREATE TABLE IF NOT EXISTS tipos_movimiento (
     id_tipo_movimiento SERIAL PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(50) NOT NULL,
@@ -433,7 +433,7 @@ CREATE TABLE tipos_movimiento (
     activo BOOLEAN DEFAULT TRUE
 );
 
-CREATE TABLE kardex_inventario (
+CREATE TABLE IF NOT EXISTS kardex_inventario (
     id_movimiento SERIAL PRIMARY KEY,
     id_producto INT REFERENCES productos(id_producto),
     id_sucursal INT REFERENCES sucursales(id_sucursal),
@@ -457,7 +457,7 @@ CREATE TABLE kardex_inventario (
 -- MODULO DE AUDITORIA COMPLETA
 -- =====================================================
 
-CREATE TABLE auditoria_general (
+CREATE TABLE IF NOT EXISTS auditoria_general (
     id_auditoria BIGSERIAL PRIMARY KEY,
     tabla_afectada VARCHAR(50) NOT NULL,
     id_registro_afectado INT NOT NULL,
@@ -474,7 +474,7 @@ CREATE TABLE auditoria_general (
     CONSTRAINT idx_auditoria_tabla_registro CHECK (tabla_afectada IS NOT NULL AND id_registro_afectado IS NOT NULL)
 );
 
-CREATE TABLE auditoria_accesos (
+CREATE TABLE IF NOT EXISTS auditoria_accesos (
     id_acceso BIGSERIAL PRIMARY KEY,
     id_usuario INT REFERENCES usuarios(id_usuario),
     tipo_evento VARCHAR(30) NOT NULL,
@@ -485,7 +485,7 @@ CREATE TABLE auditoria_accesos (
     fecha_evento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE auditoria_documentos_fel (
+CREATE TABLE IF NOT EXISTS auditoria_documentos_fel (
     id_auditoria_fel SERIAL PRIMARY KEY,
     id_venta INT REFERENCES ventas(id_venta),
     tipo_operacion VARCHAR(30),
@@ -502,20 +502,20 @@ CREATE TABLE auditoria_documentos_fel (
 -- INDICES PARA OPTIMIZACION
 -- =====================================================
 
-CREATE INDEX idx_ventas_cliente ON ventas(id_cliente);
-CREATE INDEX idx_ventas_fecha ON ventas(fecha_venta);
-CREATE INDEX idx_ventas_estado ON ventas(estado);
-CREATE INDEX idx_ventas_uuid_sat ON ventas(uuid_sat);
-CREATE INDEX idx_detalle_ventas_producto ON detalle_ventas(id_producto);
-CREATE INDEX idx_kardex_producto ON kardex_inventario(id_producto);
-CREATE INDEX idx_kardex_fecha ON kardex_inventario(fecha_movimiento);
-CREATE INDEX idx_kardex_sucursal ON kardex_inventario(id_sucursal);
-CREATE INDEX idx_stock_producto_sucursal ON stock_producto(id_producto, id_sucursal);
-CREATE INDEX idx_productos_sku ON productos(sku);
-CREATE INDEX idx_productos_codigo_barras ON productos(codigo_barras);
-CREATE INDEX idx_auditoria_tabla_id ON auditoria_general(tabla_afectada, id_registro_afectado);
-CREATE INDEX idx_auditoria_fecha ON auditoria_general(fecha_operacion);
-CREATE INDEX idx_auditoria_usuario ON auditoria_general(id_usuario);
+CREATE INDEX IF NOT EXISTS idx_ventas_cliente ON ventas(id_cliente);
+CREATE INDEX IF NOT EXISTS idx_ventas_fecha ON ventas(fecha_venta);
+CREATE INDEX IF NOT EXISTS idx_ventas_estado ON ventas(estado);
+CREATE INDEX IF NOT EXISTS idx_ventas_uuid_sat ON ventas(uuid_sat);
+CREATE INDEX IF NOT EXISTS idx_detalle_ventas_producto ON detalle_ventas(id_producto);
+CREATE INDEX IF NOT EXISTS idx_kardex_producto ON kardex_inventario(id_producto);
+CREATE INDEX IF NOT EXISTS idx_kardex_fecha ON kardex_inventario(fecha_movimiento);
+CREATE INDEX IF NOT EXISTS idx_kardex_sucursal ON kardex_inventario(id_sucursal);
+CREATE INDEX IF NOT EXISTS idx_stock_producto_sucursal ON stock_producto(id_producto, id_sucursal);
+CREATE INDEX IF NOT EXISTS idx_productos_sku ON productos(sku);
+CREATE INDEX IF NOT EXISTS idx_productos_codigo_barras ON productos(codigo_barras);
+CREATE INDEX IF NOT EXISTS idx_auditoria_tabla_id ON auditoria_general(tabla_afectada, id_registro_afectado);
+CREATE INDEX IF NOT EXISTS idx_auditoria_fecha ON auditoria_general(fecha_operacion);
+CREATE INDEX IF NOT EXISTS idx_auditoria_usuario ON auditoria_general(id_usuario);
 
 -- =====================================================
 -- TRIGGERS PARA AUDITORIA AUTOMATICA
@@ -581,10 +581,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS audit_productos ON productos;
 CREATE TRIGGER audit_productos
 AFTER INSERT OR UPDATE OR DELETE ON productos
 FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 
+DROP TRIGGER IF EXISTS audit_precios ON precios_producto;
 CREATE TRIGGER audit_precios
 AFTER INSERT OR UPDATE OR DELETE ON precios_producto
 FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
@@ -616,7 +618,7 @@ LEFT JOIN configuracion_inventario ci ON p.id_producto = ci.id_producto
     AND sp.id_sucursal = ci.id_sucursal
 WHERE p.activo = TRUE AND p.es_inventariable = TRUE;
 
-CREATE VIEW vista_ventas_rentabilidad AS
+CREATE OR REPLACE VIEW vista_ventas_rentabilidad AS
 SELECT 
     v.id_venta,
     v.numero_documento,
@@ -625,7 +627,9 @@ SELECT
     v.total_final,
     SUM(dv.cantidad * dv.costo_unitario_momento) AS costo_total,
     v.total_final - SUM(dv.cantidad * dv.costo_unitario_momento) AS ganancia_bruta,
-    ((v.total_final - SUM(dv.cantidad * dv.costo_unitario_momento)) / v.total_final * 100) AS margen_porcentaje
+    CASE WHEN v.total_final > 0 THEN
+        ((v.total_final - SUM(dv.cantidad * dv.costo_unitario_momento)) / v.total_final * 100)
+    ELSE 0 END AS margen_porcentaje
 FROM ventas v
 INNER JOIN detalle_ventas dv ON v.id_venta = dv.id_venta
 LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
