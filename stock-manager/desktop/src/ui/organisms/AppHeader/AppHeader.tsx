@@ -1,12 +1,22 @@
+import NotificationBadge from '@/ui/atoms/NotificationBadge/NotificationBadge';
+
 type HeaderProps = {
   viewTitle: string;
   onToggleSidebar: () => void;
   onShowNotifications: () => void;
   onToggleTheme: () => void;
   onTogglePalette: () => void;
+  unreadCount: number;
 };
 
-const AppHeader = ({ viewTitle, onToggleSidebar, onShowNotifications, onToggleTheme, onTogglePalette }: HeaderProps) => {
+const AppHeader = ({
+  viewTitle,
+  onToggleSidebar,
+  onShowNotifications,
+  onToggleTheme,
+  onTogglePalette,
+  unreadCount,
+}: HeaderProps) => {
   return (
     <nav className="app-header">
       <div className="header-left">
@@ -22,7 +32,7 @@ const AppHeader = ({ viewTitle, onToggleSidebar, onShowNotifications, onToggleTh
         </button>
         <button className="icon-button has-badge" aria-label="Notificaciones" onClick={onShowNotifications}>
           🔔
-          <span className="badge">3</span>
+          <NotificationBadge count={unreadCount} />
         </button>
         <div className="user-dropdown">
           <button className="user-avatar" aria-haspopup="true" aria-expanded="false">

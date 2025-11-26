@@ -305,8 +305,13 @@ export class ProductController {
               id: randomUUID(),
               productId: product.id,
               warehouseId: defaultWarehouse.id,
+              branchId: defaultWarehouse.id,
               stock: stockValue ?? 0,
+              available: stockValue ?? 0,
+              reserved: 0,
+              inTransit: 0,
               lastMovementAt: now,
+              lastUpdated: now,
             });
             syncStockAlerts(store, product);
             pushAuditLog(store, {
@@ -335,14 +340,21 @@ export class ProductController {
               const stockEntry = store.productStock.find((s) => s.productId === existing.id);
               if (stockEntry) {
                 stockEntry.stock = stockValue;
+                stockEntry.available = stockValue;
                 stockEntry.lastMovementAt = now;
+                stockEntry.lastUpdated = now;
               } else {
                 store.productStock.push({
                   id: randomUUID(),
                   productId: existing.id,
                   warehouseId: defaultWarehouse.id,
+                  branchId: defaultWarehouse.id,
                   stock: stockValue,
+                  available: stockValue,
+                  reserved: 0,
+                  inTransit: 0,
                   lastMovementAt: now,
+                  lastUpdated: now,
                 });
               }
             }

@@ -2,7 +2,15 @@ import { ApiError } from './types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
 
-// Construir cabeceras incluyendo el token de seguridad de la aplicación
+const resolveBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    const desktopBase = (window as any)?.stockManager?.apiBaseUrl;
+    if (desktopBase) return String(desktopBase).replace(/\/$/, '');
+  }
+  return API_BASE_URL.replace(/\/$/, '');
+};
+
+// Construye cabeceras seguras para cada request
 const buildHeaders = (init?: RequestInit) => {
   const headers = new Headers(init?.headers as any);
   const isFormData = init?.body instanceof FormData;
@@ -11,15 +19,14 @@ const buildHeaders = (init?: RequestInit) => {
     headers.set('Content-Type', 'application/json');
   }
 
-  // HEADER DE SEGURIDAD: Identifica que la petición viene de esta App Desktop
-  // El backend rechazará cualquier petición que no tenga este valor exacto.
+  // Header de seguridad: identifica que la petición viene de la App Desktop
   headers.set('X-Source-App', 'stock-manager-desktop');
 
   return headers;
 };
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${resolveBaseUrl()}${path}`, {
     ...init,
     headers: buildHeaders(init),
   });
@@ -35,7 +42,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 }
 
 export async function apiFetchBlob(path: string, init?: RequestInit): Promise<Blob> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${resolveBaseUrl()}${path}`, {
     ...init,
     headers: buildHeaders(init),
   });

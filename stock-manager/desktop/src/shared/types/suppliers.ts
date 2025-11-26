@@ -21,8 +21,8 @@ export type SupplierItem = {
   creditLimit: number;
   lastPurchase?: string;
   lastDocument?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  readonly createdAt?: string; // fecha_creacion
+  readonly updatedAt?: string; // fecha_modificacion
 };
 
 export type SupplierPurchaseRow = {

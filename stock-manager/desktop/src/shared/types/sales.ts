@@ -58,6 +58,14 @@ export type SaleItem = {
   qty: number;
   price: number;
   subtotal: number;
+  // Nuevos campos de línea
+  lineNumber?: number; // numero_linea
+  discountPercentage?: number; // descuento_porcentaje
+  discountAmount?: number; // descuento_monto
+  lineSubtotal?: number; // subtotal_linea
+  lineTaxTotal?: number; // total_impuestos_linea
+  lineTotal?: number; // total_linea
+  readonly costAtMoment?: number; // costo_unitario_momento
 };
 
 export type SaleDetail = {
@@ -73,6 +81,25 @@ export type SaleDetail = {
   tax: number;
   total: number;
   status: SaleStatus;
+  // FEL Guatemala
+  readonly internalUuid?: string; // uuid_interno
+  seriesId?: string; // id_serie
+  readonly satUuid?: string; // uuid_sat
+  readonly satAuthNumber?: string; // numero_autorizacion_sat
+  readonly satSeries?: string; // serie_sat
+  readonly satNumber?: number; // numero_sat
+  readonly certificationDate?: string; // fecha_certificacion
+  // Descuentos y totales
+  totalDiscounts?: number; // total_descuentos
+  // Certificación
+  requiresCertification?: boolean;
+  readonly certificationAttempts?: number;
+  readonly certificationError?: string;
+  // Gestión
+  dueDate?: string; // fecha_vencimiento
+  readonly cancelledAt?: string; // fecha_anulacion
+  cancellationReason?: string; // motivo_anulacion
+  payments?: SalePayment[]; // pagos asociados
 };
 
 export type SaleListResponse = {
@@ -102,4 +129,20 @@ export type SaleRow = {
   time: string; // '2m 45s'
   originDocument?: string;
   reason?: string;
+};
+
+// Pagos asociados a una venta
+export type SalePayment = {
+  id?: string;
+  saleId: string;
+  paymentMethodId: string;
+  amount: number;
+  authorizationNumber?: string;
+  referenceNumber?: string;
+  bank?: string;
+  checkNumber?: string;
+  status: 'PENDIENTE' | 'ACREDITADO' | 'RECHAZADO';
+  paymentDate: string;
+  readonly creditDate?: string;
+  notes?: string;
 };

@@ -15,6 +15,8 @@ export type RealtimeEvent =
   | { type: 'customer.created'; payload: unknown }
   | { type: 'customer.updated'; payload: unknown }
   | { type: 'customer.deleted'; payload: unknown }
+  | { type: 'notification.created'; payload: unknown }
+  | { type: 'notification.read'; payload: unknown }
   | { type: 'system.update_available'; payload: unknown }
   | { type: 'ready' };
 

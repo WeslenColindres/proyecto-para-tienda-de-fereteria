@@ -76,7 +76,7 @@ importers:
         specifier: ^22.5.0
         version: 22.19.1
       '@types/pg':
-        specifier: ^8.11.10
+        specifier: ^8.15.6
         version: 8.15.6
       '@types/ws':
         specifier: ^8.18.1

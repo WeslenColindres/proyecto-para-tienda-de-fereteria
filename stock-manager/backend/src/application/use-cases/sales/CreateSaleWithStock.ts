@@ -7,6 +7,7 @@ import { generateDocNumber } from '../../utils/docNumber';
 import { roundMoney } from '../../utils/money';
 import { syncStockAlerts } from '../../utils/stockAlerts';
 import { pushAuditLog } from '../../utils/audit';
+import { logger } from '../../../infrastructure/logger';
 
 const saleDocPlaceholder = () => 'VENTA';
 
@@ -30,92 +31,102 @@ export class CreateSaleWithStock {
   async execute(input: NewSaleInput): Promise<Sale> {
     this.validateInput(input);
 
-    const sale = await this.store.withStoreLock((store) => {
-      const docNumber = generateDocNumber(store);
-      const saleItems = input.items.map((item) => {
-        const product = store.products.find((p) => p.id === item.productId);
-        if (!product) {
-          throw new DomainError('PRODUCT_NOT_FOUND', `Producto no encontrado: ${item.productId}`, 404);
-        }
-        if (product.status !== 'activo') {
-          throw new DomainError('PRODUCT_INACTIVE', `Producto inactivo: ${product.code}`, 409);
-        }
-        if (product.stock < item.qty) {
-          throw new DomainError(
-            'NO_STOCK',
-            `No hay stock suficiente para ${product.code}. Stock actual: ${product.stock}, solicitado: ${item.qty}`,
-            409,
-          );
-        }
-
-        const price = typeof item.price === 'number' ? item.price : product.price;
-        const subtotal = roundMoney(price * item.qty);
-
-        return {
-          productId: product.id,
-          code: product.code,
-          name: product.name,
-          qty: item.qty,
-          price: roundMoney(price),
-          subtotal,
-        };
-      });
-
-      saleItems.forEach((item) => {
-        const product = store.products.find((p) => p.id === item.productId);
-        if (product) {
-          product.stock -= item.qty;
-          const stockEntry = store.productStock.find((ps) => ps.productId === product.id);
-          if (stockEntry) {
-            stockEntry.stock -= item.qty;
-            stockEntry.lastMovementAt = new Date().toISOString();
+    try {
+      const sale = await this.store.withStoreLock((store) => {
+        const docNumber = generateDocNumber(store);
+        const saleItems = input.items.map((item) => {
+          const product = store.products.find((p) => p.id === item.productId);
+          if (!product) {
+            throw new DomainError('PRODUCT_NOT_FOUND', `Producto no encontrado: ${item.productId}`, 404);
           }
-          store.inventoryMovements.push({
-            id: randomUUID(),
+          if (product.status !== 'activo') {
+            throw new DomainError('PRODUCT_INACTIVE', `Producto inactivo: ${product.code}`, 409);
+          }
+          if (product.stock < item.qty) {
+            throw new DomainError(
+              'NO_STOCK',
+              `No hay stock suficiente para ${product.code}. Stock actual: ${product.stock}, solicitado: ${item.qty}`,
+              409,
+            );
+          }
+
+          const price = typeof item.price === 'number' ? item.price : product.price;
+          const subtotal = roundMoney(price * item.qty);
+
+          return {
             productId: product.id,
-            warehouseId: stockEntry?.warehouseId ?? store.warehouses[0]?.id ?? 'wh-main',
-            type: 'salida',
-            qty: item.qty * -1,
-            balance: product.stock,
-            document: docNumber,
-            datetime: new Date().toISOString(),
-            createdBy: input.user,
-          });
-          syncStockAlerts(store, product);
-          pushAuditLog(store, {
-            action: 'stock_out',
-            entityType: 'product',
-            entityId: product.id,
-            before: null,
-            after: { stock: product.stock },
-          });
-        }
+            code: product.code,
+            name: product.name,
+            qty: item.qty,
+            price: roundMoney(price),
+            subtotal,
+          };
+        });
+
+        saleItems.forEach((item) => {
+          const product = store.products.find((p) => p.id === item.productId);
+          if (product) {
+            product.stock -= item.qty;
+            const stockEntry = store.productStock.find((ps) => ps.productId === product.id);
+            if (stockEntry) {
+              stockEntry.stock = (stockEntry.stock ?? stockEntry.available ?? 0) - item.qty;
+              stockEntry.available = (stockEntry.available ?? stockEntry.stock ?? 0) - item.qty;
+              stockEntry.lastMovementAt = new Date().toISOString();
+              stockEntry.lastUpdated = stockEntry.lastMovementAt;
+            }
+            store.inventoryMovements.push({
+              id: randomUUID(),
+              productId: product.id,
+              warehouseId: stockEntry?.warehouseId ?? store.warehouses[0]?.id ?? 'wh-main',
+              type: 'salida',
+              qty: item.qty * -1,
+              balance: product.stock,
+              document: docNumber,
+              datetime: new Date().toISOString(),
+              createdBy: input.user,
+            });
+            syncStockAlerts(store, product);
+            pushAuditLog(store, {
+              action: 'stock_out',
+              entityType: 'product',
+              entityId: product.id,
+              before: null,
+              after: { stock: product.stock },
+            });
+          }
+        });
+
+        const subtotal = roundMoney(saleItems.reduce((acc, it) => acc + it.subtotal, 0));
+        const tax = roundMoney(subtotal * 0.12);
+        const total = roundMoney(subtotal + tax);
+
+        const saleProps = {
+          id: randomUUID(),
+          docNumber,
+          docType: input.docType,
+          datetime: new Date().toISOString(),
+          clientName: input.clientName.trim(),
+          clientNit: input.clientNit.trim(),
+          user: input.user.trim(),
+          items: saleItems,
+          subtotal,
+          tax,
+          total,
+          status: 'pagada' as const,
+        };
+
+        store.sales.push(saleProps);
+        return new Sale(saleProps);
       });
 
-      const subtotal = roundMoney(saleItems.reduce((acc, it) => acc + it.subtotal, 0));
-      const tax = roundMoney(subtotal * 0.12);
-      const total = roundMoney(subtotal + tax);
-
-      const saleProps = {
-        id: randomUUID(),
-        docNumber,
-        docType: input.docType,
-        datetime: new Date().toISOString(),
-        clientName: input.clientName.trim(),
-        clientNit: input.clientNit.trim(),
-        user: input.user.trim(),
-        items: saleItems,
-        subtotal,
-        tax,
-        total,
-        status: 'pagada' as const,
-      };
-
-      store.sales.push(saleProps);
-      return new Sale(saleProps);
-    });
-
-    return sale;
+      return sale;
+    } catch (error) {
+      logger.error('CreateSaleWithStock fallo', {
+        error,
+        input: { docType: input.docType, clientNit: input.clientNit, user: input.user, items: input.items?.length },
+      });
+      throw error;
+    }
   }
 
   private validateInput(input: NewSaleInput) {

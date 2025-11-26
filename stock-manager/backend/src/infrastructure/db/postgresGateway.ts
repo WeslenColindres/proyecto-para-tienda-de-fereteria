@@ -21,8 +21,8 @@ export class PostgresGateway {
   async query<T = unknown>(sql: string, params?: any[]): Promise<T[]> {
     const client = await this.pool.connect();
     try {
-      const result: QueryResult<T> = await client.query(sql, params);
-      return result.rows;
+      const result = await client.query(sql, params);
+      return result.rows as T[];
     } finally {
       client.release();
     }

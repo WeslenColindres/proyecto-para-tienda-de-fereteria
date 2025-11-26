@@ -3,10 +3,13 @@ export type ProductStatus = 'activo' | 'inactivo' | 'descontinuado';
 export interface ProductProps {
   id: string;
   code: string;
+  sku?: string;
+  barcode?: string;
   name: string;
   description?: string;
   categoryId?: string;
-  barcode?: string;
+  unitId?: string;
+  supplierId?: string;
   cost: number;
   price: number;
   tax: number;
@@ -14,6 +17,15 @@ export interface ProductProps {
   status: ProductStatus;
   stock: number;
   minStock: number;
+  // Flags operativos
+  isInventoriable?: boolean;
+  isSellable?: boolean;
+  isPurchasable?: boolean;
+  // Configuración de inventario
+  reorderPoint?: number;
+  maxStock?: number;
+  physicalLocation?: string;
+  // Auditoría
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
@@ -26,7 +38,14 @@ export class Product {
   private props: ProductProps;
 
   constructor(props: ProductProps) {
-    this.props = props;
+    this.props = {
+      ...props,
+      sku: props.sku ?? props.code,
+      barcode: props.barcode ?? props.code,
+      isInventoriable: props.isInventoriable ?? true,
+      isSellable: props.isSellable ?? true,
+      isPurchasable: props.isPurchasable ?? true,
+    };
   }
 
   get id(): string {
@@ -35,6 +54,10 @@ export class Product {
 
   get code(): string {
     return this.props.code;
+  }
+
+  get sku(): string | undefined {
+    return this.props.sku;
   }
 
   get name(): string {
@@ -62,7 +85,7 @@ export class Product {
   }
 
   get isActive(): boolean {
-    return this.props.status !== 'descontinuado' && !this.props.deletedAt;
+    return (this.props.status !== 'descontinuado' && !this.props.deletedAt) || this.props.active === true;
   }
 
   changeStock(newStock: number): void {
@@ -87,6 +110,14 @@ export class Product {
     if (partial.status !== undefined) this.props.status = partial.status;
     if (partial.deletedAt !== undefined) this.props.deletedAt = partial.deletedAt;
     if (partial.updatedBy !== undefined) this.props.updatedBy = partial.updatedBy;
+    if (partial.sku !== undefined) this.props.sku = partial.sku;
+    if (partial.supplierId !== undefined) this.props.supplierId = partial.supplierId;
+    if (partial.isInventoriable !== undefined) this.props.isInventoriable = partial.isInventoriable;
+    if (partial.isSellable !== undefined) this.props.isSellable = partial.isSellable;
+    if (partial.isPurchasable !== undefined) this.props.isPurchasable = partial.isPurchasable;
+    if (partial.reorderPoint !== undefined) this.props.reorderPoint = partial.reorderPoint;
+    if (partial.maxStock !== undefined) this.props.maxStock = partial.maxStock;
+    if (partial.physicalLocation !== undefined) this.props.physicalLocation = partial.physicalLocation;
     this.props.updatedAt = new Date().toISOString();
   }
 

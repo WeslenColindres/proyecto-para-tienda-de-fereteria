@@ -3,11 +3,14 @@ export type ProductStatus = 'activo' | 'inactivo' | 'descontinuado';
 export type ProductItem = {
   id: string;
   code: string;
+  sku?: string; // alias/codigo alterno
   name: string;
   description?: string;
   category?: string;
   categoryId?: string;
   categoryName?: string;
+  // Relaciones
+  supplierId?: string; // id_proveedor_principal
   stock: number;
   minStock: number;
   price: number;
@@ -18,7 +21,17 @@ export type ProductItem = {
   status: ProductStatus;
   active?: boolean;
   alertLevel?: 'critical' | 'warning' | 'info';
-  updatedAt?: string;
+  // Flags de inventario/venta
+  isInventoriable?: boolean; // es_inventariable
+  isSellable?: boolean; // es_vendible
+  isPurchasable?: boolean; // es_comprable
+  // Inventario avanzado
+  reorderPoint?: number; // punto_reorden
+  maxStock?: number; // stock_maximo
+  physicalLocation?: string; // ubicacion_fisica
+  // Metadatos
+  readonly createdAt?: string; // fecha_creacion
+  readonly updatedAt?: string; // fecha_modificacion
 };
 
 export type InventoryMovement = {
@@ -30,6 +43,18 @@ export type InventoryMovement = {
   datetime: string;
   document?: string;
   user?: string;
+  // Auditoría extendida
+  movementTypeId?: string;
+  sourceDocument?: string;
+  sourceDocumentId?: string;
+  unitCost?: number;
+  totalCost?: number;
+  readonly previousStock?: number;
+  readonly newStock?: number;
+  readonly userId?: string;
+  reason?: string;
+  readonly ipAddress?: string;
+  additionalData?: Record<string, any>;
 };
 
 export type InventoryKpi = {
@@ -124,4 +149,14 @@ export type ImportSummary = {
   inserted: number;
   updated: number;
   errors: Array<{ row: number; message: string }>;
+};
+
+// Stock detallado por sucursal
+export type ProductStock = {
+  productId: string;
+  branchId: string;
+  available: number;
+  readonly reserved: number; // cantidad_reservada
+  readonly inTransit: number; // cantidad_transito
+  readonly lastUpdated: string;
 };

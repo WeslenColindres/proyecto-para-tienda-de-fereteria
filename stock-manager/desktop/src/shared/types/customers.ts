@@ -14,9 +14,17 @@ export type CustomerItem = {
   creditUsed: number;
   discount: number;
   status: CustomerStatus;
-  createdAt?: string;
-  updatedAt?: string;
-  deletedAt?: string | null;
+  // Nuevos campos de negocio
+  commercialName?: string;
+  customerTypeId?: string;
+  birthDate?: string;
+  creditDays?: number;
+  // Auditoría
+  readonly registrationDate?: string;
+  readonly lastPurchaseDate?: string;
+  readonly createdAt?: string;
+  readonly updatedAt?: string;
+  readonly deletedAt?: string | null;
 };
 
 export type CustomerSaleRow = {
@@ -42,4 +50,28 @@ export type CustomerListResponse = {
   total: number;
   page: number;
   pageSize: number;
+};
+
+// Dirección de cliente
+export type CustomerAddress = {
+  id?: string;
+  customerId: string;
+  type: 'FISCAL' | 'ENTREGA' | 'FACTURACION';
+  address: string;
+  department?: string;
+  municipality?: string;
+  zone?: string;
+  reference?: string;
+  isDefault: boolean;
+};
+
+// Contacto de cliente
+export type CustomerContact = {
+  id?: string;
+  customerId: string;
+  name: string;
+  position?: string;
+  email?: string;
+  phone?: string;
+  type?: 'PRINCIPAL' | 'SECUNDARIO' | 'EMERGENCIA';
 };

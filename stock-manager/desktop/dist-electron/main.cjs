@@ -32,6 +32,32 @@ var createWindow = async () => {
   }
   await window.loadFile(rendererHtml);
 };
+import_electron.ipcMain.handle("notification:show", async (_event, { title, body, urgency }) => {
+  try {
+    if (!import_electron.Notification.isSupported()) {
+      console.warn("[electron] Notifications not supported on this system");
+      return { success: false, error: "Notifications not supported" };
+    }
+    const notification = new import_electron.Notification({
+      title,
+      body,
+      urgency: urgency || "normal",
+      timeoutType: "default"
+    });
+    notification.show();
+    return { success: true };
+  } catch (error) {
+    console.error("[electron] Failed to show notification", error);
+    return { success: false, error: String(error) };
+  }
+});
+import_electron.ipcMain.handle("notification:checkPermission", async () => {
+  return {
+    supported: import_electron.Notification.isSupported(),
+    permission: "granted"
+    // En Electron las notificaciones están siempre permitidas si están soportadas
+  };
+});
 import_electron.app.whenReady().then(() => {
   createWindow().catch((error) => {
     console.error("[electron] Failed to create window", error);

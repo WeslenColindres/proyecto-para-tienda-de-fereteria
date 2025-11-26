@@ -4,7 +4,7 @@ import type { CategoryProps } from '../../domain/entities/Category';
 import type { InventoryMovementProps } from '../../domain/entities/InventoryMovement';
 import type { CustomerProps } from '../../domain/entities/Customer';
 import type { ProductProps } from '../../domain/entities/Product';
-import type { ProductStockEntry } from '../../domain/entities/ProductStock';
+import type { ProductStock } from '../../domain/entities/ProductStock';
 import type { SaleProps } from '../../domain/entities/Sale';
 import type { SupplierProps } from '../../domain/entities/Supplier';
 import type { SupplierPurchaseProps } from '../../domain/entities/SupplierPurchase';
@@ -15,7 +15,7 @@ export interface StoreSchema {
   products: ProductProps[];
   categories: CategoryProps[];
   warehouses: WarehouseProps[];
-  productStock: ProductStockEntry[];
+  productStock: ProductStock[];
   inventoryMovements: InventoryMovementProps[];
   alerts: AlertProps[];
   auditLogs: AuditLogProps[];

@@ -8,6 +8,28 @@ export interface SaleItemProps {
   qty: number;
   price: number;
   subtotal: number;
+  lineNumber?: number;
+  discountPercentage?: number;
+  discountAmount?: number;
+  lineSubtotal?: number;
+  lineTaxTotal?: number;
+  lineTotal?: number;
+  costAtMoment?: number;
+}
+
+export interface SalePaymentProps {
+  id?: string;
+  saleId: string;
+  paymentMethodId: string;
+  amount: number;
+  authorizationNumber?: string;
+  referenceNumber?: string;
+  bank?: string;
+  checkNumber?: string;
+  status: 'PENDIENTE' | 'ACREDITADO' | 'RECHAZADO';
+  paymentDate: string;
+  creditDate?: string;
+  notes?: string;
 }
 
 export interface SaleProps {
@@ -23,6 +45,26 @@ export interface SaleProps {
   tax: number;
   total: number;
   status: SaleStatus;
+  // FEL Guatemala
+  internalUuid?: string;
+  seriesId?: string;
+  satUuid?: string;
+  satAuthNumber?: string;
+  satSeries?: string;
+  satNumber?: number;
+  certificationDate?: string;
+  // Totales y descuentos
+  totalDiscounts?: number;
+  // Certificación
+  requiresCertification?: boolean;
+  certificationAttempts?: number;
+  certificationError?: string;
+  // Gestión
+  dueDate?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+  // Pagos
+  payments?: SalePaymentProps[];
 }
 
 export class Sale {
@@ -40,4 +82,3 @@ export class Sale {
     return { ...this.props, items: [...this.props.items] };
   }
 }
-

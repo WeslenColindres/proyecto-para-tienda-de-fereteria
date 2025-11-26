@@ -12,9 +12,12 @@ import { buildCategoryRoutes } from '../../interfaces/http/routes/categoryRoutes
 import { buildInventoryRoutes } from '../../interfaces/http/routes/inventoryRoutes';
 import { buildSupplierRoutes } from '../../interfaces/http/routes/supplierRoutes';
 import { buildCustomerRoutes } from '../../interfaces/http/routes/customerRoutes';
+import notificationRoutes from '../../interfaces/http/routes/notificationRoutes';
+import { notificationRateLimiter } from '../middleware/notificationRateLimiter';
 import { env } from '../../config/env';
 import { logger, stream } from '../logger';
 import { buildSecurityMiddleware } from './middleware/security';
+import { errorHandler } from './middleware/errorHandler';
 
 export function createServer() {
   const app = express();
@@ -74,6 +77,10 @@ export function createServer() {
   app.use('/api/inventory', buildInventoryRoutes(store));
   app.use('/api/suppliers', buildSupplierRoutes(store, realtime));
   app.use('/api/customers', buildCustomerRoutes(store, realtime));
+  app.use('/api/notifications', notificationRateLimiter, notificationRoutes);
+
+  // --- MANEJO DE ERRORES ---
+  app.use(errorHandler);
 
   return { app, httpServer, realtime };
 }

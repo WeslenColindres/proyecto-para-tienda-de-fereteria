@@ -11,6 +11,18 @@ export interface InventoryMovementProps {
   note?: string;
   datetime: string;
   createdBy?: string;
+  // Campos extendidos de auditoría
+  movementTypeId?: string;
+  sourceDocument?: string;
+  sourceDocumentId?: string;
+  unitCost?: number;
+  totalCost?: number;
+  previousStock?: number;
+  newStock?: number;
+  userId?: string;
+  reason?: string;
+  ipAddress?: string;
+  additionalData?: Record<string, unknown>;
 }
 
 export class InventoryMovement {

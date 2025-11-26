@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { SAMPLE_DASHBOARD_DATA } from '../data/dashboard';
 import type { DashboardData } from '../types/dashboard';
-
-const getDashboardEndpoint = () => {
-  const apiBase = (window.stockManager?.apiBaseUrl ?? 'http://localhost:4000').replace(/\/$/, '');
-  return `${apiBase}/api/dashboard`;
-};
+import { apiFetch } from '../api/httpClient';
+import { ApiError } from '../api/types';
+import { ErrorLogger } from '../utils/errorLogger';
 
 export const useDashboardData = () => {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -17,13 +15,14 @@ export const useDashboardData = () => {
       setLoading(true);
       setError(null);
       try {
-        const endpoint = getDashboardEndpoint();
-        const response = await fetch(endpoint);
-        if (!response.ok) throw new Error(`Backend respondio ${response.status}`);
-        const payload = (await response.json()) as DashboardData;
+        const payload = await apiFetch<DashboardData>('/api/dashboard');
         setData(payload);
       } catch (err) {
-        console.error('[Dashboard] Error cargando datos', err);
+        if (err instanceof ApiError) {
+          ErrorLogger.logApiError(err, '/api/dashboard');
+        } else if (err instanceof Error) {
+          ErrorLogger.log(err, { scope: 'dashboard' });
+        }
         setError(err instanceof Error ? err.message : 'Error desconocido');
         setData(SAMPLE_DASHBOARD_DATA);
       } finally {

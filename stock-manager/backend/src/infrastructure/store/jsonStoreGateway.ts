@@ -7,7 +7,7 @@ import type { AuditLogProps } from '../../domain/entities/AuditLog';
 import type { CategoryProps } from '../../domain/entities/Category';
 import type { InventoryMovementProps } from '../../domain/entities/InventoryMovement';
 import type { ProductProps } from '../../domain/entities/Product';
-import type { ProductStockEntry } from '../../domain/entities/ProductStock';
+import type { ProductStock } from '../../domain/entities/ProductStock';
 import type { WarehouseProps } from '../../domain/entities/Warehouse';
 import type { CustomerProps } from '../../domain/entities/Customer';
 import type { SupplierProps } from '../../domain/entities/Supplier';
@@ -160,11 +160,16 @@ const defaultProducts: ProductProps[] = [
   },
 ];
 
-const defaultProductStock: ProductStockEntry[] = defaultProducts.map((p) => ({
+const defaultProductStock: ProductStock[] = defaultProducts.map((p) => ({
   id: `stk-${p.id}`,
   productId: p.id,
+  branchId: 'wh-main',
   warehouseId: 'wh-main',
+  available: p.stock,
   stock: p.stock,
+  reserved: 0,
+  inTransit: 0,
+  lastUpdated: now,
   lastMovementAt: now,
 }));
 
@@ -486,16 +491,16 @@ async function ensureStoreFile(): Promise<void> {
       categories: defaultCategories,
       warehouses: defaultWarehouses,
       productStock: defaultProductStock,
-    inventoryMovements: defaultMovements,
-    alerts: defaultAlerts,
-    auditLogs: defaultAuditLogs,
-    sales: [],
-    suppliers: defaultSuppliers,
-    supplierPurchases: defaultSupplierPurchases,
-    supplierCategories: defaultSupplierCategories,
-    cities: defaultCities,
-    customers: defaultCustomers,
-  };
+      inventoryMovements: defaultMovements,
+      alerts: defaultAlerts,
+      auditLogs: defaultAuditLogs,
+      sales: [],
+      suppliers: defaultSuppliers,
+      supplierPurchases: defaultSupplierPurchases,
+      supplierCategories: defaultSupplierCategories,
+      cities: defaultCities,
+      customers: defaultCustomers,
+    };
     await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
     await fs.writeFile(DATA_FILE, JSON.stringify(initial, null, 2), 'utf8');
   }
@@ -505,10 +510,13 @@ function ensureProductDefaults(product: any, defaultCategoryId?: string): Produc
   const base: ProductProps = {
     id: product.id ?? randomUUID(),
     code: product.code ?? `P-${Math.random().toString(36).slice(2, 6)}`,
+    sku: product.sku ?? product.code,
     name: product.name ?? 'Producto sin nombre',
     description: product.description ?? '',
     categoryId: product.categoryId ?? product.category ?? defaultCategoryId,
     barcode: product.barcode ?? product.code ?? '',
+    unitId: product.unitId,
+    supplierId: product.supplierId,
     cost: typeof product.cost === 'number' ? product.cost : Math.max(Number(product.price ?? 0) * 0.6, 0),
     price: typeof product.price === 'number' ? product.price : 0,
     tax: typeof product.tax === 'number' ? product.tax : 12,
@@ -516,6 +524,12 @@ function ensureProductDefaults(product: any, defaultCategoryId?: string): Produc
     status: product.status ?? (product.active === false ? 'descontinuado' : 'activo'),
     stock: typeof product.stock === 'number' ? product.stock : 0,
     minStock: typeof product.minStock === 'number' ? product.minStock : 0,
+    isInventoriable: product.isInventoriable ?? true,
+    isSellable: product.isSellable ?? true,
+    isPurchasable: product.isPurchasable ?? true,
+    reorderPoint: product.reorderPoint ?? product.minStock ?? 0,
+    maxStock: product.maxStock,
+    physicalLocation: product.physicalLocation,
     createdAt: product.createdAt ?? now,
     updatedAt: product.updatedAt ?? now,
     deletedAt: product.deletedAt ?? null,
@@ -559,7 +573,17 @@ function ensureSupplierDefaults(supplier: Partial<SupplierProps>, catalogs: { ci
 function normalizeStore(parsed: Partial<StoreSchema>): StoreSchema {
   const categories = parsed.categories?.length ? parsed.categories : defaultCategories;
   const warehouses = parsed.warehouses?.length ? parsed.warehouses : defaultWarehouses;
-  const productStock = parsed.productStock ?? defaultProductStock;
+  const productStock = (parsed.productStock ?? defaultProductStock).map((ps) => ({
+    ...ps,
+    branchId: ps.branchId ?? ps.warehouseId ?? warehouses[0]?.id,
+    warehouseId: ps.warehouseId ?? ps.branchId,
+    available: ps.available ?? ps.stock ?? 0,
+    stock: ps.stock ?? ps.available ?? 0,
+    reserved: ps.reserved ?? 0,
+    inTransit: ps.inTransit ?? 0,
+    lastUpdated: ps.lastUpdated ?? ps.lastMovementAt ?? now,
+    lastMovementAt: ps.lastMovementAt ?? ps.lastUpdated ?? now,
+  }));
   const cities = parsed.cities?.length ? parsed.cities : defaultCities;
   const supplierCategories = parsed.supplierCategories?.length ? parsed.supplierCategories : defaultSupplierCategories;
   const customers = parsed.customers ?? defaultCustomers;
@@ -568,7 +592,7 @@ function normalizeStore(parsed: Partial<StoreSchema>): StoreSchema {
     const normalized = ensureProductDefaults(product, categories[0]?.id);
     const stockSum = productStock
       .filter((ps) => ps.productId === normalized.id)
-      .reduce((acc, item) => acc + (item.stock ?? 0), 0);
+      .reduce((acc, item) => acc + (item.available ?? item.stock ?? 0), 0);
     if (stockSum > 0) normalized.stock = stockSum;
     return normalized;
   });

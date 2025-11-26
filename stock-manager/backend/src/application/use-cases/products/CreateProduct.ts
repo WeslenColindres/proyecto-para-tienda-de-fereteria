@@ -9,6 +9,7 @@ import { syncStockAlerts } from '../../utils/stockAlerts';
 
 export interface CreateProductInput {
   code: string;
+  sku?: string;
   name: string;
   description?: string;
   categoryId?: string;
@@ -20,6 +21,14 @@ export interface CreateProductInput {
   stock?: number;
   minStock?: number;
   status?: ProductStatus;
+  supplierId?: string;
+  unitId?: string;
+  isInventoriable?: boolean;
+  isSellable?: boolean;
+  isPurchasable?: boolean;
+  reorderPoint?: number;
+  maxStock?: number;
+  physicalLocation?: string;
   createdBy?: string;
 }
 
@@ -65,10 +74,13 @@ export class CreateProduct {
       const entity = new Product({
         id: randomUUID(),
         code: normalizedCode,
+        sku: input.sku ?? normalizedCode,
         name: normalizedName,
         description: input.description ?? '',
         categoryId,
         barcode: input.barcode ?? normalizedCode,
+        unitId: input.unitId,
+        supplierId: input.supplierId,
         cost: roundMoney(input.cost ?? input.price * 0.6),
         price: roundMoney(input.price),
         tax: input.tax ?? 12,
@@ -76,6 +88,12 @@ export class CreateProduct {
         status,
         stock: input.stock ?? 0,
         minStock: input.minStock ?? 0,
+        isInventoriable: input.isInventoriable ?? true,
+        isSellable: input.isSellable ?? true,
+        isPurchasable: input.isPurchasable ?? true,
+        reorderPoint: input.reorderPoint ?? input.minStock ?? 0,
+        maxStock: input.maxStock,
+        physicalLocation: input.physicalLocation,
         createdAt: now,
         updatedAt: now,
         createdBy: input.createdBy ?? 'system',
@@ -100,8 +118,13 @@ export class CreateProduct {
       store.productStock.push({
         id: randomUUID(),
         productId: entity.id,
+        branchId: defaultWarehouse.id,
         warehouseId: defaultWarehouse.id,
+        available: input.stock ?? 0,
         stock: input.stock ?? 0,
+        reserved: 0,
+        inTransit: 0,
+        lastUpdated: now,
         lastMovementAt: now,
       });
 

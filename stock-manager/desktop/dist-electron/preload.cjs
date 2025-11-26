@@ -8,4 +8,12 @@ import_electron.contextBridge.exposeInMainWorld("desktop", {
     versions: process.versions
   }
 });
+import_electron.contextBridge.exposeInMainWorld("notifications", {
+  show: (options) => {
+    return import_electron.ipcRenderer.invoke("notification:show", options);
+  },
+  checkPermission: () => {
+    return import_electron.ipcRenderer.invoke("notification:checkPermission");
+  }
+});
 //# sourceMappingURL=preload.cjs.map

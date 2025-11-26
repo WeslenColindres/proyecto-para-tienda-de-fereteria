@@ -17,6 +17,14 @@ export interface UpdateProductInput {
   stock?: number;
   minStock?: number;
   status?: 'activo' | 'inactivo' | 'descontinuado';
+  supplierId?: string;
+  unitId?: string;
+  isInventoriable?: boolean;
+  isSellable?: boolean;
+  isPurchasable?: boolean;
+  reorderPoint?: number;
+  maxStock?: number;
+  physicalLocation?: string;
   updatedBy?: string;
 }
 
@@ -64,14 +72,21 @@ export class UpdateProduct {
         const stockEntry = store.productStock.find((s) => s.productId === product.id);
         if (stockEntry) {
           stockEntry.stock = input.stock;
+          stockEntry.available = input.stock;
           stockEntry.lastMovementAt = new Date().toISOString();
+          stockEntry.lastUpdated = stockEntry.lastMovementAt;
         } else if (store.warehouses[0]) {
           store.productStock.push({
             id: `${product.id}-stk`,
             productId: product.id,
+            branchId: store.warehouses[0].id,
             warehouseId: store.warehouses[0].id,
             stock: input.stock,
+            available: input.stock,
+            reserved: 0,
+            inTransit: 0,
             lastMovementAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString(),
           });
         }
       }
@@ -79,6 +94,20 @@ export class UpdateProduct {
         if (input.minStock < 0) throw new DomainError('VALIDATION_ERROR', 'Stock minimo invalido', 400);
         product.minStock = input.minStock;
       }
+      if (input.reorderPoint !== undefined) {
+        if (input.reorderPoint < 0) throw new DomainError('VALIDATION_ERROR', 'Punto de reorden invalido', 400);
+        product.reorderPoint = input.reorderPoint;
+      }
+      if (input.maxStock !== undefined) {
+        if (input.maxStock < 0) throw new DomainError('VALIDATION_ERROR', 'Stock maximo invalido', 400);
+        product.maxStock = input.maxStock;
+      }
+      if (input.physicalLocation !== undefined) product.physicalLocation = input.physicalLocation;
+      if (input.supplierId !== undefined) product.supplierId = input.supplierId;
+      if (input.unitId !== undefined) product.unitId = input.unitId;
+      if (input.isInventoriable !== undefined) product.isInventoriable = input.isInventoriable;
+      if (input.isSellable !== undefined) product.isSellable = input.isSellable;
+      if (input.isPurchasable !== undefined) product.isPurchasable = input.isPurchasable;
       if (input.status !== undefined) product.status = input.status;
       product.updatedAt = new Date().toISOString();
       product.updatedBy = input.updatedBy ?? 'system';
