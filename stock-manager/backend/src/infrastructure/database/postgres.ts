@@ -60,10 +60,11 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
         await pool.query('SELECT NOW()');
         logger.info('Conexión a PostgreSQL exitosa');
         return { success: true };
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+    } catch (error: any) {
+        const errorMessage = error.message || JSON.stringify(error);
         logger.error('Fallo al conectar con PostgreSQL', {
             error: errorMessage,
+            fullError: error,
             config: {
                 host: env.DB.HOST,
                 user: env.DB.USER,
