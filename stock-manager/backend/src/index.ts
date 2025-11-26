@@ -9,11 +9,12 @@ httpServer.listen(Number(env.PORT), async () => {
   console.log(`Backend escuchando en http://localhost:${env.PORT}`);
 
   // Verificar conexión a base de datos
-  const isConnected = await testConnection();
-  if (isConnected) {
+  const { success, error } = await testConnection();
+  if (success) {
     console.log('✅ Conexión a Base de Datos: EXITOSA');
   } else {
     console.error('❌ Conexión a Base de Datos: FALLIDA');
+    console.error(`   Error: ${error}`);
   }
 });
 

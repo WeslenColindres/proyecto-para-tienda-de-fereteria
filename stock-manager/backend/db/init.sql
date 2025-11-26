@@ -598,7 +598,7 @@ SELECT
     p.id_producto,
     p.sku,
     p.nombre,
-    sp.id_sucursal,
+    COALESCE(sp.id_sucursal, su.id_sucursal) AS id_sucursal,
     su.nombre AS nombre_sucursal,
     sp.cantidad_disponible,
     sp.cantidad_reservada,
