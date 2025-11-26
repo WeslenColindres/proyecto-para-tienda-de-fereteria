@@ -21,8 +21,32 @@ if (!rootElement) {
   throw new Error('Root element #root was not found');
 }
 
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// SEGURIDAD: Bloqueo de acceso vía navegador web estándar
+// Verificamos si el User Agent contiene "Electron". Si no, mostramos pantalla de bloqueo.
+// Esto evita que se acceda a la UI desde Chrome/Edge/Firefox directamente.
+const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+
+if (!isElectron) {
+  ReactDOM.createRoot(rootElement).render(
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#0f172a',
+      color: '#e2e8f0',
+      fontFamily: 'system-ui, sans-serif'
+    }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#f43f5e' }}>Acceso Denegado</h1>
+      <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>Esta aplicación solo puede ejecutarse en el entorno de escritorio seguro.</p>
+      <p style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.5 }}>Error: Entorno no autorizado (Browser)</p>
+    </div>
+  );
+} else {
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
