@@ -11,6 +11,7 @@ type SupplierListPanelProps = {
   loading?: boolean;
   searchTerm?: string;
   onCreate?: () => void;
+  onDelete?: (id: string) => void;
 };
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -35,7 +36,7 @@ const balanceClass = (supplier: SupplierItem) => {
   return 'warn';
 };
 
-const SupplierListPanel = ({ suppliers, selectedId, onSelect, onEdit, onOpenDetail, loading, searchTerm, onCreate }: SupplierListPanelProps) => {
+const SupplierListPanel = ({ suppliers, selectedId, onSelect, onEdit, onOpenDetail, loading, searchTerm, onCreate, onDelete }: SupplierListPanelProps) => {
   const hasResults = suppliers.length > 0;
 
   return (
@@ -101,7 +102,10 @@ const SupplierListPanel = ({ suppliers, selectedId, onSelect, onEdit, onOpenDeta
                   </span>
                 </td>
                 <td>
-                  <SupplierActionsCell onEdit={() => onEdit(supplier.id)} />
+                  <SupplierActionsCell
+                    onEdit={() => onEdit(supplier.id)}
+                    onDelete={() => onDelete?.(supplier.id)}
+                  />
                 </td>
               </tr>
             ))}

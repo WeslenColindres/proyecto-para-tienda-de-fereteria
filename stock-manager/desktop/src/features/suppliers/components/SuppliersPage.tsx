@@ -33,6 +33,7 @@ const SuppliersPage = (_props: SuppliersPageProps) => {
   const mode = useViewportMode();
   const [activeTab, setActiveTab] = useState<SupplierTab>('proveedores');
   const [newForm, setNewForm] = useState<SupplierFormState>(emptyForm());
+  const [deleteStep, setDeleteStep] = useState(1);
   const {
     filters,
     setFilters,
@@ -102,6 +103,7 @@ const SuppliersPage = (_props: SuppliersPageProps) => {
     try {
       await deleteSupplier();
       setShowDelete(false);
+      setDeleteStep(1);
     } catch (err) {
       const message = err instanceof ApiError ? err.message : 'No se pudo eliminar';
       alert(message);
@@ -165,6 +167,10 @@ const SuppliersPage = (_props: SuppliersPageProps) => {
               selectSupplier(id);
               setIsEditing(true);
               setActiveTab('detalle');
+            }}
+            onDelete={(id) => {
+              selectSupplier(id);
+              setShowDelete(true);
             }}
             onOpenDetail={(id) => {
               selectSupplier(id);
@@ -304,21 +310,37 @@ const SuppliersPage = (_props: SuppliersPageProps) => {
 
       <Modal
         open={showDelete}
-        title="¿Eliminar proveedor?"
-        description="Esta acción lo marcara como eliminado, no se pierde historial."
-        onClose={() => setShowDelete(false)}
+        title={deleteStep === 1 ? '¿Eliminar proveedor?' : '¿Estás ABSOLUTAMENTE seguro?'}
+        description={deleteStep === 1 ? 'Se eliminarán los datos del proveedor.' : 'Esta acción no se puede deshacer.'}
+        onClose={() => { setShowDelete(false); setDeleteStep(1); }}
         footer={
           <>
-            <button type="button" className="btn-outline" onClick={() => setShowDelete(false)}>
+            <button type="button" className="btn-outline" onClick={() => { setShowDelete(false); setDeleteStep(1); }}>
               Cancelar
             </button>
-            <button type="button" className="btn-danger" onClick={handleDelete}>
-              Confirmar
-            </button>
+            {deleteStep === 1 ? (
+              <button type="button" className="btn-danger" onClick={() => setDeleteStep(2)}>
+                Continuar
+              </button>
+            ) : (
+              <button type="button" className="btn-danger" onClick={handleDelete}>
+                Sí, eliminar definitivamente
+              </button>
+            )}
           </>
         }
       >
-        <p className="muted text-sm">Proveedor seleccionado: {selected?.name ?? 'N/D'}</p>
+        {deleteStep === 1 ? (
+          <div className="alert-warning-box">
+            <p>Estás a punto de eliminar a: <strong>{selected?.name}</strong></p>
+            <p>Esto podría afectar el historial de reportes si no se tiene cuidado.</p>
+          </div>
+        ) : (
+          <div className="alert-danger-box">
+            <p><strong>¡Atención!</strong></p>
+            <p>Se borrará permanentemente el proveedor y todos sus contactos asociados.</p>
+          </div>
+        )}
       </Modal>
 
       <Modal
