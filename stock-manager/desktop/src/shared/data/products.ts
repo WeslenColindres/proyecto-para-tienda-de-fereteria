@@ -7,12 +7,12 @@ import type {
 } from '../types/products';
 
 export const PRODUCT_CATALOG: ProductItem[] = [
-  { id: 'p001', code: 'P001', name: 'Cafe Espresso', category: 'Bebidas', stock: 15, minStock: 5, price: 25, cost: 12.5, barcode: '12345001', tax: 12, unit: 'unidad', status: 'activo' },
-  { id: 'p002', code: 'P002', name: 'Pan Frances', category: 'Panaderia', stock: 8, minStock: 5, price: 8, cost: 4.5, barcode: '12345002', tax: 12, unit: 'unidad', status: 'activo' },
-  { id: 'p003', code: 'P003', name: 'Empanada de Pollo', category: 'Panaderia', stock: 25, minStock: 10, price: 12, cost: 6.5, barcode: '12345003', tax: 12, unit: 'unidad', status: 'activo' },
-  { id: 'p004', code: 'P004', name: 'Te Earl Grey', category: 'Bebidas', stock: 30, minStock: 12, price: 15, cost: 7, barcode: '12345004', tax: 12, unit: 'unidad', status: 'activo' },
-  { id: 'p005', code: 'P005', name: 'Jugos Naturales', category: 'Bebidas', stock: 12, minStock: 6, price: 18, cost: 9, barcode: '12345005', tax: 15, unit: 'litro', status: 'inactivo' },
-  { id: 'p006', code: 'P006', name: 'Cacao Premium', category: 'Bebidas', stock: 3, minStock: 8, price: 20, cost: 11, barcode: '12345006', tax: 12, unit: 'unidad', status: 'descontinuado' }
+  { id: 'p001', code: 'P001', name: 'Cafe Espresso', description: 'Cafe espresso en grano', category: 'Bebidas', categoryId: 'cat-bebidas', stock: 15, minStock: 5, price: 25, cost: 12.5, barcode: '12345001', tax: 12, unit: 'unidad', status: 'activo' },
+  { id: 'p002', code: 'P002', name: 'Pan Frances', description: 'Pan fresco', category: 'Panaderia', categoryId: 'cat-pan', stock: 8, minStock: 5, price: 8, cost: 4.5, barcode: '12345002', tax: 12, unit: 'unidad', status: 'activo' },
+  { id: 'p003', code: 'P003', name: 'Empanada de Pollo', description: 'Empanada artesanal', category: 'Panaderia', categoryId: 'cat-pan', stock: 25, minStock: 10, price: 12, cost: 6.5, barcode: '12345003', tax: 12, unit: 'unidad', status: 'activo' },
+  { id: 'p004', code: 'P004', name: 'Te Earl Grey', description: 'Infusion de te', category: 'Bebidas', categoryId: 'cat-bebidas', stock: 30, minStock: 12, price: 15, cost: 7, barcode: '12345004', tax: 12, unit: 'unidad', status: 'activo' },
+  { id: 'p005', code: 'P005', name: 'Jugos Naturales', description: 'Variedad de jugos', category: 'Bebidas', categoryId: 'cat-bebidas', stock: 12, minStock: 6, price: 18, cost: 9, barcode: '12345005', tax: 15, unit: 'litro', status: 'inactivo' },
+  { id: 'p006', code: 'P006', name: 'Cacao Premium', description: 'Cacao gourmet', category: 'Bebidas', categoryId: 'cat-bebidas', stock: 3, minStock: 8, price: 20, cost: 11, barcode: '12345006', tax: 12, unit: 'unidad', status: 'descontinuado' }
 ];
 
 export const PRODUCT_MOVEMENTS: InventoryMovement[] = [

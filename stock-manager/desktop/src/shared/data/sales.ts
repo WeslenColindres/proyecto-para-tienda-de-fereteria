@@ -9,9 +9,9 @@ import type {
 } from '../types/sales';
 
 export const SALE_STATUS_BAR: SaleStatusInfo = {
-  pos: 'CAJA-01',
-  user: 'JUAN.PEREZ',
-  shift: 'Manana',
+  pos: 'Caja 1',
+  user: 'Juan Pérez',
+  shift: 'Mañana',
   document: 'FAC-001-001'
 };
 
@@ -24,8 +24,27 @@ export const PDV_SEARCH_RESULTS: SaleSearchResult[] = [
 ];
 
 export const PDV_CART_ITEMS: SaleCartItem[] = [
-  { id: 'c-1', name: 'Cafe Espresso', code: 'P001', qty: 2, price: 25, discountPct: 0, subtotal: 50 },
-  { id: 'c-2', name: 'Pan Frances', code: 'P002', qty: 3, price: 8, discountPct: 5, subtotal: 22.8, note: 'Promo -5%' }
+  {
+    id: 'c-1',
+    productId: 'p001',
+    name: 'Cafe Espresso',
+    code: 'P001',
+    qty: 2,
+    price: 25,
+    discountPct: 0,
+    subtotal: 50,
+  },
+  {
+    id: 'c-2',
+    productId: 'p002',
+    name: 'Pan Frances',
+    code: 'P002',
+    qty: 3,
+    price: 8,
+    discountPct: 5,
+    subtotal: 22.8,
+    note: 'Promo -5%',
+  },
 ];
 
 export const PDV_CLIENT_INFO: SaleClientInfo = {
@@ -65,7 +84,9 @@ export const SALES_LIST: SaleRow[] = [
     status: 'pagada',
     date: '22/11 10:30',
     channel: 'Mostrador',
-    time: '2m 45s'
+    time: '2m 45s',
+    originDocument: 'FAC-090',
+    reason: 'Producto defectuoso'
   },
   {
     id: 'sale-2',
@@ -77,7 +98,9 @@ export const SALES_LIST: SaleRow[] = [
     status: 'pagada',
     date: '22/11 09:58',
     channel: 'Mostrador',
-    time: '1m 10s'
+    time: '1m 10s',
+    originDocument: 'FAC-084',
+    reason: 'Otros'
   },
   {
     id: 'sale-3',
@@ -89,7 +112,9 @@ export const SALES_LIST: SaleRow[] = [
     status: 'pendiente',
     date: '21/11 17:40',
     channel: 'Online',
-    time: '3m 20s'
+    time: '3m 20s',
+    originDocument: 'FAC-077',
+    reason: 'Error en cobro'
   },
   {
     id: 'sale-4',
@@ -101,6 +126,8 @@ export const SALES_LIST: SaleRow[] = [
     status: 'anulada',
     date: '21/11 16:10',
     channel: 'Mostrador',
-    time: '4m 02s'
+    time: '4m 02s',
+    originDocument: 'FAC-060',
+    reason: 'Producto defectuoso'
   }
 ];

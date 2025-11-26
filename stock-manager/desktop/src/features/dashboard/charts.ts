@@ -1,201 +1,226 @@
-import type { CategorySlice, ComparisonSeries, MonthlySale, WeeklySale } from '@/shared/types/dashboard';
+import uPlot from 'uplot';
+import type { ComparisonSeries, MonthlySale, WeeklySale } from '@/shared/types/dashboard';
 import { numberFormatter } from '@/shared/utils/format';
 
-type CanvasContextConfig = {
-  ctx: CanvasRenderingContext2D;
-  width: number;
-  height: number;
+type Cleanup = () => void;
+
+const ensureWidth = (container: HTMLDivElement) => {
+  const rect = container.getBoundingClientRect();
+  return Math.max(Math.floor(rect.width || container.clientWidth || 0), 320);
 };
 
-const prepareCanvas = (canvas: HTMLCanvasElement): CanvasContextConfig | null => {
-  const width = canvas.clientWidth || canvas.width;
-  const height = canvas.clientHeight || canvas.height;
-  const dpr = window.devicePixelRatio || 1;
+const createResponsiveChart = (
+  container: HTMLDivElement,
+  options: Omit<uPlot.Options, 'width'>,
+  data: uPlot.AlignedData,
+): Cleanup => {
+  container.innerHTML = '';
+  const height = options.height ?? 260;
+  const chart = new uPlot(
+    {
+      ...options,
+      width: ensureWidth(container),
+      height,
+      legend: options.legend ?? { show: false },
+    },
+    data,
+    container,
+  );
 
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
+  const resizeObserver = new ResizeObserver((entries) => {
+    const nextWidth = Math.max(Math.floor(entries[0].contentRect.width), 320);
+    chart.setSize({ width: nextWidth, height });
+  });
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
+  resizeObserver.observe(container);
 
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, width, height);
-  return { ctx, width, height };
+  return () => {
+    resizeObserver.disconnect();
+    chart.destroy();
+    container.innerHTML = '';
+  };
 };
 
-const drawRoundedRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
-  const r = Math.min(radius, width / 2, height / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + width - r, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
-  ctx.lineTo(x + width, y + height - r);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-  ctx.lineTo(x + r, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-  ctx.fill();
+export const renderWeeklySalesChart = (container: HTMLDivElement, data: WeeklySale[]): Cleanup => {
+  if (!data.length) {
+    container.textContent = 'Sin datos';
+    return () => {
+      container.textContent = '';
+    };
+  }
+
+  const labels = data.map((item) => item.label);
+  const xValues = data.map((_, idx) => idx);
+  const values = data.map((item) => item.amount);
+  const maxValue = Math.max(...values, 0);
+
+  return createResponsiveChart(
+    container,
+    {
+      height: 260,
+      padding: [12, 12, 16, 12],
+      scales: {
+        x: { time: false },
+        y: {
+          range: () => [0, maxValue > 0 ? maxValue * 1.15 : 1],
+        },
+      },
+      axes: [
+        {
+          stroke: '#94a3b8',
+          grid: { show: false },
+          ticks: { show: false },
+          values: () => labels,
+          splits: () => xValues,
+        },
+        {
+          stroke: '#94a3b8',
+          grid: { stroke: 'rgba(148, 163, 184, 0.2)' },
+          values: (_u, vals) => vals.map((v) => numberFormatter.format(v as number)),
+        },
+      ],
+      series: [
+        {},
+        {
+          label: 'Ventas',
+          points: { show: false },
+          stroke: '#4f8bff',
+          fill: 'rgba(79, 139, 255, 0.35)',
+          paths: uPlot.paths!.bars!({
+            size: [0.6],
+            gap: 10,
+            radius: 10,
+          }),
+        },
+      ],
+      cursor: { drag: { x: false, y: false } },
+    },
+    [xValues, values],
+  );
 };
 
-export const drawWeeklyBarChart = (canvas: HTMLCanvasElement, data: WeeklySale[]) => {
-  const ctxConfig = prepareCanvas(canvas);
-  if (!ctxConfig) return;
-  const { ctx, width, height } = ctxConfig;
-  const padding = 32;
-  const chartHeight = height - padding * 2;
-  const chartWidth = width - padding * 2;
-  const maxValue = Math.max(...data.map((item) => item.amount)) || 1;
-  const step = chartWidth / data.length;
-  const barWidth = step * 0.5;
+export const renderMonthlyTrendChart = (container: HTMLDivElement, data: MonthlySale[]): Cleanup => {
+  if (!data.length) {
+    container.textContent = 'Sin datos';
+    return () => {
+      container.textContent = '';
+    };
+  }
 
-  data.forEach((item, index) => {
-    const x = padding + index * step + (step - barWidth) / 2;
-    const barHeight = (item.amount / maxValue) * chartHeight;
-    const y = height - padding - barHeight;
-    const radius = 8;
-    ctx.fillStyle = '#3498db';
-    drawRoundedRect(ctx, x, y, barWidth, barHeight, radius);
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '12px Manrope, system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(item.label, x + barWidth / 2, height - padding + 16);
-    ctx.fillText(numberFormatter.format(item.amount), x + barWidth / 2, y - 6);
-  });
+  const labels = data.map((item) => item.label);
+  const xValues = data.map((_, idx) => idx);
+  const values = data.map((item) => item.amount);
+  const maxValue = Math.max(...values, 0);
+
+  return createResponsiveChart(
+    container,
+    {
+      height: 260,
+      padding: [12, 12, 16, 12],
+      scales: {
+        x: { time: false },
+        y: {
+          range: () => [0, maxValue > 0 ? maxValue * 1.1 : 1],
+        },
+      },
+      axes: [
+        {
+          stroke: '#94a3b8',
+          grid: { show: false },
+          ticks: { show: false },
+          values: () => labels,
+          splits: () => xValues,
+        },
+        {
+          stroke: '#94a3b8',
+          grid: { stroke: 'rgba(148, 163, 184, 0.2)' },
+          values: (_u, vals) => vals.map((v) => numberFormatter.format(v as number)),
+        },
+      ],
+      series: [
+        {},
+        {
+          label: 'Tendencia',
+          width: 3,
+          stroke: '#2c3e50',
+          fill: 'rgba(44, 62, 80, 0.12)',
+          points: {
+            show: true,
+            size: 6,
+            fill: '#2c3e50',
+            stroke: '#2c3e50',
+          },
+        },
+      ],
+      cursor: { focus: { prox: 24 }, drag: { x: false, y: false } },
+    },
+    [xValues, values],
+  );
 };
 
-export const drawMonthlyLineChart = (canvas: HTMLCanvasElement, data: MonthlySale[]) => {
-  const ctxConfig = prepareCanvas(canvas);
-  if (!ctxConfig) return;
-  const { ctx, width, height } = ctxConfig;
-  const padding = 32;
-  const chartHeight = height - padding * 2;
-  const chartWidth = width - padding * 2;
-  const maxValue = Math.max(...data.map((item) => item.amount)) * 1.1;
-  const step = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth;
+export const renderMonthlyComparisonChart = (
+  container: HTMLDivElement,
+  data: ComparisonSeries,
+): Cleanup => {
+  if (!data.labels.length || !data.current.length || !data.previous.length) {
+    container.textContent = 'Sin datos';
+    return () => {
+      container.textContent = '';
+    };
+  }
 
-  ctx.strokeStyle = '#e2e8f0';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(padding, height - padding);
-  ctx.lineTo(width - padding, height - padding);
-  ctx.stroke();
+  const xValues = data.labels.map((_, idx) => idx);
+  const maxValue = Math.max(...data.current, ...data.previous, 0);
 
-  const points = data.map((item, idx) => {
-    const x = padding + idx * step;
-    const y = height - padding - (item.amount / maxValue) * chartHeight;
-    return { x, y };
-  });
-
-  ctx.strokeStyle = '#2c3e50';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  points.forEach((point, idx) => {
-    if (idx === 0) ctx.moveTo(point.x, point.y);
-    else ctx.lineTo(point.x, point.y);
-  });
-  ctx.stroke();
-
-  ctx.fillStyle = '#2c3e50';
-  ctx.font = '12px Manrope, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  data.forEach((item, idx) => {
-    const x = padding + idx * step;
-    ctx.fillText(item.label, x, height - padding + 16);
-  });
-};
-
-export const drawComparisonChart = (canvas: HTMLCanvasElement, data: ComparisonSeries) => {
-  const ctxConfig = prepareCanvas(canvas);
-  if (!ctxConfig) return;
-  const { ctx, width, height } = ctxConfig;
-  const padding = 40;
-  const chartHeight = height - padding * 2;
-  const chartWidth = width - padding * 2;
-  const maxValue = Math.max(...data.current, ...data.previous) * 1.1;
-  const step = data.labels.length > 1 ? chartWidth / (data.labels.length - 1) : chartWidth;
-
-  const toPoints = (values: number[]) =>
-    values.map((value, idx) => {
-      const x = padding + idx * step;
-      const y = height - padding - (value / maxValue) * chartHeight;
-      return { x, y, value };
-    });
-
-  const currentPoints = toPoints(data.current);
-  const previousPoints = toPoints(data.previous);
-
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(padding, height - padding);
-  ctx.lineTo(width - padding, height - padding);
-  ctx.stroke();
-
-  const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
-  gradient.addColorStop(0, 'rgba(44, 62, 80, 0.45)');
-  gradient.addColorStop(1, 'rgba(44, 62, 80, 0.05)');
-
-  ctx.beginPath();
-  currentPoints.forEach((point, idx) => {
-    if (idx === 0) ctx.moveTo(point.x, point.y);
-    else ctx.lineTo(point.x, point.y);
-  });
-  ctx.lineTo(currentPoints[currentPoints.length - 1].x, height - padding);
-  ctx.lineTo(currentPoints[0].x, height - padding);
-  ctx.closePath();
-  ctx.fillStyle = gradient;
-  ctx.fill();
-
-  ctx.strokeStyle = '#95a5a6';
-  ctx.setLineDash([8, 6]);
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  previousPoints.forEach((point, idx) => {
-    if (idx === 0) ctx.moveTo(point.x, point.y);
-    else ctx.lineTo(point.x, point.y);
-  });
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.strokeStyle = '#2c3e50';
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  currentPoints.forEach((point, idx) => {
-    if (idx === 0) ctx.moveTo(point.x, point.y);
-    else ctx.lineTo(point.x, point.y);
-  });
-  ctx.stroke();
-
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.85)';
-  ctx.font = '12px Manrope, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  data.labels.forEach((label, idx) => {
-    const x = padding + idx * step;
-    ctx.fillText(label, x, height - padding + 20);
-  });
-};
-
-export const drawDonutChart = (canvas: HTMLCanvasElement, slices: CategorySlice[], total: number) => {
-  const ctxConfig = prepareCanvas(canvas);
-  if (!ctxConfig) return;
-
-  const { ctx, width, height } = ctxConfig;
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const radius = Math.min(width, height) / 2 - 6;
-  const lineWidth = radius * 0.45;
-  let startAngle = -Math.PI / 2;
-
-  slices.forEach((slice) => {
-    const sliceAngle = (slice.amount / total) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.strokeStyle = slice.color;
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = 'round';
-    ctx.arc(centerX, centerY, radius - lineWidth / 2, startAngle, startAngle + sliceAngle);
-    ctx.stroke();
-    startAngle += sliceAngle;
-  });
+  return createResponsiveChart(
+    container,
+    {
+      height: 300,
+      padding: [14, 10, 20, 10],
+      scales: {
+        x: { time: false },
+        y: {
+          range: () => [0, maxValue > 0 ? maxValue * 1.1 : 1],
+        },
+      },
+      axes: [
+        {
+          stroke: '#94a3b8',
+          grid: { show: false },
+          ticks: { show: false },
+          values: () => data.labels,
+          splits: () => xValues,
+        },
+        {
+          stroke: '#94a3b8',
+          grid: { stroke: 'rgba(148, 163, 184, 0.2)' },
+          values: (_u, vals) => vals.map((v) => numberFormatter.format(v as number)),
+        },
+      ],
+      series: [
+        {},
+        {
+          label: 'Mes actual',
+          width: 3,
+          stroke: '#2c3e50',
+          fill: 'rgba(44, 62, 80, 0.14)',
+          points: {
+            show: true,
+            size: 5,
+            fill: '#2c3e50',
+            stroke: '#2c3e50',
+          },
+        },
+        {
+          label: 'Mes anterior',
+          width: 2,
+          stroke: '#95a5a6',
+          dash: [6, 4],
+          points: { show: false },
+        },
+      ],
+      cursor: { focus: { prox: 32 }, drag: { x: false, y: false } },
+    },
+    [xValues, data.current, data.previous],
+  );
 };

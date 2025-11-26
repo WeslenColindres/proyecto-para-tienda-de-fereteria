@@ -1,3 +1,6 @@
+import type { StoreGateway } from '../ports/StoreGateway';
+import { roundMoney } from '../utils/money';
+
 export interface DashboardMetrics {
   kpis: Array<{
     id: string;
@@ -19,110 +22,106 @@ export interface DashboardMetrics {
 }
 
 export class GetDashboardMetrics {
+  constructor(private readonly store: StoreGateway) {}
+
   async execute(): Promise<DashboardMetrics> {
+    const data = await this.store.readStore();
+    const today = new Date().toISOString().slice(0, 10);
+
+    const totalToday = data.sales
+      .filter((sale) => sale.datetime.startsWith(today))
+      .reduce((acc, sale) => acc + sale.total, 0);
+
+    const lastSales = data.sales
+      .slice(-5)
+      .reverse()
+      .map((sale) => ({
+        datetime: sale.datetime,
+        customer: sale.clientName,
+        document: sale.docNumber,
+        total: sale.total,
+      }));
+
+    const lowStock = data.products
+      .filter((p) => p.status === 'activo' && p.stock <= p.minStock)
+      .slice(0, 5)
+      .map((p) => ({ product: p.name, stock: p.stock, min: p.minStock }));
+
+    const kpis = [
+      {
+        id: 'sales-day',
+        title: 'Ventas del dia',
+        amount: roundMoney(totalToday),
+        subValue: `${data.sales.length} docs`,
+        accent: '#27ae60',
+        icon: 'POS',
+        format: 'currency' as const,
+      },
+      {
+        id: 'products',
+        title: 'Productos activos',
+        amount: data.products.filter((p) => p.status === 'activo').length,
+        subValue: `${lowStock.length} con stock bajo`,
+        accent: '#2dd4bf',
+        icon: 'INV',
+        format: 'text' as const,
+      },
+      {
+        id: 'last-sale',
+        title: 'Ultima venta',
+        amount: lastSales[0]?.total ?? 0,
+        subValue: lastSales[0]?.document ?? 'Sin ventas',
+        accent: '#3498db',
+        icon: 'TCK',
+        format: 'currency' as const,
+      },
+      {
+        id: 'sales-month',
+        title: 'Ventas totales',
+        amount: data.sales.reduce((acc, sale) => acc + sale.total, 0),
+        subValue: `${data.sales.length} documentos`,
+        accent: '#8b5cf6',
+        icon: 'DOC',
+        format: 'currency' as const,
+      },
+    ];
+
+    const weeklySales = Array.from({ length: 7 }).map((_, idx) => ({
+      label: `D${idx + 1}`,
+      amount: roundMoney(Math.random() * 1000 + totalToday / 10),
+    }));
+
+    const monthlySales = Array.from({ length: 6 }).map((_, idx) => ({
+      label: `M${idx + 1}`,
+      amount: roundMoney(Math.random() * 10000 + totalToday),
+    }));
+
     return {
-      kpis: [
-        {
-          id: 'sales-day',
-          title: 'Ventas del día',
-          amount: 12450,
-          subValue: '+12% vs ayer',
-          accent: '#27ae60',
-          icon: '📈',
-          format: 'currency',
-        },
-        {
-          id: 'sales-week',
-          title: 'Ventas semana',
-          amount: 87320,
-          subValue: 'Objetivo 92%',
-          accent: '#2dd4bf',
-          icon: '📊',
-          format: 'currency',
-        },
-        {
-          id: 'sales-month',
-          title: 'Ventas mes',
-          amount: 324560,
-          subValue: '+18% vs mes anterior',
-          accent: '#3498db',
-          icon: '📅',
-          format: 'currency',
-        },
-        {
-          id: 'invoices-day',
-          title: 'Facturas del día',
-          amount: '15 (60%)',
-          subValue: 'Comprobantes: 10',
-          accent: '#8b5cf6',
-          icon: '📄',
-          format: 'text',
-        },
-        {
-          id: 'top-product',
-          title: 'Top producto hoy',
-          amount: 'Café Expresso',
-          subValue: '125 unidades',
-          accent: '#e74c3c',
-          icon: '⭐',
-          format: 'text',
-        },
-      ],
-      weeklySales: [
-        { label: 'Lun', amount: 18900 },
-        { label: 'Mar', amount: 17450 },
-        { label: 'Mié', amount: 20100 },
-        { label: 'Jue', amount: 22300 },
-        { label: 'Vie', amount: 25450 },
-        { label: 'Sáb', amount: 16800 },
-        { label: 'Dom', amount: 14250 },
-      ],
-      monthlySales: [
-        { label: 'Jun', amount: 189000 },
-        { label: 'Jul', amount: 208500 },
-        { label: 'Ago', amount: 224100 },
-        { label: 'Sep', amount: 248900 },
-        { label: 'Oct', amount: 267300 },
-        { label: 'Nov', amount: 324560 },
-      ],
+      kpis,
+      weeklySales,
+      monthlySales,
       categoryBreakdown: [
-        { label: 'Bebidas', amount: 146052, color: '#3498db' },
-        { label: 'Comida', amount: 113596, color: '#27ae60' },
-        { label: 'Ferretería', amount: 50350, color: '#f39c12' },
+        { label: 'Ferreteria', amount: 146052, color: '#3498db' },
+        { label: 'Construccion', amount: 113596, color: '#27ae60' },
+        { label: 'Consumibles', amount: 50350, color: '#f39c12' },
         { label: 'Otros', amount: 14400, color: '#9b59b6' },
       ],
-      topProducts: [
-        { name: 'Café Expresso', amount: 12450, units: 125 },
-        { name: 'Pan francés artesanal', amount: 8320, units: 98 },
-        { name: 'Empanada mixta', amount: 7890, units: 87 },
-        { name: 'Té chai helado', amount: 5600, units: 76 },
-        { name: 'Jugos prensados', amount: 4200, units: 54 },
-      ],
+      topProducts: data.products
+        .filter((p) => p.status === 'activo')
+        .slice(0, 5)
+        .map((p) => ({
+          name: p.name,
+          amount: roundMoney(p.price * Math.max(p.minStock, 1)),
+          units: p.stock,
+        })),
       comparison: {
         labels: ['1', '5', '10', '15', '20', '25', '30'],
-        current: [12000, 22000, 35000, 48000, 62000, 78000, 94000],
-        previous: [10000, 18000, 31000, 41000, 52000, 64000, 76000],
+        current: weeklySales.map((w) => w.amount / 10),
+        previous: weeklySales.map((w) => w.amount / 12),
       },
-      lastSales: [
-        { datetime: '22/11 10:30', customer: 'Juan Ortiz', document: 'Fact-A001', total: 450 },
-        { datetime: '22/11 10:25', customer: 'María López', document: 'Comp-A002', total: 120 },
-        { datetime: '22/11 09:58', customer: 'Importadora Quesada', document: 'Fact-A003', total: 890 },
-        { datetime: '22/11 09:31', customer: 'Carlos Gómez', document: 'Comp-A004', total: 210 },
-        { datetime: '22/11 08:55', customer: 'Ferretería Central', document: 'Fact-A005', total: 1640 },
-      ],
-      lowStock: [
-        { product: 'Café molido 500g', stock: 15, min: 20 },
-        { product: 'Azúcar estándar 1kg', stock: 8, min: 15 },
-        { product: 'Leche deslactosada', stock: 3, min: 10 },
-        { product: 'Bolsas kraft M', stock: 26, min: 30 },
-      ],
-      movements: [
-        { product: 'Café molido 500g', type: 'out', qty: 5, date: '22/11' },
-        { product: 'Pan francés', type: 'in', qty: 10, date: '22/11' },
-        { product: 'Azúcar estándar 1kg', type: 'out', qty: 2, date: '22/11' },
-        { product: 'Leche deslactosada', type: 'out', qty: 1, date: '22/11' },
-        { product: 'Empanada mixta', type: 'in', qty: 8, date: '21/11' },
-      ],
+      lastSales,
+      lowStock,
+      movements: [],
     };
   }
 }

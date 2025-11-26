@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stock-manager-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-stock_manager}
+      POSTGRES_USER: ${DB_USER:-stock_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-stock_pass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-stock_user} -d ${DB_NAME:-stock_manager}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local

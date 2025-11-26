@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app/App';
+import 'uplot/dist/uPlot.min.css';
+import './styles/tailwind.css';
 import './styles/global.css';
 import './styles/app.css';
 import './styles/components.css';

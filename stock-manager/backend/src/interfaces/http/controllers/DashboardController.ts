@@ -1,11 +1,14 @@
 import type { Request, Response } from 'express';
 import { GetDashboardMetrics } from '../../../application/use-cases/GetDashboardMetrics';
+import type { StoreGateway } from '../../../application/ports/StoreGateway';
 
 export class DashboardController {
-  constructor(private readonly getDashboardMetrics = new GetDashboardMetrics()) {}
+  constructor(private readonly store: StoreGateway) {}
 
   index = async (_req: Request, res: Response) => {
-    const payload = await this.getDashboardMetrics.execute();
+    const useCase = new GetDashboardMetrics(this.store);
+    const payload = await useCase.execute();
     res.json(payload);
   };
 }
+

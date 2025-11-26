@@ -21,29 +21,78 @@ import AppSidebar from '@/ui/organisms/AppSidebar/AppSidebar';
 const App = () => {
   const { layout, setLayout } = useLayoutState();
   const viewport = useViewport(layout.sidebarExpanded);
-  const { data: dashboardData, loading: isLoadingDashboard, error: dashboardError } = useDashboardData();
+  const {
+    data: dashboardData,
+    loading: isLoadingDashboard,
+    error: dashboardError,
+  } = useDashboardData();
   const [chartView, setChartView] = useState<ChartView>('week');
   const [updateLog, setUpdateLog] = useState<string[]>([]);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   const menuIndex = useMemo(() => buildMenuIndex(sidebarSections), []);
-  const setActiveItem = useCallback((id: string) => setLayout((prev) => ({ ...prev, activeItem: id })), [setLayout]);
+  const setActiveItem = useCallback(
+    (id: string) => setLayout((prev) => ({ ...prev, activeItem: id })),
+    [setLayout],
+  );
   useRouteSync(layout.activeItem, setActiveItem, menuIndex);
 
   useEffect(() => {
-    const appUpdater: AppUpdaterAPI | undefined = window.appUpdater;
-    if (!appUpdater) {
-      setUpdateLog((prev) => [...prev, `[${new Date().toLocaleTimeString()}] API updater no disponible`]);
-      return;
-    }
+    let cancellado = false;
+    let unsubscribe: (() => void) | null = null;
 
-    const unsubscribe = appUpdater.onStatus((data) => {
-      const text = data?.message ? `${data.status}: ${data.message}` : data?.status ?? 'estado-desconocido';
-      setUpdateLog((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${text}`]);
-    });
+    let attempts = 0;
+    const maxAttempts = 10; // reintentos máximo
+    const retryDelayMs = 500; // tiempo entre reintentos
+
+    const log = (msg: string) => {
+      setUpdateLog((prev) => {
+        const next = [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`];
+        // limitar tamaño del log para no crecer sin límite
+        return next.length > 100 ? next.slice(-100) : next;
+      });
+    };
+
+    const tryAttach = () => {
+      if (cancellado) return;
+
+      const AppUpdater: AppUpdaterAPI | undefined = window.appUpdater;
+
+      if (!AppUpdater) {
+        attempts += 1;
+        if (attempts < maxAttempts) {
+          setTimeout(tryAttach, retryDelayMs);
+        } else {
+          log('API updater no disponible (se agotaron los reintentos)');
+        }
+        return;
+      }
+
+      try {
+        unsubscribe = AppUpdater.onStatus((data) => {
+          const text = data?.message
+            ? `${data.status} - ${data.message}`
+            : (data.status ?? 'estado-desconocido');
+
+          log(text);
+        });
+      } catch (error) {
+        console.error('Error al adjuntar el listener de actualizaciones:', error);
+        log('Error al inicializar el updater');
+      }
+    };
+
+    tryAttach();
 
     return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
+      cancellado = true;
+      if (unsubscribe) {
+        try {
+          unsubscribe();
+        } catch (error) {
+          console.error('Error al ejecutar unsubscribe de appUpdater:', error);
+        }
+      }
     };
   }, []);
 
@@ -63,21 +112,25 @@ const App = () => {
   const closeDrawer = () => setDrawerOpen(false);
 
   const handleMenuSelect = (itemId: string, parentId?: string) => {
-    if (parentId) {
-      setLayout((prev) => {
-        const openSections = prev.openSections.includes(parentId) ? prev.openSections : [...prev.openSections, parentId];
-        return { ...prev, openSections, activeItem: itemId };
-      });
-      return;
-    }
-    setLayout((prev) => ({ ...prev, activeItem: itemId }));
-    closeDrawer();
+    setLayout((prev) => {
+      let openSections = prev.openSections;
+
+      if (parentId && !openSections.includes(parentId)) {
+        openSections = [...openSections, parentId];
+      }
+
+      return { ...prev, openSections, activeItem: itemId };
+    });
+
+    closeDrawer(); // cerrar siempre en móvil cuando seleccionas algo
   };
 
   const toggleSection = (sectionId: string) => {
     setLayout((prev) => {
       const isOpen = prev.openSections.includes(sectionId);
-      const openSections = isOpen ? prev.openSections.filter((id) => id !== sectionId) : [...prev.openSections, sectionId];
+      const openSections = isOpen
+        ? prev.openSections.filter((id) => id !== sectionId)
+        : [...prev.openSections, sectionId];
       return { ...prev, openSections };
     });
   };
@@ -87,9 +140,21 @@ const App = () => {
       <AppHeader
         viewTitle={viewTitle}
         onToggleSidebar={toggleSidebar}
-        onShowNotifications={() => setUpdateLog((prev) => [...prev, `[${new Date().toLocaleTimeString()}] Notificaciones`])}
-        onToggleTheme={() => setLayout((prev) => ({ ...prev, themeMode: prev.themeMode === 'light' ? 'dark' : 'light' }))}
-        onTogglePalette={() => setLayout((prev) => ({ ...prev, colorPalette: prev.colorPalette === 'actual' ? 'legacy' : 'actual' }))}
+        onShowNotifications={() =>
+          setUpdateLog((prev) => [...prev, `[${new Date().toLocaleTimeString()}] Notificaciones`])
+        }
+        onToggleTheme={() =>
+          setLayout((prev) => ({
+            ...prev,
+            themeMode: prev.themeMode === 'light' ? 'dark' : 'light',
+          }))
+        }
+        onTogglePalette={() =>
+          setLayout((prev) => ({
+            ...prev,
+            colorPalette: prev.colorPalette === 'actual' ? 'legacy' : 'actual',
+          }))
+        }
       />
 
       <div className="app-body">
@@ -117,9 +182,9 @@ const App = () => {
               onCheckUpdates={() => window.appUpdater?.checkForUpdates()?.catch(console.error)}
             />
           )}
-          {activeView === 'products' && <ProductsView />}
-          {activeView === 'suppliers' && <SuppliersView />}
-          {activeView === 'customers' && <CustomersView />}
+          {activeView === 'products' && <ProductsView activeItem={layout.activeItem} />}
+          {activeView === 'suppliers' && <SuppliersView activeItem={layout.activeItem} />}
+          {activeView === 'customers' && <CustomersView activeItem={layout.activeItem as any} />}
           {activeView === 'users' && <UsersView activeItem={layout.activeItem} />}
           {activeView === 'reports' && <ReportsView activeItem={layout.activeItem} />}
           {activeView === 'sales' && <SalesView activeItem={layout.activeItem} />}
@@ -127,7 +192,11 @@ const App = () => {
       </div>
 
       <div className={`sidebar-overlay ${isDrawerOpen ? 'visible' : ''}`} onClick={closeDrawer} />
-      <button className="quick-action" title="Nueva venta rapida" onClick={() => alert('Nueva venta rapida')}>
+      <button
+        className="quick-action"
+        title="Nueva venta rapida"
+        onClick={() => alert('Nueva venta rapida')}
+      >
         +
       </button>
     </div>

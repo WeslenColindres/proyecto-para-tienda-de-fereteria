@@ -1,4 +1,5 @@
 export type SaleDocumentType = 'FACTURA' | 'FACTURA_NUEVO' | 'COMPROBANTE';
+export type SaleStatus = 'pagada' | 'pendiente' | 'anulada';
 
 export type SaleSearchResult = {
   id: string;
@@ -6,18 +7,20 @@ export type SaleSearchResult = {
   code: string;
   price: number;
   stock: number;
+  minStock?: number;
   stockState: 'ok' | 'low' | 'critical';
 };
 
 export type SaleCartItem = {
-  id: string;
+  id?: string;
+  productId: string;
   name: string;
   code: string;
   qty: number;
   price: number;
-  discountPct: number;
+  discountPct?: number;
   subtotal: number;
-  editable?: boolean;
+  stock?: number;
   note?: string;
 };
 
@@ -34,7 +37,7 @@ export type SaleClientInfo = {
   phone?: string;
   address?: string;
   documentType: SaleDocumentType;
-  message: string;
+  message?: string;
   status: 'registrado' | 'nuevo' | 'consumidor-final';
 };
 
@@ -45,7 +48,38 @@ export type SalePaymentSummary = {
   paidWith: number;
   change: number;
   method: string;
-  suggestions: number[];
+  suggestions?: number[];
+};
+
+export type SaleItem = {
+  productId: string;
+  code: string;
+  name: string;
+  qty: number;
+  price: number;
+  subtotal: number;
+};
+
+export type SaleDetail = {
+  id: string;
+  docNumber: string;
+  docType: SaleDocumentType;
+  datetime: string;
+  clientName: string;
+  clientNit: string;
+  user: string;
+  items: SaleItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  status: SaleStatus;
+};
+
+export type SaleListResponse = {
+  data: SaleDetail[];
+  total: number;
+  page: number;
+  pageSize: number;
 };
 
 export type SaleKpi = {
@@ -58,12 +92,14 @@ export type SaleKpi = {
 export type SaleRow = {
   id: string;
   docNumber: string;
-  type: SaleDocumentType;
+  type: string; // 'FACTURA', 'COMPROBANTE', etc.
   client: string;
   total: number;
   user: string;
-  status: 'pagada' | 'pendiente' | 'anulada';
-  date: string;
-  channel?: string;
-  time?: string;
+  status: string; // 'pagada', 'pendiente', 'anulada', etc.
+  date: string; // '22/11 10:30'
+  channel: string; // 'Mostrador', 'Online', ...
+  time: string; // '2m 45s'
+  originDocument?: string;
+  reason?: string;
 };

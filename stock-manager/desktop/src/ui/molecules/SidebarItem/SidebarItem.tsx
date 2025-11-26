@@ -8,7 +8,13 @@ type SidebarItemProps = {
   onSelect: (itemId: string, parentId?: string) => void;
 };
 
-const SidebarItem = ({ item, activeItem, openSections, onToggleSection, onSelect }: SidebarItemProps) => {
+const SidebarItem = ({
+  item,
+  activeItem,
+  openSections,
+  onToggleSection,
+  onSelect,
+}: SidebarItemProps) => {
   const isOpen = item.children?.length ? openSections.includes(item.id) : false;
   const isActive = activeItem === item.id;
 
@@ -27,9 +33,11 @@ const SidebarItem = ({ item, activeItem, openSections, onToggleSection, onSelect
         }}
       >
         <span className="menu-icon">{item.icon}</span>
-        <span className="menu-label">{item.label}</span>
-        {item.badge ? <span className="badge">{item.badge}</span> : null}
-        {item.children?.length ? <span className="chevron">{isOpen ? '˅' : '›'}</span> : null}
+        <div className='contenedor-lebel-alert-menu'>
+          <span className="menu-label">{item.label}</span>
+          {item.badge ? <span className="badge">{item.badge}</span> : null}
+        </div>
+        {item.children?.length ? <span className="chevron">{isOpen ? '>' : '>'}</span> : null}
       </button>
 
       {item.children?.length ? (

@@ -12,10 +12,16 @@
     "types": ["vite/client"],
     "skipLibCheck": true,
     "noEmit": true,
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
+
+    // ⬇️ dejamos comentado, NO lo uses:
+    // "ignoreDeprecations": "6.0",
+
+    // ⬇️ QUITA baseUrl completamente
+    // "baseUrl": ".",
+
+    // ⬇️ paths ahora tiene rutas completas relativas al tsconfig
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [

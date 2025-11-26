@@ -9,7 +9,7 @@ export type AutoUpdaterPayload = {
 
 export type AppUpdaterAPI = {
   checkForUpdates: () => Promise<unknown>;
-  onStatus: (callback: (data: AutoUpdaterPayload) => void) => (() => void) | void;
+  onStatus: (callback: (data: AutoUpdaterPayload) => void) => () => void;
 };
 
 export type StockManagerBridge = {

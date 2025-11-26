@@ -1,7 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { DESKTOP_BREAKPOINT, TABLET_BREAKPOINT } from '@/shared/constants/layout';
-import { PDV_CART_ITEMS, PDV_CLIENT_INFO, PDV_PAYMENT_SUMMARY, PDV_SEARCH_RESULTS, SALE_STATUS_BAR } from '@/shared/data/sales';
-import type { SaleCartItem, SaleClientInfo, SalePaymentSummary, SaleSearchResult, SaleStatusInfo } from '@/shared/types/sales';
+import { salesApi } from '@/shared/api/sales';
+import { ApiError } from '@/shared/api/types';
+import { useProductsInventory } from '@/shared/hooks/useProductsInventory';
+import type { SaleCartItem, SaleClientInfo, SalePaymentSummary, SaleSearchResult, SaleStatusInfo, SaleDetail } from '@/shared/types/sales';
+import type { ProductItem } from '@/shared/types/products';
+import { cn } from '@/shared/utils/cn';
+import Modal from '@/ui/molecules/Modal/Modal';
 
 type Step = 'busqueda' | 'carrito' | 'cliente' | 'pago';
 type ViewMode = 'desktop' | 'tablet' | 'mobile';
@@ -9,131 +15,128 @@ type ViewMode = 'desktop' | 'tablet' | 'mobile';
 const formatMoney = (value: number) =>
   value.toLocaleString('es-GT', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const SalesPOS = () => {
-  const [mode, setMode] = useState<ViewMode>('desktop');
-  const [activeStep, setActiveStep] = useState<Step>('busqueda');
-  const [search, setSearch] = useState('');
-  const [cartItems] = useState<SaleCartItem[]>(PDV_CART_ITEMS);
-  const [client] = useState<SaleClientInfo>(PDV_CLIENT_INFO);
-  const [payment] = useState<SalePaymentSummary>(PDV_PAYMENT_SUMMARY);
+const surface =
+  'rounded-3xl border border-white/10 bg-gradient-to-b from-[#050b18] via-[#040713] to-[#010409] p-5 shadow-[0_35px_90px_rgba(3,7,17,0.75)]';
+const ghostButton =
+  'rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:border-white/5 disabled:text-slate-500';
+const labelClass = 'text-xs font-semibold uppercase tracking-[0.35em] text-slate-400';
+const inputClass =
+  'h-11 rounded-2xl border border-white/10 bg-white/5 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-teal-400 focus:outline-none focus:ring-0';
 
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width >= DESKTOP_BREAKPOINT) {
-        setMode('desktop');
-        setActiveStep('busqueda');
-      } else if (width >= TABLET_BREAKPOINT) {
-        setMode('tablet');
-      } else {
-        setMode('mobile');
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+const STEP_FLOW: { id: Step; label: string; helper: string }[] = [
+  { id: 'busqueda', label: '1. Busqueda de productos', helper: 'Escanea o escribe' },
+  { id: 'carrito', label: '2. Carrito de compras', helper: 'Revisa cantidades' },
+  { id: 'cliente', label: '3. Datos del cliente', helper: 'Identifica al comprador' },
+  { id: 'pago', label: '4. Pago y totales', helper: 'Confirma metodo y cambio' },
+];
 
-  const filteredResults = useMemo(() => {
-    if (!search.trim()) return PDV_SEARCH_RESULTS;
-    return PDV_SEARCH_RESULTS.filter((item) => {
-      const haystack = `${item.name} ${item.code}`.toLowerCase();
-      return haystack.includes(search.trim().toLowerCase());
-    });
-  }, [search]);
+const SHORTCUTS = [
+  { key: '/', action: 'Ir al buscador' },
+  { key: 'F2', action: 'Editar cantidad seleccionada' },
+  { key: 'F3', action: 'Modificar precio (segun permisos)' },
+  { key: 'F4', action: 'Aplicar descuento' },
+  { key: 'F5', action: 'Ir al NIT del cliente' },
+  { key: 'F12', action: 'Guardar e imprimir' },
+  { key: 'Ctrl+Z', action: 'Deshacer ultima accion' },
+  { key: 'Ctrl+D', action: 'Duplicar producto' },
+];
 
-  const goToStep = (next: Step) => {
-    if (mode === 'desktop') return;
-    setActiveStep(next);
-  };
-
-  return (
-    <section className="sales-pos">
-      <SaleStatusStrip info={SALE_STATUS_BAR} />
-
-      {mode === 'tablet' && <TabletTabs activeStep={activeStep} onChange={setActiveStep} />}
-
-      <div className={`sales-grid mode-${mode}`}>
-        <SearchPanel
-          hidden={mode === 'tablet' && activeStep !== 'busqueda'}
-          ghost={mode === 'mobile' && activeStep !== 'busqueda'}
-          value={search}
-          onChange={setSearch}
-          results={filteredResults}
-          onAddItem={() => goToStep('carrito')}
-        />
-
-        <CartPanel
-          hidden={mode === 'tablet' && activeStep !== 'carrito'}
-          ghost={mode === 'mobile' && activeStep !== 'carrito'}
-          items={cartItems}
-          onContinue={() => goToStep('cliente')}
-        />
-
-        <ClientPaymentPanel
-          hidden={mode === 'tablet' && activeStep !== 'cliente' && activeStep !== 'pago'}
-          ghost={mode === 'mobile' && activeStep === 'busqueda'}
-          client={client}
-          payment={payment}
-          onContinue={() => goToStep('pago')}
-        />
-      </div>
-
-      <div className="sales-shortcuts card">
-        <div className="shortcuts-title">Atajos rapidos</div>
-        <div className="shortcuts-grid">
-          {[
-            { key: '/', action: 'Focus buscar producto' },
-            { key: 'F2', action: 'Cambiar cantidad seleccionada' },
-            { key: 'F3', action: 'Cambiar precio (segun permisos)' },
-            { key: 'F4', action: 'Aplicar descuento' },
-            { key: 'F5', action: 'Focus NIT cliente' },
-            { key: 'F12', action: 'Guardar e imprimir' },
-            { key: 'Ctrl+Z', action: 'Deshacer ultima accion' },
-            { key: 'Ctrl+D', action: 'Duplicar item' }
-          ].map((item) => (
-            <div key={item.key} className="shortcut-chip">
-              <span className="key">{item.key}</span>
-              <span className="action">{item.action}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+const calcStockState = (product: ProductItem): SaleSearchResult['stockState'] => {
+  if (product.stock <= 0) return 'critical';
+  if (product.stock <= (product.minStock || 1)) return 'low';
+  return 'ok';
 };
 
-export default SalesPOS;
+const STOCK_PILLS: Record<SaleSearchResult['stockState'], string> = {
+  ok: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200',
+  low: 'border-amber-400/30 bg-amber-400/10 text-amber-100',
+  critical: 'border-rose-400/40 bg-rose-500/10 text-rose-200',
+};
 
-const SaleStatusStrip = ({ info }: { info: SaleStatusInfo }) => {
+const StepFlow = memo(({ activeStep }: { activeStep: Step }) => {
+  const currentIndex = STEP_FLOW.findIndex((step) => step.id === activeStep);
+
   return (
-    <header className="sale-status-bar card">
-      <div className="status-item">
-        POS: <strong>{info.pos}</strong>
+    <nav className={cn(surface, 'flex flex-col gap-2 bg-[#050b18]/80 py-4')}>
+      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">1. Buscar  2. Carrito  3. Cliente  4. Pago</p>
+      <ol className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+        {STEP_FLOW.map((step, index) => {
+          const state = index < currentIndex ? 'done' : index === currentIndex ? 'active' : 'idle';
+          return (
+            <li
+              key={step.id}
+              className={cn(
+                'flex flex-1 items-center gap-3 rounded-2xl border px-3 py-2',
+                state === 'active'
+                  ? 'border-sky-400/60 bg-sky-500/10 text-white shadow-[0_8px_20px_rgba(56,189,248,0.25)]'
+                  : state === 'done'
+                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100'
+                  : 'border-white/10 bg-white/5 text-slate-400',
+              )}
+            >
+              <span className="text-xs font-semibold uppercase tracking-[0.35em]">{step.label}</span>
+              <span className="text-xs text-slate-400">{step.helper}</span>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+});
+
+const StatusItem = ({ label, value, icon, variant }: { label: string; value: string; icon: string; variant?: 'pill' }) => (
+  <div
+    className={cn(
+      'flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] tracking-[0.35em]',
+      variant === 'pill' && 'border-sky-400/50 bg-sky-500/10 text-white',
+    )}
+  >
+    <span className="font-mono text-[10px] text-slate-400">{icon}</span>
+    <span>
+      {label}: <span className="text-white">{value}</span>
+    </span>
+  </div>
+);
+
+const SaleStatusStrip = memo(({ info }: { info: SaleStatusInfo }) => {
+  return (
+    <header
+      className={cn(
+        surface,
+        'flex flex-col gap-4 bg-gradient-to-r from-[#152238] via-[#101b2c] to-[#0a0f19] text-xs font-semibold uppercase tracking-[0.35em] text-slate-200 lg:flex-row lg:items-center lg:justify-between',
+      )}
+    >
+      <div className="grid gap-2 text-[11px] sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center lg:gap-4">
+        <StatusItem label="Punto de venta" icon="[POS]" value={info.pos} />
+        <StatusItem label="Turno actual" icon="[TRN]" value={info.shift} />
+        <StatusItem label="Cajero" icon="[USR]" value={info.user} />
+        <StatusItem label="Documento actual" icon="[DOC]" value={info.document} variant="pill" />
       </div>
-      <div className="status-item">
-        Usuario: <strong>{info.user}</strong>
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.35em] text-slate-300">
+        <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+        Punto de venta  Venta en progreso
       </div>
-      <div className="status-item">
-        Turno: <strong>{info.shift}</strong>
-      </div>
-      <div className="status-item pill">Doc: {info.document}</div>
     </header>
   );
-};
+});
 
-const TabletTabs = ({ activeStep, onChange }: { activeStep: Step; onChange: (step: Step) => void }) => {
+const TabletTabs = memo(({ activeStep, onChange }: { activeStep: Step; onChange: (step: Step) => void }) => {
   return (
-    <div className="sales-tabs card">
+    <div className={cn(surface, 'sticky top-16 z-20 flex gap-3 bg-[#040713]/95 p-2 backdrop-blur')}>
       {[
         { id: 'busqueda', label: 'Busqueda' },
         { id: 'carrito', label: 'Carrito' },
         { id: 'cliente', label: 'Cliente' },
-        { id: 'pago', label: 'Pago' }
+        { id: 'pago', label: 'Pago' },
       ].map((tab) => (
         <button
           key={tab.id}
-          className={activeStep === tab.id ? 'active' : ''}
+          className={cn(
+            'flex-1 rounded-2xl border border-white/10 px-3 py-2 text-sm font-semibold transition',
+            activeStep === tab.id
+              ? 'border-sky-400/60 bg-sky-400/20 text-white shadow-[0_10px_25px_rgba(56,189,248,0.35)]'
+              : 'text-slate-400 hover:border-white/30 hover:text-white',
+          )}
           onClick={() => onChange(tab.id as Step)}
           type="button"
         >
@@ -142,281 +145,768 @@ const TabletTabs = ({ activeStep, onChange }: { activeStep: Step; onChange: (ste
       ))}
     </div>
   );
-};
+});
 
-const SearchPanel = ({
-  hidden,
-  ghost,
-  value,
-  onChange,
-  results,
-  onAddItem
-}: {
-  hidden: boolean;
-  ghost: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  results: SaleSearchResult[];
-  onAddItem: () => void;
-}) => {
-  const stockBadge = (state: SaleSearchResult['stockState']) => {
-    if (state === 'critical') return 'CRIT';
-    if (state === 'low') return 'LOW';
-    return 'OK';
-  };
+const SearchResultRow = memo(({ item, index, onAddItem }: { item: SaleSearchResult; index: number; onAddItem: () => void }) => (
+  <button
+    type="button"
+    className="grid grid-cols-[1fr_auto_auto_48px] items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left transition hover:border-sky-400/50"
+    onClick={onAddItem}
+  >
+    <div className="space-y-1">
+      <div className="text-base font-semibold text-white">{item.name}</div>
+      <div className="text-xs text-slate-400">{item.code}</div>
+    </div>
+    <div className="text-right">
+      <div className="text-lg font-semibold text-white">{formatMoney(item.price)}</div>
+      <small className="text-[11px] text-slate-500">Precio</small>
+    </div>
+    <div className={cn('rounded-2xl border px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em]', STOCK_PILLS[item.stockState])}>
+      {item.stockState.toUpperCase()}  {item.stock} en stock
+    </div>
+    <div className="text-right text-xs text-slate-500">{index + 1}</div>
+  </button>
+));
 
-  return (
-    <section className={`sales-panel search-panel ${hidden ? 'is-hidden' : ''} ${ghost ? 'is-ghost' : ''}`} data-step="busqueda">
-      <div className="panel-header">
-        <div>
-          <p className="eyebrow">1. Busqueda de productos</p>
-          <h3>Escanea o escribe para agregar</h3>
-        </div>
-        <div className="status-pill success">Scanner activo</div>
-      </div>
-
-      <div className="search-input">
-        <span className="icon">SRCH</span>
-        <input
-          type="text"
-          placeholder="Codigo/nombre/escaner..."
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <button type="button" className="ghost-btn">
-          *
-        </button>
-      </div>
-
-      <div className="search-hints">
-        <span>Enter agrega primer resultado</span>
-        <span>Flechas navegan resultados</span>
-        <span>+ incrementa cantidad antes de agregar</span>
-      </div>
-
-      <div className="search-results">
-        {results.map((item, index) => (
-          <button key={item.id} type="button" className="result-card" onClick={onAddItem}>
-            <div className="result-main">
-              <div className="result-name">{item.name}</div>
-              <div className="result-code">{item.code}</div>
-            </div>
-            <div className="result-price">{formatMoney(item.price)}</div>
-            <div className={`result-stock state-${item.stockState}`}>Stock: {item.stock} · {stockBadge(item.stockState)}</div>
-            <div className="result-shortcut">{index + 1}</div>
-          </button>
-        ))}
-      </div>
-
-      <div className="search-footer">
-        <button type="button" className="link-btn">
-          + Mas resultados
-        </button>
-        <div className="stock-footnote">
-          Stock disponible: Cafe Espresso 15, Pan Frances 8, Empanada 25
-          <small>Beep visual/sonoro al agregar</small>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const CartPanel = ({
-  hidden,
-  ghost,
-  items,
-  onContinue
-}: {
-  hidden: boolean;
-  ghost: boolean;
-  items: SaleCartItem[];
-  onContinue: () => void;
-}) => {
-  return (
-    <section className={`sales-panel cart-panel ${hidden ? 'is-hidden' : ''} ${ghost ? 'is-ghost' : ''}`} data-step="carrito">
-      <div className="panel-header">
-        <div>
-          <p className="eyebrow">2. Carrito de compras</p>
-          <h3>{items.length} items agregados</h3>
-        </div>
-        <div className="cart-actions">
-          <button type="button" className="ghost-btn">
-            Vaciar
-          </button>
-          <button type="button" className="ghost-btn" title="Ctrl+Z">
-            Deshacer
-          </button>
-        </div>
-      </div>
-
-      <div className="cart-table">
-        <div className="cart-head">
-          <span>#</span>
-          <span>Producto</span>
-          <span>Cant</span>
-          <span>Precio</span>
-          <span>Desc</span>
-          <span>Subtotal</span>
-          <span>Acciones</span>
-        </div>
-        {items.map((item, idx) => (
-          <div key={item.id} className="cart-row">
-            <span>{idx + 1}</span>
-            <div className="cart-name">
-              <strong>{item.name}</strong>
-              <small>{item.code}</small>
-            </div>
-            <input type="number" min={1} defaultValue={item.qty} />
-            <input type="number" min={0} defaultValue={item.price} />
-            <div className="discount-cell">
-              <input type="number" min={0} defaultValue={item.discountPct} />
-              <span className="muted">%</span>
-            </div>
-            <span className="subtotal">{formatMoney(item.subtotal)}</span>
-            <div className="row-actions">
-              <button type="button" className="ghost-btn" title="Editar">
-                Editar
-              </button>
-              <button type="button" className="ghost-btn" title="Eliminar">
-                Eliminar
-              </button>
-            </div>
+const SearchPanel = memo(
+  ({
+    hidden,
+    ghost,
+    value,
+    onChange,
+    onClear,
+    results,
+    onAddItem,
+    loading,
+    error,
+    onRetry,
+  }: {
+    hidden: boolean;
+    ghost: boolean;
+    value: string;
+    onChange: (value: string) => void;
+    onClear: () => void;
+    results: SaleSearchResult[];
+    onAddItem: (productId: string) => void;
+    loading: boolean;
+    error: string | null;
+    onRetry: () => void;
+  }) => {
+    return (
+      <section className={cn(surface, 'space-y-4', hidden && 'hidden', ghost && 'opacity-70 border-dashed border-white/30')} data-step="busqueda">
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <p className={labelClass}>1. Busqueda de productos</p>
+            <h3 className="mt-1 text-2xl font-semibold text-white">Buscar productos</h3>
+            <p className="mt-1 text-sm text-slate-400">Escanea o escribe para agregar rapidamente.</p>
           </div>
-        ))}
-      </div>
+          <div className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold tracking-[0.35em] text-emerald-200">
+            Scanner activo
+          </div>
+        </header>
 
-      <div className="cart-foot">
-        <div className="muted">Validaciones: stock, precio minimo y descuentos por rol.</div>
-        <button type="button" className="primary ghost" onClick={onContinue}>
-          Continuar con cliente →
-        </button>
-      </div>
-    </section>
-  );
-};
-
-const ClientPaymentPanel = ({
-  hidden,
-  ghost,
-  client,
-  payment,
-  onContinue
-}: {
-  hidden: boolean;
-  ghost: boolean;
-  client: SaleClientInfo;
-  payment: SalePaymentSummary;
-  onContinue: () => void;
-}) => {
-  const typeState =
-    client.documentType === 'FACTURA'
-      ? { label: '[FACTURA]', color: '#27ae60', bg: '#123524', message: 'Cliente registrado' }
-      : client.documentType === 'FACTURA_NUEVO'
-      ? { label: '[FACTURA NUEVO]', color: '#f39c12', bg: '#2f2308', message: 'Cliente nuevo - registrar datos' }
-      : { label: '[COMPROBANTE]', color: '#95a5a6', bg: '#1f2b32', message: 'Consumidor final' };
-
-  return (
-    <section className={`sales-panel client-panel ${hidden ? 'is-hidden' : ''} ${ghost ? 'is-ghost' : ''}`} data-step="cliente">
-      <div className="panel-header">
-        <div>
-          <p className="eyebrow">3. Datos del cliente y totales</p>
-          <h3>Identifica al cliente y confirma el tipo de documento</h3>
-        </div>
-        <div className="doc-pill" style={{ color: typeState.color, background: typeState.bg }}>
-          <div className="doc-label">{typeState.label}</div>
-          <small>{typeState.message}</small>
-        </div>
-      </div>
-
-      <div className="client-form">
-        <label className="input-control">
-          <span>NIT</span>
-          <div className="nit-row">
-            <input type="text" defaultValue={client.nit} />
-            <button type="button" className="ghost-btn">
-              Buscar
+        <div className="space-y-2 rounded-3xl border border-white/10 bg-white/5 p-4">
+          <div className="flex flex-col gap-2 md:flex-row">
+            <input
+              type="text"
+              placeholder="Escanea codigo o escribe nombre / codigo"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="flex-1 bg-transparent text-lg text-white placeholder:text-slate-500 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={onClear}
+              className="rounded-2xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/50"
+            >
+              Limpiar
             </button>
           </div>
-        </label>
-        <label className="input-control">
-          <span>Nombre</span>
-          <input type="text" defaultValue={client.name} />
-        </label>
-        <label className="input-control">
-          <span>Telefono</span>
-          <input type="text" defaultValue={client.phone} />
-        </label>
-        <div className="client-actions">
-          <button type="button" className="ghost-btn">
-            + Nuevo cliente
-          </button>
-          <button type="button" className="ghost-btn" onClick={onContinue}>
-            Continuar a pago →
-          </button>
+          <p className="text-xs text-slate-500">Enter: agregar primer resultado  Flechas: navegar  +: aumentar cantidad antes de agregar</p>
         </div>
+
+        {error && (
+          <div className="rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 text-sm text-rose-100">
+            <p>{error}</p>
+            <button type="button" className={ghostButton} onClick={onRetry}>
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        <div className="grid max-h-64 gap-3 overflow-auto pr-1">
+          {loading && <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-400">Cargando catalogo...</div>}
+          {!loading &&
+            results.map((item, index) => (
+              <SearchResultRow key={item.id} item={item} index={index} onAddItem={() => onAddItem(item.id)} />
+            ))}
+          {!loading && results.length === 0 && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-400">
+              No hay coincidencias. Intenta con otro codigo o nombre.
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1 text-sm text-slate-400 lg:flex-row lg:items-center lg:justify-between">
+          <button type="button" className="text-sky-400 transition hover:text-sky-200" onClick={onRetry}>
+            Recargar catalogo
+          </button>
+          <p className="text-xs text-slate-500">Al agregar un producto, se actualiza stock en tiempo real.</p>
+        </div>
+      </section>
+    );
+  },
+);
+const CartRow = memo(
+  ({
+    item,
+    index,
+    onQtyChange,
+    onPriceChange,
+    onRemove,
+  }: {
+    item: SaleCartItem;
+    index: number;
+    onQtyChange: (id: string, qty: number) => void;
+    onPriceChange: (id: string, price: number) => void;
+    onRemove: (id: string) => void;
+  }) => (
+    <div className="grid grid-cols-[30px_1fr_80px_110px_130px_120px] items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+      <span className="text-sm text-slate-400">{index + 1}</span>
+      <div className="space-y-1">
+        <div className="text-sm font-semibold text-white">{item.name}</div>
+        <small className="text-xs text-slate-500">
+          {item.code}  Stock {item.stock}
+        </small>
       </div>
+      <input
+        type="number"
+        min={1}
+        value={item.qty}
+        onChange={(e) => onQtyChange(item.productId, Number(e.target.value))}
+        className={cn(inputClass, 'text-center')}
+      />
+      <input
+        type="number"
+        min={0}
+        value={item.price}
+        onChange={(e) => onPriceChange(item.productId, Number(e.target.value))}
+        className={cn(inputClass, 'text-right')}
+      />
+      <span className="text-right text-sm font-semibold text-white">{formatMoney(item.subtotal)}</span>
+      <div className="flex justify-end gap-2">
+        <button type="button" className={ghostButton} title="Eliminar" onClick={() => onRemove(item.productId)}>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  ),
+);
 
-      <p className="eyebrow">4. Pago y totales</p>
-      <div className="payment-summary" data-step="pago">
-        <div className="summary-block">
-          <div className="summary-row">
+const CartPanel = memo(
+  ({
+    hidden,
+    ghost,
+    items,
+    onContinue,
+    onQtyChange,
+    onPriceChange,
+    onRemove,
+    onClear,
+    onUndo,
+  }: {
+    hidden: boolean;
+    ghost: boolean;
+    items: SaleCartItem[];
+    onContinue: () => void;
+    onQtyChange: (id: string, qty: number) => void;
+    onPriceChange: (id: string, price: number) => void;
+    onRemove: (id: string) => void;
+    onClear: () => void;
+    onUndo: () => void;
+  }) => {
+    const subtitle = items.length === 0 ? 'Sin productos en el carrito' : `${items.length} productos en el carrito`;
+
+    return (
+      <section className={cn(surface, 'space-y-4', hidden && 'hidden', ghost && 'opacity-70 border-dashed border-white/30')} data-step="carrito">
+        <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className={labelClass}>2. Carrito de compras</p>
+            <h3 className="mt-1 text-2xl font-semibold text-white">{subtitle}</h3>
+            <p className="text-sm text-slate-400">Ajusta cantidades, precios y verifica stock.</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="rounded-2xl border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-100 transition hover:border-rose-300 hover:text-white"
+              onClick={onClear}
+            >
+              Vaciar carrito
+            </button>
+            <button type="button" className={ghostButton} title="Ctrl+Z" onClick={onUndo}>
+              Deshacer ultima accion
+            </button>
+          </div>
+        </header>
+
+        <div className="space-y-3">
+          <div className="grid grid-cols-[30px_1fr_80px_110px_130px_120px] gap-3 text-[11px] uppercase tracking-[0.35em] text-slate-500">
+            <span>#</span>
+            <span>Producto</span>
+            <span>Cant.</span>
+            <span>Precio</span>
             <span>Subtotal</span>
-            <strong>{formatMoney(payment.subtotal)}</strong>
+            <span>Acciones</span>
           </div>
-          <div className="summary-row">
-            <span>Impuestos</span>
-            <strong>{formatMoney(payment.tax)}</strong>
-          </div>
-          <div className="summary-row total">
-            <span>Total</span>
-            <strong>{formatMoney(payment.total)}</strong>
-          </div>
-        </div>
-
-        <div className="payment-block">
-          <label className="input-control">
-            <span>Metodo de pago</span>
-            <select defaultValue={payment.method}>
-              <option>Efectivo</option>
-              <option>Tarjeta</option>
-              <option>Transferencia</option>
-              <option>Credito</option>
-              <option>Mixto</option>
-            </select>
-          </label>
-          <label className="input-control">
-            <span>Monto recibido</span>
-            <input type="number" defaultValue={payment.paidWith} />
-          </label>
-          <div className="change-row">
-            <span>Cambio</span>
-            <strong className={payment.change < 0 ? 'danger' : ''}>{formatMoney(payment.change)}</strong>
-          </div>
-
-          <div className="suggestions">
-            {payment.suggestions.map((value) => (
-              <button key={value} type="button" className="ghost-btn">
-                {formatMoney(value)}
-              </button>
+          <div className="space-y-2">
+            {items.map((item, idx) => (
+              <CartRow key={item.productId} item={item} index={idx} onQtyChange={onQtyChange} onPriceChange={onPriceChange} onRemove={onRemove} />
             ))}
           </div>
         </div>
+
+        <div className="flex flex-col gap-3 text-sm text-slate-400 lg:flex-row lg:items-center lg:justify-between">
+          <p>El sistema valida stock disponible en backend. Los cambios se actualizan por WebSocket.</p>
+          <button
+            type="button"
+            className="rounded-2xl bg-gradient-to-r from-sky-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg"
+            onClick={onContinue}
+            disabled={items.length === 0}
+          >
+            Continuar con cliente
+          </button>
+        </div>
+      </section>
+    );
+  },
+);
+
+const ClientPaymentPanel = memo(
+  ({
+    hidden,
+    ghost,
+    client,
+    payment,
+    onContinue,
+    isPaymentStep,
+    onClientChange,
+    onPaidWithChange,
+  }: {
+    hidden: boolean;
+    ghost: boolean;
+    client: SaleClientInfo;
+    payment: SalePaymentSummary;
+    onContinue: () => void;
+    isPaymentStep: boolean;
+    onClientChange: (partial: Partial<SaleClientInfo>) => void;
+    onPaidWithChange: (value: number) => void;
+  }) => {
+    const docPill =
+      client.documentType === 'FACTURA'
+        ? { title: 'Factura a cliente registrado', color: 'text-emerald-300', bg: 'bg-emerald-400/10 border-emerald-400/30' }
+        : client.documentType === 'FACTURA_NUEVO'
+        ? { title: 'Factura a nuevo cliente', color: 'text-amber-300', bg: 'bg-amber-400/10 border-amber-400/30' }
+        : { title: 'Comprobante para consumidor final', color: 'text-slate-300', bg: 'bg-slate-500/10 border-slate-500/30' };
+
+    const changeIsNegative = payment.change < 0;
+    const changeLabel = changeIsNegative ? `Falta cobrar ${formatMoney(Math.abs(payment.change))}` : `Cambio ${formatMoney(payment.change)}`;
+
+    return (
+      <section className={cn(surface, 'space-y-5', hidden && 'hidden', ghost && 'opacity-70 border-dashed border-white/30')} data-step="cliente">
+        <div className="space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+            <p className={labelClass}>3. Datos del cliente</p>
+            <div className="mt-1 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h3 className="text-2xl font-semibold text-white">Identifica al cliente y selecciona el tipo de documento</h3>
+                <p className="mt-2 text-sm text-slate-400">Verifica NIT y nombre antes de continuar.</p>
+              </div>
+              <div className={cn('rounded-2xl border px-4 py-3 text-sm font-semibold', docPill.bg, docPill.color)}>{docPill.title}</div>
+            </div>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label className="flex flex-col gap-2 text-sm text-slate-300">
+                <span className="text-xs uppercase tracking-[0.3em] text-slate-500">NIT</span>
+                <div className="flex gap-2">
+                  <input type="text" value={client.nit} className={inputClass} onChange={(e) => onClientChange({ nit: e.target.value })} />
+                  <button type="button" className={ghostButton} onClick={() => onClientChange({ status: 'registrado' })}>
+                    Validar
+                  </button>
+                </div>
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-300">
+                <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Nombre</span>
+                <input type="text" value={client.name} className={inputClass} onChange={(e) => onClientChange({ name: e.target.value })} />
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-300">
+                <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Telefono</span>
+                <input type="text" value={client.phone ?? ''} className={inputClass} onChange={(e) => onClientChange({ phone: e.target.value })} />
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" className={ghostButton} onClick={() => onClientChange({ documentType: 'FACTURA_NUEVO' })}>
+                  + Nuevo cliente
+                </button>
+                <button
+                  type="button"
+                  className="rounded-2xl bg-gradient-to-r from-emerald-400 to-sky-500 px-4 py-2 text-sm font-semibold text-slate-900"
+                  onClick={onContinue}
+                >
+                  Siguiente: pago
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className={labelClass}>Resumen</p>
+              <div className="mt-3 space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2 text-sm text-slate-300">
+                  <span>Subtotal</span>
+                  <strong className="text-white">{formatMoney(payment.subtotal)}</strong>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/5 pb-2 text-sm text-slate-300">
+                  <span>Impuestos</span>
+                  <strong className="text-white">{formatMoney(payment.tax)}</strong>
+                </div>
+                <div className="flex items-center justify-between pt-2 text-xl font-semibold text-white">
+                  <span>Total</span>
+                  <strong>{formatMoney(payment.total)}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className={labelClass}>{isPaymentStep ? '4. Pago y totales' : 'Pago y totales'}</p>
+              <div className="mt-3 space-y-3">
+                <label className="flex flex-col gap-2 text-sm text-slate-300">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Metodo de pago</span>
+                  <select
+                    className={cn(inputClass, 'bg-[#050b18]')}
+                    value={payment.method}
+                    onChange={(e) => onClientChange({ message: `Pago con ${e.target.value}` })}
+                  >
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Tarjeta">Tarjeta</option>
+                    <option value="Transferencia">Transferencia</option>
+                  </select>
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm text-slate-300">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Recibido</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={payment.paidWith}
+                    onChange={(e) => onPaidWithChange(Number(e.target.value))}
+                    className={cn(inputClass, 'text-right')}
+                  />
+                </label>
+
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Cambio</span>
+                    <strong className={cn(changeIsNegative ? 'text-amber-200' : 'text-white')}>{changeLabel}</strong>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">Sugerencias: {payment.suggestions?.map((s) => formatMoney(s)).join(', ')}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" className={ghostButton} onClick={() => onPaidWithChange(payment.total)}>
+                    Marcar como exacto
+                  </button>
+                  <button type="button" className={ghostButton} onClick={onContinue}>
+                    Continuar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={cn('rounded-3xl border border-white/10 bg-white/5 p-5', isPaymentStep ? 'block' : 'opacity-70')}>
+          <p className={labelClass}>4. Guardar</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className="rounded-2xl bg-gradient-to-r from-emerald-400 to-sky-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg" onClick={onContinue}>
+              Ir a guardar
+            </button>
+            <button type="button" className={ghostButton}>
+              Enviar factura por correo
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  },
+);
+
+const ShortcutsGrid = memo(() => (
+  <div className={cn(surface, 'border-dashed border-white/15 bg-gradient-to-r from-[#050b18] via-[#080e1d] to-[#050b18]')}>
+    <div className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-400">Atajos rapidos</div>
+    <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      {SHORTCUTS.map((item) => (
+        <div key={item.key} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200">
+          <span className="rounded-xl border border-white/20 bg-black/30 px-2 py-1 text-xs font-semibold tracking-[0.35em]">{item.key}</span>
+          <span className="text-slate-300">{item.action}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+));
+
+const SaleResultModal = ({
+  result,
+  onClose,
+}: {
+  result: { sale?: SaleDetail; error?: string } | null;
+  onClose: () => void;
+}) => {
+  if (!result) return null;
+  const sale = result.sale;
+
+  return (
+    <Modal
+      open
+      title={sale ? 'Venta guardada' : 'Error al guardar'}
+      description={sale ? 'La venta se guardo y el stock se desconto.' : 'No se pudo completar la venta.'}
+      onClose={onClose}
+      footer={
+        <button type="button" className="rounded-2xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900" onClick={onClose}>
+          Cerrar
+        </button>
+      }
+    >
+      {sale ? (
+        <div className="space-y-2 text-sm">
+          <p className="text-white">
+            Documento: <strong>{sale.docNumber}</strong>
+          </p>
+          <p>Cliente: {sale.clientName}</p>
+          <p>Total: {formatMoney(sale.total)}</p>
+          <p>Items: {sale.items.length}</p>
+        </div>
+      ) : (
+        <p className="text-sm text-rose-200">{result.error}</p>
+      )}
+    </Modal>
+  );
+};
+const SalesPOS = () => {
+  const [mode, setMode] = useState<ViewMode>('desktop');
+  const [activeStep, setActiveStep] = useState<Step>('busqueda');
+  const [search, setSearch] = useState('');
+  const { products, loading: loadingProducts, error: productsError, reload: reloadProducts } = useProductsInventory();
+  const [cartItems, setCartItems] = useState<SaleCartItem[]>([]);
+  const [history, setHistory] = useState<SaleCartItem[][]>([]);
+  const [client, setClient] = useState<SaleClientInfo>({
+    nit: 'CF',
+    name: 'Consumidor Final',
+    phone: '',
+    documentType: 'COMPROBANTE',
+    status: 'consumidor-final',
+  });
+  const [payment, setPayment] = useState<SalePaymentSummary>({
+    subtotal: 0,
+    tax: 0,
+    total: 0,
+    paidWith: 0,
+    change: 0,
+    method: 'Efectivo',
+    suggestions: [100, 200, 500],
+  });
+  const [banner, setBanner] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ sale?: SaleDetail; error?: string } | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width >= DESKTOP_BREAKPOINT) {
+        setMode('desktop');
+      } else if (width >= TABLET_BREAKPOINT) {
+        setMode('tablet');
+      } else {
+        setMode('mobile');
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setCartItems((prev) =>
+      prev.map((item) => {
+        const product = products.find((p) => p.id === item.productId);
+        if (!product) return item;
+        const nextQty = Math.min(item.qty, product.stock);
+        return { ...item, stock: product.stock, qty: nextQty, subtotal: nextQty * item.price };
+      }),
+    );
+  }, [products]);
+
+  useEffect(() => {
+    const subtotal = cartItems.reduce((acc, item) => acc + item.subtotal, 0);
+    const tax = Math.round(subtotal * 0.12 * 100) / 100;
+    const total = Math.round((subtotal + tax) * 100) / 100;
+    setPayment((prev) => {
+      const paidWith = prev.paidWith || total;
+      const change = Math.round((paidWith - total) * 100) / 100;
+      return { ...prev, subtotal, tax, total, paidWith, change };
+    });
+  }, [cartItems]);
+
+  const statusInfo: SaleStatusInfo = {
+    pos: 'Caja 1',
+    user: 'POS Desktop',
+    shift: 'Turno diurno',
+    document: cartItems.length ? `${cartItems.length} productos` : 'Sin documento',
+  };
+
+  const searchResults = useMemo(() => {
+    const mapped = products
+      .filter((p) => p.active !== false)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        code: p.code,
+        price: p.price,
+        stock: p.stock,
+        minStock: p.minStock,
+        stockState: calcStockState(p),
+      }));
+    if (!search.trim()) return mapped;
+    return mapped.filter((item) => `${item.name} ${item.code}`.toLowerCase().includes(search.trim().toLowerCase()));
+  }, [products, search]);
+
+  const pushHistory = useCallback((snapshot: SaleCartItem[]) => {
+    setHistory((prev) => [...prev.slice(-9), snapshot]);
+  }, []);
+
+  const handleAddItem = useCallback(
+    (productId: string) => {
+      const product = products.find((p) => p.id === productId);
+      if (!product || product.active === false) {
+        setBanner('Producto no disponible');
+        return;
+      }
+      if (product.stock <= 0) {
+        setBanner('No hay stock disponible');
+        return;
+      }
+      setCartItems((prev) => {
+        pushHistory(prev);
+        const exists = prev.find((item) => item.productId === productId);
+        if (exists) {
+          const nextQty = Math.min(exists.qty + 1, product.stock);
+          return prev.map((item) =>
+            item.productId === productId
+              ? { ...item, qty: nextQty, subtotal: nextQty * item.price, stock: product.stock }
+              : item,
+          );
+        }
+        return [
+          ...prev,
+          {
+            productId: product.id,
+            name: product.name,
+            code: product.code,
+            qty: 1,
+            price: product.price,
+            subtotal: product.price,
+            stock: product.stock,
+            discountPct: 0,
+          },
+        ];
+      });
+      setActiveStep('carrito');
+      setBanner(null);
+    },
+    [products, pushHistory],
+  );
+
+  const handleQtyChange = useCallback(
+    (id: string, qty: number) => {
+      if (qty <= 0) return;
+      setCartItems((prev) => {
+        pushHistory(prev);
+        return prev.map((item) => {
+          if (item.productId !== id) return item;
+          const available = item.stock ?? qty;
+          const cappedQty = Math.max(1, Math.min(qty, available));
+          return { ...item, qty: cappedQty, subtotal: cappedQty * item.price };
+        });
+      });
+    },
+    [pushHistory],
+  );
+
+  const handlePriceChange = useCallback(
+    (id: string, price: number) => {
+      if (price < 0) return;
+      setCartItems((prev) => {
+        pushHistory(prev);
+        return prev.map((item) => {
+          if (item.productId !== id) return item;
+          const safePrice = Math.round(price * 100) / 100;
+          return { ...item, price: safePrice, subtotal: safePrice * item.qty };
+        });
+      });
+    },
+    [pushHistory],
+  );
+
+  const handleRemove = useCallback(
+    (id: string) => {
+      setCartItems((prev) => {
+        pushHistory(prev);
+        return prev.filter((item) => item.productId !== id);
+      });
+    },
+    [pushHistory],
+  );
+  const handleClearCart = useCallback(() => {
+    pushHistory(cartItems);
+    setCartItems([]);
+  }, [cartItems, pushHistory]);
+
+  const handleUndo = useCallback(() => {
+    setHistory((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last) return prev;
+      setCartItems(last);
+      return prev.slice(0, -1);
+    });
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => setSearch(value), []);
+  const handleSearchClear = useCallback(() => setSearch(''), []);
+  const handleCartContinue = useCallback(() => setActiveStep('cliente'), []);
+  const handleClientContinue = useCallback(() => setActiveStep('pago'), []);
+  const handleClientChange = useCallback((partial: Partial<SaleClientInfo>) => {
+    setClient((prev) => ({ ...prev, ...partial }));
+  }, []);
+  const handlePaidWithChange = useCallback((value: number) => {
+    setPayment((prev) => {
+      const paidWith = Number.isFinite(value) ? value : prev.paidWith;
+      const change = Math.round((paidWith - prev.total) * 100) / 100;
+      return { ...prev, paidWith, change };
+    });
+  }, []);
+
+  const handleSubmitSale = useCallback(
+    async (mode: 'print' | 'save') => {
+      if (cartItems.length === 0) {
+        setBanner('El carrito esta vacio');
+        return;
+      }
+      setSubmitting(true);
+      setBanner(null);
+      try {
+        const payload = {
+          docType: client.documentType,
+          clientName: client.name || 'Consumidor Final',
+          clientNit: client.nit || 'CF',
+          user: 'cajero01',
+          items: cartItems.map((item) => ({ productId: item.productId, qty: item.qty, price: item.price })),
+        };
+        const sale = await salesApi.create(payload);
+        setResult({ sale });
+        setCartItems([]);
+        setActiveStep('busqueda');
+        setSearch('');
+        reloadProducts();
+        if (mode === 'print') {
+          console.info('Imprimir ticket', sale.docNumber);
+        }
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? `${err.code ?? 'ERROR'}: ${err.message}`
+            : 'No se pudo guardar la venta. Revisa la conexion.';
+        setResult({ error: message });
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [cartItems, client.documentType, client.name, client.nit, reloadProducts],
+  );
+
+  const gridClass = mode === 'mobile' ? 'flex flex-col gap-4' : 'grid gap-4';
+  const gridStyle = mode === 'desktop' ? { gridTemplateColumns: '1.3fr 1fr 0.9fr' } : undefined;
+
+  return (
+    <section className="flex flex-col gap-4 text-slate-100" data-tailwind-view="sales-pos">
+      <SaleStatusStrip info={statusInfo} />
+      <StepFlow activeStep={activeStep} />
+
+      {mode === 'tablet' && <TabletTabs activeStep={activeStep} onChange={setActiveStep} />}
+
+      {banner && <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{banner}</div>}
+
+      <div className={gridClass} style={gridStyle}>
+        <SearchPanel
+          hidden={mode === 'tablet' && activeStep !== 'busqueda'}
+          ghost={mode === 'mobile' && activeStep !== 'busqueda'}
+          value={search}
+          onChange={handleSearchChange}
+          onClear={handleSearchClear}
+          results={searchResults}
+          onAddItem={handleAddItem}
+          loading={loadingProducts}
+          error={productsError}
+          onRetry={reloadProducts}
+        />
+
+        <CartPanel
+          hidden={mode === 'tablet' && activeStep !== 'carrito'}
+          ghost={mode === 'mobile' && activeStep !== 'carrito'}
+          items={cartItems}
+          onContinue={handleCartContinue}
+          onQtyChange={handleQtyChange}
+          onPriceChange={handlePriceChange}
+          onRemove={handleRemove}
+          onClear={handleClearCart}
+          onUndo={handleUndo}
+        />
+
+        <ClientPaymentPanel
+          hidden={mode === 'tablet' && activeStep !== 'cliente' && activeStep !== 'pago'}
+          ghost={mode === 'mobile' && activeStep === 'busqueda'}
+          client={client}
+          payment={payment}
+          isPaymentStep={activeStep === 'pago'}
+          onContinue={handleClientContinue}
+          onClientChange={handleClientChange}
+          onPaidWithChange={handlePaidWithChange}
+        />
       </div>
 
-      <div className="pos-actions">
-        <button type="button" className="primary">
+      <div className={cn(surface, 'flex flex-wrap gap-2 bg-white/5')}>
+        <button
+          type="button"
+          className="rounded-2xl bg-gradient-to-r from-emerald-400 to-sky-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg"
+          onClick={() => handleSubmitSale('print')}
+          disabled={cartItems.length === 0 || submitting}
+        >
           Guardar e imprimir
         </button>
-        <button type="button" className="ghost-btn">
-          Enviar email
-        </button>
-        <button type="button" className="ghost-btn">
-          Enviar WhatsApp
-        </button>
-        <button type="button" className="ghost-btn" disabled>
+        <button type="button" className={ghostButton} onClick={() => handleSubmitSale('save')} disabled={cartItems.length === 0 || submitting}>
           Solo guardar
         </button>
+        <button type="button" className={ghostButton} onClick={() => setBanner('Envio por correo pendiente de configuracion')}>
+          Enviar por correo
+        </button>
+        <button type="button" className={ghostButton} onClick={() => setBanner('Envio por WhatsApp pendiente de configuracion')}>
+          Enviar por WhatsApp
+        </button>
       </div>
+
+      <ShortcutsGrid />
+      <SaleResultModal result={result} onClose={() => setResult(null)} />
     </section>
   );
 };
+
+export default SalesPOS;

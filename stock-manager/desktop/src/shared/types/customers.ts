@@ -1,4 +1,5 @@
 export type CustomerStatus = 'activo' | 'inactivo' | 'credito' | 'contado';
+export type CustomerType = 'persona-natural' | 'persona-juridica' | 'extranjero';
 
 export type CustomerItem = {
   id: string;
@@ -7,15 +8,20 @@ export type CustomerItem = {
   phone: string;
   email: string;
   city: string;
-  type: 'persona-natural' | 'persona-juridica' | 'extranjero';
+  type: CustomerType;
   hasCredit: boolean;
   creditLimit: number;
   creditUsed: number;
   discount: number;
   status: CustomerStatus;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
 };
 
 export type CustomerSaleRow = {
+  id?: string;
+  customerId?: string;
   date: string;
   document: string;
   amount: number;
@@ -29,4 +35,11 @@ export type CustomerCreditRow = {
   used: number;
   available: number;
   daysToDue: number;
+};
+
+export type CustomerListResponse = {
+  data: CustomerItem[];
+  total: number;
+  page: number;
+  pageSize: number;
 };
