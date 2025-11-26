@@ -1,54 +1,32 @@
-export type SupplierStatus = 'activo' | 'inactivo' | 'moroso';
-
 export interface SupplierProps {
   id: string;
   nit: string;
   name: string;
-  contactName: string;
-  phone: string;
-  email: string;
-  cityId: string;
-  categoryId: string;
+  commercialName?: string;
+  email?: string;
+  phone?: string;
   address?: string;
-  creditDays: number;
-  creditLimit: number;
-  status: SupplierStatus;
-  balance: number;
-  overdueDays: number;
-  lastPurchase?: string;
-  lastDocument?: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt?: string | null;
-  deletedBy?: string | null;
+  creditDays?: number;
+  status: 'activo' | 'inactivo';
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class Supplier {
-  constructor(private props: SupplierProps) {}
+  constructor(public readonly props: SupplierProps) { }
 
-  get id(): string {
-    return this.props.id;
+  get id() { return this.props.id; }
+  get nit() { return this.props.nit; }
+  get name() { return this.props.name; }
+
+  updateContactInfo(email?: string, phone?: string, address?: string) {
+    if (email) this.props.email = email;
+    if (phone) this.props.phone = phone;
+    if (address) this.props.address = address;
+    this.props.updatedAt = new Date();
   }
 
-  get status(): SupplierStatus {
-    return this.props.status;
-  }
-
-  get balance(): number {
-    return this.props.balance;
-  }
-
-  update(data: Partial<SupplierProps>) {
-    this.props = { ...this.props, ...data, updatedAt: data.updatedAt ?? new Date().toISOString() };
-  }
-
-  markDeleted(deletedBy?: string) {
-    this.props.deletedAt = new Date().toISOString();
-    this.props.deletedBy = deletedBy ?? 'system';
-    this.props.status = 'inactivo';
-  }
-
-  toJSON(): SupplierProps {
+  toJSON() {
     return { ...this.props };
   }
 }

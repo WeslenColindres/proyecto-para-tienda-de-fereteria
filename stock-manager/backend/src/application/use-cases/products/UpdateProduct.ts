@@ -29,12 +29,10 @@ export interface UpdateProductInput {
 }
 
 export class UpdateProduct {
-  constructor(private readonly store: StoreGateway) {}
+  constructor(private readonly store: StoreGateway) { }
 
   async execute(input: UpdateProductInput) {
-    if (!input.id) {
-      throw new DomainError('VALIDATION_ERROR', 'Id de producto requerido', 400);
-    }
+    this.validateInput(input);
 
     return this.store.withStoreLock((store) => {
       const product = store.products.find((p) => p.id === input.id);
@@ -44,73 +42,12 @@ export class UpdateProduct {
 
       const before = { ...product };
 
-      if (input.name !== undefined) product.name = input.name.trim();
-      if (input.description !== undefined) product.description = input.description;
-      if (input.categoryId !== undefined) {
-        const exists = store.categories.some((c) => c.id === input.categoryId && !c.deletedAt);
-        if (!exists) throw new DomainError('CATEGORY_NOT_FOUND', 'Categoria no valida', 400);
-        product.categoryId = input.categoryId;
-      }
-      if (input.barcode !== undefined) product.barcode = input.barcode;
-      if (input.price !== undefined) {
-        if (input.price <= 0) throw new DomainError('VALIDATION_ERROR', 'Precio invalido', 400);
-        product.price = roundMoney(input.price);
-      }
-      if (input.cost !== undefined) {
-        if (input.cost < 0) throw new DomainError('VALIDATION_ERROR', 'Costo invalido', 400);
-        if (input.price !== undefined && input.cost > input.price) {
-          throw new DomainError('VALIDATION_ERROR', 'Costo mayor que precio', 400);
-        }
-        product.cost = roundMoney(input.cost);
-      }
-      if (input.tax !== undefined) product.tax = input.tax;
-      if (input.unit !== undefined) product.unit = input.unit;
-      if (input.stock !== undefined) {
-        if (input.stock < 0) throw new DomainError('VALIDATION_ERROR', 'Stock invalido', 400);
-        product.stock = input.stock;
-
-        const stockEntry = store.productStock.find((s) => s.productId === product.id);
-        if (stockEntry) {
-          stockEntry.stock = input.stock;
-          stockEntry.available = input.stock;
-          stockEntry.lastMovementAt = new Date().toISOString();
-          stockEntry.lastUpdated = stockEntry.lastMovementAt;
-        } else if (store.warehouses[0]) {
-          store.productStock.push({
-            id: `${product.id}-stk`,
-            productId: product.id,
-            branchId: store.warehouses[0].id,
-            warehouseId: store.warehouses[0].id,
-            stock: input.stock,
-            available: input.stock,
-            reserved: 0,
-            inTransit: 0,
-            lastMovementAt: new Date().toISOString(),
-            lastUpdated: new Date().toISOString(),
-          });
-        }
-      }
-      if (input.minStock !== undefined) {
-        if (input.minStock < 0) throw new DomainError('VALIDATION_ERROR', 'Stock minimo invalido', 400);
-        product.minStock = input.minStock;
-      }
-      if (input.reorderPoint !== undefined) {
-        if (input.reorderPoint < 0) throw new DomainError('VALIDATION_ERROR', 'Punto de reorden invalido', 400);
-        product.reorderPoint = input.reorderPoint;
-      }
-      if (input.maxStock !== undefined) {
-        if (input.maxStock < 0) throw new DomainError('VALIDATION_ERROR', 'Stock maximo invalido', 400);
-        product.maxStock = input.maxStock;
-      }
-      if (input.physicalLocation !== undefined) product.physicalLocation = input.physicalLocation;
-      if (input.supplierId !== undefined) product.supplierId = input.supplierId;
-      if (input.unitId !== undefined) product.unitId = input.unitId;
-      if (input.isInventoriable !== undefined) product.isInventoriable = input.isInventoriable;
-      if (input.isSellable !== undefined) product.isSellable = input.isSellable;
-      if (input.isPurchasable !== undefined) product.isPurchasable = input.isPurchasable;
-      if (input.status !== undefined) product.status = input.status;
-      product.updatedAt = new Date().toISOString();
-      product.updatedBy = input.updatedBy ?? 'system';
+      this.updateBasicFields(product, input);
+      this.updateCategoryIfNeeded(product, store, input);
+      this.updatePricingFields(product, input);
+      this.updateStockFields(product, store, input);
+      this.updateInventorySettings(product, input);
+      this.updateMetadata(product, input);
 
       syncStockAlerts(store, product);
       pushAuditLog(store, {
@@ -123,5 +60,139 @@ export class UpdateProduct {
 
       return product;
     });
+  }
+
+  private validateInput(input: UpdateProductInput): void {
+    if (!input.id) {
+      throw new DomainError('VALIDATION_ERROR', 'Id de producto requerido', 400);
+    }
+  }
+
+  private updateBasicFields(product: any, input: UpdateProductInput): void {
+    if (input.name !== undefined) {
+      product.name = input.name.trim();
+    }
+    if (input.description !== undefined) {
+      product.description = input.description;
+    }
+    if (input.barcode !== undefined) {
+      product.barcode = input.barcode;
+    }
+    if (input.unit !== undefined) {
+      product.unit = input.unit;
+    }
+  }
+
+  private updateCategoryIfNeeded(product: any, store: any, input: UpdateProductInput): void {
+    if (input.categoryId === undefined) return;
+
+    const categoryExists = store.categories.some(
+      (c: any) => c.id === input.categoryId && !c.deletedAt
+    );
+
+    if (!categoryExists) {
+      throw new DomainError('CATEGORY_NOT_FOUND', 'Categoria no valida', 400);
+    }
+
+    product.categoryId = input.categoryId;
+  }
+
+  private updatePricingFields(product: any, input: UpdateProductInput): void {
+    // Validar relación costo-precio primero
+    if (input.cost !== undefined && input.price !== undefined) {
+      if (input.cost > input.price) {
+        throw new DomainError('VALIDATION_ERROR', 'Costo mayor que precio', 400);
+      }
+    }
+
+    if (input.price !== undefined) {
+      if (input.price <= 0) {
+        throw new DomainError('VALIDATION_ERROR', 'Precio invalido', 400);
+      }
+      product.price = roundMoney(input.price);
+    }
+
+    if (input.cost !== undefined) {
+      if (input.cost < 0) {
+        throw new DomainError('VALIDATION_ERROR', 'Costo invalido', 400);
+      }
+      // Validar contra precio existente si no se está actualizando
+      if (input.price === undefined && input.cost > product.price) {
+        throw new DomainError('VALIDATION_ERROR', 'Costo mayor que precio', 400);
+      }
+      product.cost = roundMoney(input.cost);
+    }
+
+    if (input.tax !== undefined) {
+      product.tax = input.tax;
+    }
+  }
+
+  private updateStockFields(product: any, store: any, input: UpdateProductInput): void {
+    this.validateStockInputs(input);
+
+    if (input.stock !== undefined) {
+      product.stock = input.stock;
+      this.updateStockEntry(product, store, input.stock);
+    }
+
+    if (input.minStock !== undefined) product.minStock = input.minStock;
+    if (input.reorderPoint !== undefined) product.reorderPoint = input.reorderPoint;
+    if (input.maxStock !== undefined) product.maxStock = input.maxStock;
+    if (input.physicalLocation !== undefined) product.physicalLocation = input.physicalLocation;
+  }
+
+  private validateStockInputs(input: UpdateProductInput): void {
+    const stockFields = [
+      { value: input.stock, name: 'Stock' },
+      { value: input.minStock, name: 'Stock minimo' },
+      { value: input.reorderPoint, name: 'Punto de reorden' },
+      { value: input.maxStock, name: 'Stock maximo' }
+    ];
+
+    for (const field of stockFields) {
+      if (field.value !== undefined && field.value < 0) {
+        throw new DomainError('VALIDATION_ERROR', `${field.name} invalido`, 400);
+      }
+    }
+  }
+
+  private updateStockEntry(product: any, store: any, newStock: number): void {
+    const now = new Date().toISOString();
+    const stockEntry = store.productStock.find((s: any) => s.productId === product.id);
+
+    if (stockEntry) {
+      stockEntry.stock = newStock;
+      stockEntry.available = newStock;
+      stockEntry.lastMovementAt = now;
+      stockEntry.lastUpdated = now;
+    } else if (store.warehouses[0]) {
+      store.productStock.push({
+        id: `${product.id}-stk`,
+        productId: product.id,
+        branchId: store.warehouses[0].id,
+        warehouseId: store.warehouses[0].id,
+        stock: newStock,
+        available: newStock,
+        reserved: 0,
+        inTransit: 0,
+        lastMovementAt: now,
+        lastUpdated: now,
+      });
+    }
+  }
+
+  private updateInventorySettings(product: any, input: UpdateProductInput): void {
+    if (input.supplierId !== undefined) product.supplierId = input.supplierId;
+    if (input.unitId !== undefined) product.unitId = input.unitId;
+    if (input.isInventoriable !== undefined) product.isInventoriable = input.isInventoriable;
+    if (input.isSellable !== undefined) product.isSellable = input.isSellable;
+    if (input.isPurchasable !== undefined) product.isPurchasable = input.isPurchasable;
+    if (input.status !== undefined) product.status = input.status;
+  }
+
+  private updateMetadata(product: any, input: UpdateProductInput): void {
+    product.updatedAt = new Date().toISOString();
+    product.updatedBy = input.updatedBy ?? 'system';
   }
 }

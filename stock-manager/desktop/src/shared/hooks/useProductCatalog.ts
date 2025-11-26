@@ -21,6 +21,7 @@ export type ProductFormState = {
   tax: string;
   unit: string;
   minStock: string;
+  initialStock: string;
   status: ProductStatus;
 };
 
@@ -35,6 +36,7 @@ const buildFormState = (product?: ProductItem): ProductFormState => ({
   tax: product ? String(product.tax ?? 12) : '12',
   unit: product?.unit ?? 'unidad',
   minStock: product ? String(product.minStock ?? 0) : '',
+  initialStock: '',
   status: product?.status ?? 'activo',
 });
 
@@ -78,7 +80,7 @@ export function useProductCatalog(initialFilters?: ProductFilters) {
       setCounters(response.counters);
 
       if (!selectedId) {
-         const first = response.data[0];
+        const first = response.data[0];
         if (first) {
           setSelectedId(first.id);
           setFormState(buildFormState(first));
@@ -110,15 +112,15 @@ export function useProductCatalog(initialFilters?: ProductFilters) {
     loadPage(1);
   }, [filters.search, filters.categoryId, filters.stockState, filters.status, filters.pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
 
-   useEffect(() => {
-     // Si no hay productos y el total es 0, limpiamos selección y formulario
-     if (meta.total === 0 && products.length === 0 && selectedId) {
-       setSelectedId(null);
-       setMode('create');
-       setFormState(buildFormState());
-     }
-   }, [meta.total, products.length, selectedId]);
-   
+  useEffect(() => {
+    // Si no hay productos y el total es 0, limpiamos selección y formulario
+    if (meta.total === 0 && products.length === 0 && selectedId) {
+      setSelectedId(null);
+      setMode('create');
+      setFormState(buildFormState());
+    }
+  }, [meta.total, products.length, selectedId]);
+
   const setPage = useCallback(
     (page: number) => {
       setFilters((prev) => ({ ...prev, page }));
@@ -162,6 +164,7 @@ export function useProductCatalog(initialFilters?: ProductFilters) {
       tax: Number(formState.tax || 0),
       unit: formState.unit,
       minStock: Number(formState.minStock || 0),
+      stock: mode === 'create' ? Number(formState.initialStock || 0) : undefined,
       status: formState.status,
     };
 

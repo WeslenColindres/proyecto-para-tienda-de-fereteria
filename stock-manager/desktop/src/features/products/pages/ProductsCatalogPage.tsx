@@ -73,6 +73,7 @@ const ProductsCatalogPage = () => {
   );
   const [importMode, setImportMode] = useState<'regular' | 'initial'>('regular');
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
+  const [editorTab, setEditorTab] = useState<'basic' | 'advanced'>('basic');
 
   const selectedProduct = useMemo(
     () => products.find((p) => p.id === selectedId),
@@ -565,195 +566,239 @@ const ProductsCatalogPage = () => {
           data-product-panel="editar"
         >
           <article className="editor-card">
-            <div className="flex items-center justify-between gap-2">
-              <p className="section-eyebrow">Informacion basica</p>
-              {hasChanges && <span className="muted">Hay cambios sin guardar</span>}
-            </div>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="product-code-input">Codigo *</label>
-                <input
-                  id="product-code-input"
-                  type="text"
-                  placeholder="P###"
-                  value={formState.code}
-                  onChange={(e) => setFormState((prev) => ({ ...prev, code: e.target.value }))}
-                />
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="tab-group">
+                <button
+                  className={`tab-btn ${editorTab === 'basic' ? 'active' : ''}`}
+                  onClick={() => setEditorTab('basic')}
+                >
+                  Basico
+                </button>
+                <button
+                  className={`tab-btn ${editorTab === 'advanced' ? 'active' : ''}`}
+                  onClick={() => setEditorTab('advanced')}
+                >
+                  Avanzado
+                </button>
               </div>
-              <div className="field">
-                <label htmlFor="product-name-input">Nombre *</label>
-                <input
-                  id="product-name-input"
-                  type="text"
-                  maxLength={100}
-                  placeholder="Nombre del producto"
-                  value={formState.name}
-                  onChange={(e) => setFormState((prev) => ({ ...prev, name: e.target.value }))}
-                />
-              </div>
-            </div>
-            <div className="field-grid full">
-              <div className="field">
-                <label htmlFor="product-description-input">Descripcion</label>
-                <textarea
-                  id="product-description-input"
-                  rows={3}
-                  placeholder="Notas y detalles"
-                  value={formState.description}
-                  onChange={(e) =>
-                    setFormState((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                ></textarea>
-              </div>
+              {hasChanges && <span className="muted text-sm">Cambios sin guardar</span>}
             </div>
 
-            <div>
-              <p className="section-eyebrow">Precios y costos</p>
-              <div className="field-grid">
-                <div className="field">
-                  <label htmlFor="product-cost-input">Costo</label>
-                  <input
-                    id="product-cost-input"
-                    type="number"
-                    step="0.01"
-                    placeholder="Q0.00"
-                    value={formState.cost}
-                    onChange={(e) => setFormState((prev) => ({ ...prev, cost: e.target.value }))}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="product-price-input">Precio venta</label>
-                  <input
-                    id="product-price-input"
-                    type="number"
-                    step="0.01"
-                    placeholder="Q0.00"
-                    value={formState.price}
-                    onChange={(e) => setFormState((prev) => ({ ...prev, price: e.target.value }))}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="product-tax-input">Impuesto</label>
-                  <select
-                    id="product-tax-input"
-                    value={formState.tax}
-                    onChange={(e) => setFormState((prev) => ({ ...prev, tax: e.target.value }))}
-                  >
-                    <option value="0">0%</option>
-                    <option value="12">12%</option>
-                    <option value="15">15%</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-                <div className="field">
-                  <label htmlFor="product-unit-input">Unidad de medida</label>
-                  <select
-                    id="product-unit-input"
-                    value={formState.unit}
-                    onChange={(e) => setFormState((prev) => ({ ...prev, unit: e.target.value }))}
-                  >
-                    <option value="unidad">Unidad</option>
-                    <option value="kg">Kg</option>
-                    <option value="litro">Litro</option>
-                  </select>
+            {editorTab === 'basic' && (
+              <div className="animate-fade-in">
+                <div className="field-grid">
+                  <div className="field full">
+                    <label htmlFor="product-name-input">Nombre del producto *</label>
+                    <input
+                      id="product-name-input"
+                      type="text"
+                      maxLength={100}
+                      placeholder="Ej: Martillo de uña 16oz"
+                      value={formState.name}
+                      onChange={(e) => setFormState((prev) => ({ ...prev, name: e.target.value }))}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="product-price-input">Precio Venta *</label>
+                    <div className="input-group">
+                      <span className="prefix">Q</span>
+                      <input
+                        id="product-price-input"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={formState.price}
+                        onChange={(e) => setFormState((prev) => ({ ...prev, price: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="product-cost-input">Costo (Opcional)</label>
+                    <div className="input-group">
+                      <span className="prefix">Q</span>
+                      <input
+                        id="product-cost-input"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={formState.cost}
+                        onChange={(e) => setFormState((prev) => ({ ...prev, cost: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  {mode === 'create' && (
+                    <div className="field">
+                      <label htmlFor="product-init-stock">Stock Inicial</label>
+                      <input
+                        id="product-init-stock"
+                        type="number"
+                        placeholder="0"
+                        value={formState.initialStock}
+                        onChange={(e) => setFormState((prev) => ({ ...prev, initialStock: e.target.value }))}
+                      />
+                      <p className="help-text">Se creara un movimiento de entrada automatico.</p>
+                    </div>
+                  )}
+
+                  {mode === 'edit' && (
+                    <div className="field">
+                      <label>Stock Actual</label>
+                      <input
+                        type="number"
+                        readOnly
+                        disabled
+                        value={selectedProduct?.stock ?? 0}
+                        className="bg-gray-100"
+                      />
+                      <p className="help-text">Gestionar en pestaña Movimientos</p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
 
-            <div>
-              <p className="section-eyebrow">Stock y almacenaje</p>
-              <div className="field-grid">
-                <div className="field">
-                  <label htmlFor="product-stock-input">Stock actual</label>
-                  <input
-                    id="product-stock-input"
-                    type="number"
-                    readOnly
-                    value={selectedProduct?.stock ?? 0}
-                  />
+            {editorTab === 'advanced' && (
+              <div className="animate-fade-in">
+                <div className="field-grid">
+                  <div className="field">
+                    <label htmlFor="product-code-input">Codigo</label>
+                    <input
+                      id="product-code-input"
+                      type="text"
+                      placeholder="Autogenerado (P-###)"
+                      value={formState.code}
+                      onChange={(e) => setFormState((prev) => ({ ...prev, code: e.target.value }))}
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="product-barcode-input">Codigo de Barras</label>
+                    <input
+                      id="product-barcode-input"
+                      type="text"
+                      placeholder="Escanear..."
+                      value={formState.barcode}
+                      onChange={(e) => setFormState((prev) => ({ ...prev, barcode: e.target.value }))}
+                    />
+                  </div>
                 </div>
-                <div className="field">
-                  <label htmlFor="product-min-input">Stock minimo</label>
-                  <input
-                    id="product-min-input"
-                    type="number"
-                    placeholder="Minimo sugerido"
-                    value={formState.minStock}
-                    onChange={(e) =>
-                      setFormState((prev) => ({ ...prev, minStock: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="product-barcode-input">Codigo de barras</label>
-                  <input
-                    id="product-barcode-input"
-                    type="text"
-                    placeholder="Escanea o escribe"
-                    value={formState.barcode}
-                    onChange={(e) => setFormState((prev) => ({ ...prev, barcode: e.target.value }))}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="product-category-input">Categoria</label>
-                  <select
-                    id="product-category-input"
-                    value={formState.categoryId}
-                    onChange={(e) =>
-                      setFormState((prev) => ({ ...prev, categoryId: e.target.value }))
-                    }
-                  >
-                    {categories.map((cat) => (
-                      <option value={cat.id} key={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
 
-            <div>
-              <p className="section-eyebrow">Estado</p>
-              <div className="field-grid full">
-                <div className="field">
-                  <label>Estado del producto</label>
-                  <div className="row-actions">
-                    {(['activo', 'inactivo', 'descontinuado'] as ProductStatus[]).map((status) => (
-                      <label key={status} className={`status-chip status-${status}`}>
-                        <input
-                          type="radio"
-                          name="product-status"
-                          checked={formState.status === status}
-                          onChange={() => setFormState((prev) => ({ ...prev, status }))}
-                        />
-                        {status}
-                      </label>
-                    ))}
+                <div className="field-grid full">
+                  <div className="field">
+                    <label htmlFor="product-description-input">Descripcion</label>
+                    <textarea
+                      id="product-description-input"
+                      rows={2}
+                      placeholder="Detalles adicionales..."
+                      value={formState.description}
+                      onChange={(e) =>
+                        setFormState((prev) => ({ ...prev, description: e.target.value }))
+                      }
+                    ></textarea>
+                  </div>
+                </div>
+
+                <p className="section-eyebrow mt-4">Configuracion</p>
+                <div className="field-grid">
+                  <div className="field">
+                    <label htmlFor="product-category-input">Categoria</label>
+                    <select
+                      id="product-category-input"
+                      value={formState.categoryId}
+                      onChange={(e) =>
+                        setFormState((prev) => ({ ...prev, categoryId: e.target.value }))
+                      }
+                    >
+                      {categories.map((cat) => (
+                        <option value={cat.id} key={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="product-tax-input">Impuesto</label>
+                    <select
+                      id="product-tax-input"
+                      value={formState.tax}
+                      onChange={(e) => setFormState((prev) => ({ ...prev, tax: e.target.value }))}
+                    >
+                      <option value="0">Exento (0%)</option>
+                      <option value="12">IVA (12%)</option>
+                      <option value="15">15%</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="product-unit-input">Unidad</label>
+                    <select
+                      id="product-unit-input"
+                      value={formState.unit}
+                      onChange={(e) => setFormState((prev) => ({ ...prev, unit: e.target.value }))}
+                    >
+                      <option value="unidad">Unidad</option>
+                      <option value="kg">Kilogramo</option>
+                      <option value="litro">Litro</option>
+                      <option value="caja">Caja</option>
+                      <option value="paquete">Paquete</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="product-min-input">Stock Minimo</label>
+                    <input
+                      id="product-min-input"
+                      type="number"
+                      placeholder="0"
+                      value={formState.minStock}
+                      onChange={(e) =>
+                        setFormState((prev) => ({ ...prev, minStock: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="field-grid full mt-4">
+                  <div className="field">
+                    <label>Estado</label>
+                    <div className="row-actions">
+                      {(['activo', 'inactivo', 'descontinuado'] as ProductStatus[]).map((status) => (
+                        <label key={status} className={`status-chip status-${status} cursor-pointer`}>
+                          <input
+                            type="radio"
+                            name="product-status"
+                            className="mr-2"
+                            checked={formState.status === status}
+                            onChange={() => setFormState((prev) => ({ ...prev, status }))}
+                          />
+                          {status}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="form-actions">
+            <div className="form-actions mt-6 pt-4 border-t border-gray-200">
               <button className="btn-primary" disabled={saving} onClick={handleSave}>
-                {mode === 'create' ? 'Guardar producto nuevo' : 'Guardar cambios'}
+                {mode === 'create' ? 'Crear Producto' : 'Guardar Cambios'}
               </button>
               <button className="btn-outline" onClick={() => selectProduct(selectedId)}>
                 Cancelar
               </button>
-              <button
-                className="btn-danger"
-                disabled={!selectedId}
-                onClick={() => setShowDelete(true)}
-              >
-                Eliminar
-              </button>
+              {mode === 'edit' && (
+                <button
+                  className="btn-danger ml-auto"
+                  disabled={!selectedId}
+                  onClick={() => setShowDelete(true)}
+                >
+                  Eliminar
+                </button>
+              )}
             </div>
-            <p className="muted">
-              Validaciones activas: codigo duplicado, precio menor que costo, campos obligatorios.
-            </p>
-            {error && <p className="muted">Error: {error}</p>}
+            {error && <p className="error-message mt-2 text-red-600">{error}</p>}
           </article>
         </aside>
       </div>

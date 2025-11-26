@@ -593,12 +593,12 @@ FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 -- VISTAS PARA REPORTERIA
 -- =====================================================
 
-CREATE VIEW vista_stock_consolidado AS
+CREATE OR REPLACE VIEW vista_stock_consolidado AS
 SELECT 
     p.id_producto,
     p.sku,
     p.nombre,
-    s.id_sucursal,
+    sp.id_sucursal,
     su.nombre AS nombre_sucursal,
     sp.cantidad_disponible,
     sp.cantidad_reservada,
@@ -640,7 +640,8 @@ INSERT INTO roles (nombre, descripcion) VALUES
     ('ADMINISTRADOR', 'Acceso total al sistema'),
     ('VENDEDOR', 'Punto de venta y consultas basicas'),
     ('BODEGUERO', 'Gestion de inventario y compras'),
-    ('CONTADOR', 'Acceso a reportes contables');
+    ('CONTADOR', 'Acceso a reportes contables')
+ON CONFLICT (nombre) DO NOTHING;
 
 INSERT INTO tipos_movimiento (codigo, nombre, afecta_stock, modulo_origen) VALUES
     ('VENTA', 'Venta de Producto', 'SALIDA', 'VENTAS'),
@@ -651,7 +652,8 @@ INSERT INTO tipos_movimiento (codigo, nombre, afecta_stock, modulo_origen) VALUE
     ('DEVOLUCION_CLIENTE', 'Devolucion de Cliente', 'ENTRADA', 'VENTAS'),
     ('DEVOLUCION_PROVEEDOR', 'Devolucion a Proveedor', 'SALIDA', 'COMPRAS'),
     ('TRASLADO_SALIDA', 'Traslado entre Sucursales (Salida)', 'SALIDA', 'TRASLADO'),
-    ('TRASLADO_ENTRADA', 'Traslado entre Sucursales (Entrada)', 'ENTRADA', 'TRASLADO');
+    ('TRASLADO_ENTRADA', 'Traslado entre Sucursales (Entrada)', 'ENTRADA', 'TRASLADO')
+ON CONFLICT (codigo) DO NOTHING;
 
 INSERT INTO unidades_medida (codigo, nombre) VALUES
     ('UND', 'Unidad'),
@@ -659,14 +661,37 @@ INSERT INTO unidades_medida (codigo, nombre) VALUES
     ('LT', 'Litro'),
     ('MT', 'Metro'),
     ('CJ', 'Caja'),
-    ('PAQ', 'Paquete');
+    ('PAQ', 'Paquete')
+ON CONFLICT (codigo) DO NOTHING;
 
 INSERT INTO formas_pago (codigo, nombre, dias_acreditacion) VALUES
     ('EFECTIVO', 'Efectivo', 0),
     ('TARJETA', 'Tarjeta Credito/Debito', 1),
     ('TRANSFERENCIA', 'Transferencia Bancaria', 1),
     ('CHEQUE', 'Cheque', 3),
-    ('CREDITO', 'Credito', 30);
+    ('CREDITO', 'Credito', 30)
+ON CONFLICT (codigo) DO NOTHING;
 
 INSERT INTO tipos_impuesto (codigo, nombre, porcentaje, fecha_vigencia_inicio) VALUES
-    ('IVA', 'Impuesto al Valor Agregado', 12.00, '2000-01-01');
+    ('IVA12', 'IVA 12%', 12.00, '2020-01-01'),
+    ('EXENTO', 'Exento', 0.00, '2020-01-01')
+ON CONFLICT (codigo) DO NOTHING;
+
+-- =====================================================
+-- MODULO DE COLAS DE TRABAJO (JOBS)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS jobs (
+    id_job SERIAL PRIMARY KEY,
+    tipo VARCHAR(50) NOT NULL, -- 'IMPORT_PRODUCTS', 'EXPORT_SALES', etc.
+    estado VARCHAR(20) DEFAULT 'PENDIENTE', -- 'PENDIENTE', 'PROCESANDO', 'COMPLETADO', 'FALLIDO'
+    payload JSONB, -- Datos de entrada (e.g., ruta del archivo)
+    resultado JSONB, -- Datos de salida (e.g., filas procesadas, errores)
+    progreso INT DEFAULT 0,
+    mensaje_error TEXT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_inicio TIMESTAMP,
+    fecha_fin TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_estado ON jobs(estado);

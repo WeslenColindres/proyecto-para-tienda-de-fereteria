@@ -452,3 +452,79 @@ tr.selected {
     display: flex;
   }
 }
+
+/* Tabbed Interface Styles */
+.tab-group {
+  display: flex;
+  gap: 4px;
+  background: var(--panel-soft);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.tab-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background: var(--panel);
+  color: var(--accent-1);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Animation */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Input Group */
+.input-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-soft);
+  overflow: hidden;
+}
+
+.input-group .prefix {
+  padding: 0 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.02);
+  border-right: 1px solid var(--border);
+}
+
+.input-group input {
+  border: none;
+  border-radius: 0;
+  flex: 1;
+}
+
+.input-group input:focus {
+  outline: none;
+}
+
+.help-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}

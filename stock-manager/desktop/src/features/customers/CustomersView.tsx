@@ -79,70 +79,93 @@ const CustomersView = ({ activeItem }: CustomersViewProps) => {
       {subView === 'catalogo' && (
         <>
           <section className="customers-toolbar">
-            <div className="customers-actions">
-              <button
-                className="customer-btn new"
-                onClick={() => {
-                  setForm({
-                    nit: '',
-                    name: '',
-                    phone: '',
-                    email: '',
-                    city: '',
-                    type: 'persona-natural',
-                    hasCredit: false,
-                    creditLimit: 0,
-                    creditUsed: 0,
-                    discount: 0,
-                    status: 'activo',
-                  });
-                  setShowCreate(true);
-                  setIsEditing(true);
-                }}
-              >
-                ➕ Nuevo Cliente
-              </button>
-              <button className="customer-btn import" onClick={() => alert('Importar desde Excel/CSV')}>
-                📥 Importar
-              </button>
-              <button className="customer-btn export" onClick={() => alert('Exportar')}>
-                📤 Exportar
-              </button>
-              <button className="customer-btn refresh" onClick={() => window.location.reload()}>
-                🔄 Actualizar
-              </button>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Directorio de Clientes</h2>
+              <div className="customers-actions">
+                <button
+                  className="btn-primary flex items-center gap-2"
+                  onClick={() => {
+                    setForm({
+                      nit: '',
+                      name: '',
+                      phone: '',
+                      email: '',
+                      city: '',
+                      type: 'persona-natural',
+                      hasCredit: false,
+                      creditLimit: 0,
+                      creditUsed: 0,
+                      discount: 0,
+                      status: 'activo',
+                    });
+                    setShowCreate(true);
+                    setIsEditing(true);
+                  }}
+                >
+                  <span>+</span> Nuevo Cliente
+                </button>
+                <button className="btn-ghost border border-white/10" onClick={() => alert('Importar')}>
+                  📥 Importar
+                </button>
+                <button className="btn-ghost border border-white/10" onClick={() => alert('Exportar')}>
+                  📤 Exportar
+                </button>
+              </div>
             </div>
-            <div className="customers-search">
-              <input type="search" placeholder="NIT, nombre, telefono..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
-              <select value={filters.status} onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value as any }))}>
-                <option value="all">Estado</option>
-                <option value="activo">Activos</option>
-                <option value="inactivo">Inactivos</option>
-                <option value="credito">Credito</option>
-                <option value="contado">Contado</option>
-              </select>
-              <select value={filters.city} onChange={(e) => setFilters((prev) => ({ ...prev, city: e.target.value }))}>
-                <option value="all">Ciudad</option>
-                {[...new Set(customers.map((c) => c.city))].map((city) => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
-              <select value={filters.type} onChange={(e) => setFilters((prev) => ({ ...prev, type: e.target.value as any }))}>
-                <option value="all">Tipo</option>
-                <option value="persona-natural">Persona Natural</option>
-                <option value="persona-juridica">Persona Juridica</option>
-                <option value="extranjero">Extranjero</option>
-              </select>
-              <select value={filters.credit} onChange={(e) => setFilters((prev) => ({ ...prev, credit: e.target.value as any }))}>
-                <option value="all">Credito</option>
-                <option value="con">Con credito</option>
-                <option value="sin">Sin credito</option>
-              </select>
-              <button className="customer-btn ghost" onClick={() => setFilters({ search: '', status: 'all', city: 'all', type: 'all', credit: 'all' })}>
-                Limpiar filtros
-              </button>
+
+            <div className="customers-search bg-white/5 p-3 rounded-lg border border-white/10">
+              <div className="input-group flex-1 min-w-[200px]">
+                <span className="prefix">🔍</span>
+                <input
+                  type="search"
+                  placeholder="Buscar por NIT, nombre..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="bg-transparent border-none p-2 w-full focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-2 flex-wrap">
+                <select
+                  value={filters.status}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value as any }))}
+                  className="bg-black/20 border border-white/10 rounded px-3 py-2"
+                >
+                  <option value="all">Todos los Estados</option>
+                  <option value="activo">Activos</option>
+                  <option value="inactivo">Inactivos</option>
+                </select>
+
+                <select
+                  value={filters.city}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, city: e.target.value }))}
+                  className="bg-black/20 border border-white/10 rounded px-3 py-2"
+                >
+                  <option value="all">Todas las Ciudades</option>
+                  {[...new Set(customers.map((c) => c.city))].map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={filters.type}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, type: e.target.value as any }))}
+                  className="bg-black/20 border border-white/10 rounded px-3 py-2"
+                >
+                  <option value="all">Todos los Tipos</option>
+                  <option value="persona-natural">Individual</option>
+                  <option value="persona-juridica">Empresa</option>
+                </select>
+
+                <button
+                  className="text-sm text-blue-400 hover:text-blue-300 px-3"
+                  onClick={() => setFilters({ search: '', status: 'all', city: 'all', type: 'all', credit: 'all' })}
+                >
+                  Limpiar
+                </button>
+              </div>
             </div>
           </section>
 
