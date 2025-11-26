@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { API_BASE_URL } from '../api/httpClient';
+import { getApiBaseUrl, getWsUrl } from '../api/httpClient';
 
 export interface Notification {
     id: string;
@@ -24,7 +24,8 @@ declare global {
     }
 }
 
-const WS_URL = API_BASE_URL.replace(/^http/, 'ws') + '/ws';
+const API_BASE_URL = getApiBaseUrl();
+const WS_URL = getWsUrl();
 
 export function useNotifications() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -37,7 +38,7 @@ export function useNotifications() {
     // Fetch notificaciones desde el backend
     const fetchNotifications = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/notifications`, {
+            const response = await fetch(`${API_BASE_URL}/api/notifications`, {
                 headers: {
                     'X-Source-App': 'stock-manager-desktop',
                 },
@@ -60,7 +61,7 @@ export function useNotifications() {
     // Marcar como leída
     const markAsRead = useCallback(async (id: string) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+            const response = await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
                 method: 'PATCH',
                 headers: {
                     'X-Source-App': 'stock-manager-desktop',
@@ -82,7 +83,7 @@ export function useNotifications() {
     // Eliminar notificación
     const deleteNotification = useCallback(async (id: string) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/notifications/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/notifications/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'X-Source-App': 'stock-manager-desktop',

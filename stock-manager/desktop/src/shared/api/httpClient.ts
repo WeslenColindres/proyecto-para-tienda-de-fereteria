@@ -1,14 +1,24 @@
 import { ApiError } from './types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
+const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
+
+const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+const stripApiSuffix = (value: string) => value.replace(/\/api$/i, '');
 
 const resolveBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const desktopBase = (window as any)?.stockManager?.apiBaseUrl;
-    if (desktopBase) return String(desktopBase).replace(/\/$/, '');
+    if (desktopBase) return stripApiSuffix(trimTrailingSlash(String(desktopBase)));
   }
-  return API_BASE_URL.replace(/\/$/, '');
+  return stripApiSuffix(trimTrailingSlash(DEFAULT_API_BASE_URL));
 };
+
+export const getApiBaseUrl = () => resolveBaseUrl();
+export const getWsUrl = () => `${getApiBaseUrl().replace(/^http/i, 'ws')}/ws`;
+
+// Mantener compatibilidad con imports existentes
+export const API_BASE_URL = getApiBaseUrl();
+export const WS_URL = getWsUrl();
 
 // Construye cabeceras seguras para cada request
 const buildHeaders = (init?: RequestInit) => {
@@ -25,8 +35,13 @@ const buildHeaders = (init?: RequestInit) => {
   return headers;
 };
 
+const buildUrl = (path: string) => {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${getApiBaseUrl()}${normalizedPath}`;
+};
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${resolveBaseUrl()}${path}`, {
+  const response = await fetch(buildUrl(path), {
     ...init,
     headers: buildHeaders(init),
   });
@@ -42,7 +57,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 }
 
 export async function apiFetchBlob(path: string, init?: RequestInit): Promise<Blob> {
-  const response = await fetch(`${resolveBaseUrl()}${path}`, {
+  const response = await fetch(buildUrl(path), {
     ...init,
     headers: buildHeaders(init),
   });
@@ -60,5 +75,3 @@ export async function apiFetchBlob(path: string, init?: RequestInit): Promise<Bl
 
   return response.blob();
 }
-
-export { API_BASE_URL };

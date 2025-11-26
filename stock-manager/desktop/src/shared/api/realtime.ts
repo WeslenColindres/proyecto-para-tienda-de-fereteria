@@ -1,9 +1,11 @@
 import type { RealtimeEvent, RealtimeHandler } from '../types/realtime';
+import { getWsUrl } from './httpClient';
 
-const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:4000/ws';
+const WS_URL = getWsUrl();
 
 let socket: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let retryDelay = 1500;
 const listeners = new Set<RealtimeHandler>();
 
 function connect() {
@@ -16,6 +18,7 @@ function connect() {
       clearTimeout(reconnectTimer);
       reconnectTimer = null;
     }
+    retryDelay = 1500;
   };
 
   socket.onmessage = (event) => {
@@ -28,11 +31,14 @@ function connect() {
   };
 
   socket.onclose = () => {
-    reconnectTimer = setTimeout(connect, 1500);
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(connect, retryDelay);
+    retryDelay = Math.min(retryDelay * 2, 15000); // backoff simple para evitar spam
   };
 
   socket.onerror = () => {
-    socket?.close();
+    // Si falla el handshake no forzamos close inmediato para evitar el error "closed before established".
+    // Dejamos que onclose maneje el reintento.
   };
 }
 
@@ -48,4 +54,3 @@ export function subscribeRealtime(handler: RealtimeHandler): () => void {
     }
   };
 }
-
