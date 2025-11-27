@@ -49,7 +49,14 @@ export function subscribeRealtime(handler: RealtimeHandler): () => void {
   return () => {
     listeners.delete(handler);
     if (listeners.size === 0 && socket) {
-      socket.close();
+      if (socket.readyState === WebSocket.CONNECTING) {
+        // Avoid "WebSocket is closed before the connection is established" warning
+        const ws = socket;
+        ws.onopen = () => ws.close();
+        ws.onerror = () => { }; // Suppress errors for this socket
+      } else {
+        socket.close();
+      }
       socket = null;
     }
   };

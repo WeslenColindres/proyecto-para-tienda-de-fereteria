@@ -54,4 +54,8 @@ export class WebsocketHub {
       console.error('Webhook notify failed', error);
     }
   }
+
+  get clientCount(): number {
+    return this.wss.clients.size;
+  }
 }

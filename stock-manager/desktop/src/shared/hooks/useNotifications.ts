@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getApiBaseUrl, getWsUrl } from '../api/httpClient';
+import { useBackendHealth } from './useBackendHealth';
 
 export interface Notification {
     id: string;
@@ -125,12 +126,20 @@ export function useNotifications() {
         }
     }, []);
 
+    const { isReady } = useBackendHealth();
+
     // Conectar WebSocket para notificaciones en tiempo real
     useEffect(() => {
         let isMounted = true;
 
+        if (!isReady) return;
+
         const connectWebSocket = () => {
             if (!isMounted) return;
+
+            if (wsRef.current?.readyState === WebSocket.OPEN || wsRef.current?.readyState === WebSocket.CONNECTING) {
+                return;
+            }
 
             const ws = new WebSocket(WS_URL);
             wsRef.current = ws;
@@ -167,7 +176,7 @@ export function useNotifications() {
             };
 
             ws.onerror = (error) => {
-                console.error('[WebSocket] Error:', error);
+                // console.error('[WebSocket] Error:', error);
             };
 
             ws.onclose = () => {
@@ -175,7 +184,7 @@ export function useNotifications() {
                 wsRef.current = null;
 
                 // Intentar reconectar después de 5 segundos
-                if (isMounted) {
+                if (isMounted && isReady) {
                     reconnectTimeoutRef.current = setTimeout(() => {
                         console.log('[WebSocket] Attempting to reconnect...');
                         connectWebSocket();
@@ -202,7 +211,7 @@ export function useNotifications() {
                 reconnectTimeoutRef.current = null;
             }
         };
-    }, [fetchNotifications, showNativeNotification]);
+    }, [fetchNotifications, showNativeNotification, isReady]);
 
     return {
         notifications,

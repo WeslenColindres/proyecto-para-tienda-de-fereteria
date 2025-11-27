@@ -55,6 +55,13 @@ export class ClientService {
     }
 
     /**
+     * Get client by ID
+     */
+    async getClientById(id: number): Promise<Client | null> {
+        return this.clientRepository.findById(id);
+    }
+
+    /**
      * Get client by NIT
      */
     async getClientByNit(nit: string): Promise<Client | null> {

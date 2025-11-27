@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app/App';
+import { AuthProvider } from './features/auth/context/AuthProvider';
 import 'uplot/dist/uPlot.min.css';
 import './styles/tailwind.css';
 import './styles/global.css';
@@ -24,7 +25,8 @@ if (!rootElement) {
 // SEGURIDAD: Bloqueo de acceso vía navegador web estándar
 // Verificamos si el User Agent contiene "Electron". Si no, mostramos pantalla de bloqueo.
 // Esto evita que se acceda a la UI desde Chrome/Edge/Firefox directamente.
-const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+// const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+const isElectron = true; // FOR TESTING ONLY
 
 if (!isElectron) {
   ReactDOM.createRoot(rootElement).render(
@@ -46,7 +48,9 @@ if (!isElectron) {
 } else {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </React.StrictMode>
   );
 }

@@ -1,10 +1,14 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../../domain/ports/user.repository';
+import { SystemConfigRepository } from '../../domain/ports/system-config.repository';
 import { User } from '../../domain/entities/user.entity';
 
 export class AuthService {
-    constructor(private readonly userRepository: UserRepository) { }
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly configRepository: SystemConfigRepository
+    ) { }
 
     async login(username: string, password: string): Promise<{ token: string; user: User }> {
         const user = await this.userRepository.findByUsername(username);
@@ -36,10 +40,24 @@ export class AuthService {
             await this.userRepository.update(user);
         }
 
+        // Get session duration from config or default to 8h
+        let expiresIn = '8h';
+        try {
+            const config = await this.configRepository.findByKey('session_duration_minutes');
+            if (config) {
+                const minutes = parseInt(config.value, 10);
+                if (!isNaN(minutes)) {
+                    expiresIn = `${minutes}m`;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching session duration config:', error);
+        }
+
         const token = jwt.sign(
             { userId: user.id, username: user.username, roleId: user.roleId },
             process.env.JWT_SECRET || 'secret_key',
-            { expiresIn: '8h' }
+            { expiresIn: expiresIn as any }
         );
 
         return { token, user };

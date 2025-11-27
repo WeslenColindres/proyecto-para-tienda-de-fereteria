@@ -2,8 +2,11 @@ import { Request, Response } from 'express';
 import { AuthService } from '../../../application/services/auth.service';
 import { PostgresUserRepository } from '../../repositories/postgres-user.repository';
 
+import { PostgresSystemConfigRepository } from '../../repositories/postgres-system-config.repository';
+
 const userRepository = new PostgresUserRepository();
-const authService = new AuthService(userRepository);
+const configRepository = new PostgresSystemConfigRepository();
+const authService = new AuthService(userRepository, configRepository);
 
 export class AuthController {
     async login(req: Request, res: Response) {

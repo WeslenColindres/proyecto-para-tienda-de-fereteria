@@ -12,7 +12,8 @@ export class PostgresProductRepository implements ProductRepository {
         id_unidad_medida as "unitOfMeasureId", id_proveedor_principal as "mainProviderId",
         es_inventariable as "isInventoriable", es_vendible as "isSellable",
         es_comprable as "isBuyable", activo as "isActive",
-        fecha_creacion as "createdAt", fecha_modificacion as "updatedAt"
+        fecha_creacion as "createdAt", fecha_modificacion as "updatedAt",
+        imagen_url as "imageUrl"
        FROM productos WHERE id_producto = $1`,
             [id]
         );
@@ -28,7 +29,8 @@ export class PostgresProductRepository implements ProductRepository {
         id_unidad_medida as "unitOfMeasureId", id_proveedor_principal as "mainProviderId",
         es_inventariable as "isInventoriable", es_vendible as "isSellable",
         es_comprable as "isBuyable", activo as "isActive",
-        fecha_creacion as "createdAt", fecha_modificacion as "updatedAt"
+        fecha_creacion as "createdAt", fecha_modificacion as "updatedAt",
+        imagen_url as "imageUrl"
        FROM productos WHERE sku = $1`,
             [sku]
         );
@@ -87,6 +89,7 @@ export class PostgresProductRepository implements ProductRepository {
         p.es_inventariable as "isInventoriable", p.es_vendible as "isSellable",
         p.es_comprable as "isBuyable", p.activo as "isActive",
         p.fecha_creacion as "createdAt", p.fecha_modificacion as "updatedAt",
+        p.imagen_url as "imageUrl",
         COALESCE(SUM(sp.cantidad_disponible), 0) as stock,
         COALESCE(MAX(pp.precio), 0) as price
        FROM productos p
@@ -113,8 +116,8 @@ export class PostgresProductRepository implements ProductRepository {
         const result = await query(
             `INSERT INTO productos (
         sku, codigo_barras, nombre, descripcion, id_categoria, id_unidad_medida,
-        id_proveedor_principal, es_inventariable, es_vendible, es_comprable, activo
-       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id_producto as id`,
+        id_proveedor_principal, es_inventariable, es_vendible, es_comprable, activo, imagen_url
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id_producto as id`,
             [
                 product.sku,
                 product.props.barcode,
@@ -127,6 +130,7 @@ export class PostgresProductRepository implements ProductRepository {
                 product.props.isSellable,
                 product.props.isBuyable,
                 product.props.isActive,
+                product.props.imageUrl
             ]
         );
         return new Product({ ...product.props, id: result.rows[0].id });
@@ -138,8 +142,8 @@ export class PostgresProductRepository implements ProductRepository {
         sku = $1, codigo_barras = $2, nombre = $3, descripcion = $4,
         id_categoria = $5, id_unidad_medida = $6, id_proveedor_principal = $7,
         es_inventariable = $8, es_vendible = $9, es_comprable = $10,
-        activo = $11, fecha_modificacion = CURRENT_TIMESTAMP
-       WHERE id_producto = $12`,
+        activo = $11, imagen_url = $12, fecha_modificacion = CURRENT_TIMESTAMP
+       WHERE id_producto = $13`,
             [
                 product.sku,
                 product.props.barcode,
@@ -152,6 +156,7 @@ export class PostgresProductRepository implements ProductRepository {
                 product.props.isSellable,
                 product.props.isBuyable,
                 product.props.isActive,
+                product.props.imageUrl,
                 product.id,
             ]
         );

@@ -32,6 +32,7 @@ export interface ProductProps {
   createdBy?: string;
   updatedBy?: string;
   active?: boolean;
+  imageUrl?: string;
 }
 
 export class Product {
@@ -84,6 +85,10 @@ export class Product {
     return this.props.minStock;
   }
 
+  get imageUrl(): string | undefined {
+    return this.props.imageUrl;
+  }
+
   get isActive(): boolean {
     return (this.props.status !== 'descontinuado' && !this.props.deletedAt) || this.props.active === true;
   }
@@ -118,6 +123,7 @@ export class Product {
     if (partial.reorderPoint !== undefined) this.props.reorderPoint = partial.reorderPoint;
     if (partial.maxStock !== undefined) this.props.maxStock = partial.maxStock;
     if (partial.physicalLocation !== undefined) this.props.physicalLocation = partial.physicalLocation;
+    if (partial.imageUrl !== undefined) this.props.imageUrl = partial.imageUrl;
     this.props.updatedAt = new Date().toISOString();
   }
 

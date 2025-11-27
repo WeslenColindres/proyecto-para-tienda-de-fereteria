@@ -249,8 +249,50 @@ export class SalesService {
         }
     }
 
-    async getSaleById(id: number): Promise<Sale | null> {
-        return this.saleRepository.findById(id);
+    async getSaleById(id: number): Promise<any> {
+        const sale = await this.saleRepository.findById(id);
+        if (!sale) return null;
+
+        const details = await this.saleDetailRepository.findBySaleId(id);
+
+        let clientName = 'Consumidor Final';
+        let clientNit = 'CF';
+
+        if (sale.props.clientId) {
+            const client = await this.clientService.getClientById(sale.props.clientId);
+            if (client) {
+                clientName = client.name;
+                clientNit = client.nit;
+            }
+        }
+
+        return {
+            id: sale.id,
+            docNumber: sale.documentNumber,
+            docType: sale.props.documentType,
+            datetime: sale.props.saleDate,
+            clientName,
+            clientNit,
+            user: 'Usuario Sistema', // TODO: Fetch actual user name
+            items: details.map(d => ({
+                productId: d.props.productId,
+                code: '', // TODO: Need to fetch product code, maybe join in repository?
+                name: d.props.description,
+                qty: d.props.quantity,
+                price: d.props.unitPrice,
+                subtotal: d.props.lineTotal
+            })),
+            subtotal: sale.props.subtotal,
+            tax: sale.props.totalTaxes,
+            total: sale.finalTotal,
+            status: sale.props.status,
+            // FEL info
+            satUuid: sale.props.satUuid,
+            satAuthNumber: sale.props.satAuthNumber,
+            satSeries: sale.props.satSeries,
+            satNumber: sale.props.satNumber,
+            certificationDate: sale.props.certificationDate
+        };
     }
 
     async getSales(params: any): Promise<{ sales: any[]; total: number }> {

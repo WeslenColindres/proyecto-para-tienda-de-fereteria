@@ -55,6 +55,14 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   const body = isJson ? await response.json().catch(() => undefined) : undefined;
 
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      // Token expired or invalid
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_info');
+      // Dispatch event to notify app (optional, but reload is safer)
+      window.location.reload();
+      throw new ApiError('Sesión expirada', response.status);
+    }
     throw new ApiError(body?.message ?? 'Error en la solicitud', response.status, body?.error, body);
   }
 

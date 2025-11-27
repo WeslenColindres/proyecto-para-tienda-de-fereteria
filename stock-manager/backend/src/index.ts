@@ -15,15 +15,18 @@ import categoryRoutes from './infrastructure/http/routes/category.routes';
 import dashboardRoutes from './infrastructure/http/routes/dashboard.routes';
 import reportRoutes from './infrastructure/http/routes/report.routes';
 import clientsRoutes from './infrastructure/http/routes/clients.routes';
+import systemConfigRoutes from './infrastructure/http/routes/system-config.routes';
 import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
 import path from 'path';
+import { WebsocketHub } from './infrastructure/realtime/websocketHub';
+import { createHealthRoutes } from './infrastructure/http/routes/health.routes';
 
 dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+// Initialize WebsocketHub
+const wsHub = new WebsocketHub(server);
 
 // Middleware
 app.use(helmet({
@@ -49,21 +52,10 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/clients', clientsRoutes);
-
-// WebSocket
-wss.on('connection', (ws) => {
-  console.log('New client connected');
-  ws.on('message', (message) => {
-    console.log(`Received: ${message}`);
-  });
-  // Send JSON to avoid SyntaxError on client
-  ws.send(JSON.stringify({ type: 'system', message: 'Welcome to Stock Manager WebSocket' }));
-});
+app.use('/api/system-config', systemConfigRoutes);
 
 // Health Check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
-});
+app.use('/api/health', createHealthRoutes(wsHub));
 
 const PORT = process.env.PORT || 4000;
 

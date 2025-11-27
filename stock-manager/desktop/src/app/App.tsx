@@ -20,9 +20,11 @@ import { buildMenuIndex } from '@/shared/utils/menu';
 import AppHeader from '@/ui/organisms/AppHeader/AppHeader';
 import AppSidebar from '@/ui/organisms/AppSidebar/AppSidebar';
 import NotificationCenter from '@/ui/organisms/NotificationCenter/NotificationCenter';
-import { LoginModal } from '@/features/auth/LoginModal';
+import { useAuth } from '@/features/auth/context/AuthContext';
+import { LoginScreen } from '@/features/auth/LoginScreen';
 
 const App = () => {
+  const { isAuthenticated } = useAuth();
   const { layout, setLayout } = useLayoutState();
   const viewport = useViewport(layout.sidebarExpanded);
   const {
@@ -42,14 +44,6 @@ const App = () => {
 
   const [chartView, setChartView] = useState<ChartView>('week');
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [isLoginOpen, setLoginOpen] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      setLoginOpen(true);
-    }
-  }, []);
 
   const menuIndex = useMemo(() => buildMenuIndex(sidebarSections), []);
   const setActiveItem = useCallback(
@@ -105,6 +99,10 @@ const App = () => {
       return { ...prev, openSections };
     });
   };
+
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
 
   return (
     <div className="app-shell">
@@ -180,14 +178,6 @@ const App = () => {
       >
         +
       </button>
-
-      <LoginModal
-        open={isLoginOpen}
-        onLoginSuccess={() => {
-          setLoginOpen(false);
-          window.location.reload(); // Reload to refresh data with new token
-        }}
-      />
     </div>
   );
 };
