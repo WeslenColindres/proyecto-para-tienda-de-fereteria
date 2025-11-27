@@ -119,12 +119,28 @@ export const ProductImportModal = ({ onClose, onSuccess }: ProductImportModalPro
                             <tbody>
                                 {previewData.map((row, i) => (
                                     <tr key={i} className={`border-b hover:bg-gray-50 ${row.isNew ? 'bg-green-50/30' : ''}`}>
-                                        <td className="p-2 font-mono text-xs">{row.code}</td>
+                                        <td className="p-2 font-mono text-xs">
+                                            <div className="flex items-center gap-2">
+                                                {row.errors && row.errors.length > 0 && (
+                                                    <div className="group relative">
+                                                        <div className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold cursor-help">!</div>
+                                                        <div className="absolute left-full top-0 ml-2 w-48 p-2 bg-red-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
+                                                            <ul className="list-disc pl-3">
+                                                                {row.errors.map((err: string, idx: number) => (
+                                                                    <li key={idx}>{err}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {row.code}
+                                            </div>
+                                        </td>
                                         <td className="p-2">
                                             <input
                                                 value={row.name}
                                                 onChange={e => updateRow(i, 'name', e.target.value)}
-                                                className="w-full border-gray-300 rounded text-sm focus:ring-1 focus:ring-blue-500"
+                                                className={`w-full border rounded text-sm focus:ring-1 focus:ring-blue-500 ${!row.name ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
                                             />
                                         </td>
                                         <td className="p-2 text-gray-600">{row.category}</td>

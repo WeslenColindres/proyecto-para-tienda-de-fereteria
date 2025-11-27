@@ -206,10 +206,11 @@ export class ImportExportService {
         return result.rows[0];
     }
 
-    async parseProductFile(filePath: string): Promise<ParsedProduct[]> {
+    async parseProductFile(filePath: string, originalName: string = ''): Promise<ParsedProduct[]> {
         const rows: any[] = [];
+        const isCsv = originalName.toLowerCase().endsWith('.csv') || filePath.endsWith('.csv');
 
-        if (filePath.endsWith('.csv')) {
+        if (isCsv) {
             await new Promise((resolve, reject) => {
                 fs.createReadStream(filePath)
                     .pipe(csv())

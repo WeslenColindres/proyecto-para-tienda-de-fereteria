@@ -164,7 +164,7 @@ export class InventoryController {
             if (!req.file) {
                 return res.status(400).json({ message: 'File is required' });
             }
-            const parsed = await importExportService.parseProductFile(req.file.path);
+            const parsed = await importExportService.parseProductFile(req.file.path, req.file.originalname);
             res.json(parsed);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
