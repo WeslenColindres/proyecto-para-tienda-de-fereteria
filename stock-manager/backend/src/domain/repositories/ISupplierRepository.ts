@@ -39,4 +39,5 @@ export interface ISupplierRepository {
     restore(id: string): Promise<void>;
     updateBalance(id: string, balance: number): Promise<void>;
     getCatalogs(): Promise<SupplierCatalogs>;
+    getReport(params: { from?: string; to?: string }): Promise<any>;
 }

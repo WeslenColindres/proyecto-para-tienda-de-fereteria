@@ -205,5 +205,29 @@ export const SuppliersRepository: ISupplierRepository = {
                 active: r.activa
             }))
         };
+    },
+
+    async getReport(params: { from?: string; to?: string }): Promise<any> {
+        let whereClause = 'WHERE deleted_at IS NULL';
+        const queryParams: any[] = [];
+
+        if (params.from) {
+            whereClause += ` AND fecha_registro >= $${queryParams.length + 1}`;
+            queryParams.push(params.from);
+        }
+        if (params.to) {
+            whereClause += ` AND fecha_registro <= $${queryParams.length + 1}`;
+            queryParams.push(params.to);
+        }
+
+        const result = await pool.query(
+            `SELECT * FROM proveedores ${whereClause} ORDER BY fecha_registro DESC`,
+            queryParams
+        );
+
+        return {
+            data: result.rows.map(mapToEntity),
+            total: result.rowCount
+        };
     }
 };

@@ -753,7 +753,7 @@ const SalesPOS = () => {
   const handleQtyChange = useCallback((id: string, qty: number) => {
     setCartItems(prev => prev.map(item => {
       if (item.productId !== id) return item;
-      const newQty = Math.max(1, Math.min(qty, item.stock));
+      const newQty = Math.max(1, Math.min(qty, item.stock ?? Infinity));
       return { ...item, qty: newQty, subtotal: newQty * item.price };
     }));
   }, []);

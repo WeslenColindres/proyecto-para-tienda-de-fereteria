@@ -231,5 +231,19 @@ export const SuppliersController = {
             console.error('Error getting purchases:', error);
             res.status(500).json({ message: 'Error al obtener compras' });
         }
+    },
+
+    report: async (req: Request, res: Response) => {
+        try {
+            const { from, to } = req.query;
+            const report = await SuppliersRepository.getReport({
+                from: from as string,
+                to: to as string
+            });
+            res.json(report);
+        } catch (error) {
+            console.error('Error getting report:', error);
+            res.status(500).json({ message: 'Error al obtener reporte' });
+        }
     }
 };

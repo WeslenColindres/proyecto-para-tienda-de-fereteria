@@ -57,7 +57,6 @@ export function useSuppliers() {
   });
   const [searchInput, setSearchInput] = useState('');
   const [page, setPage] = useState(1);
-  const [cache, setCache] = useState<Record<number, CacheEntry>>({});
   const [catalogs, setCatalogs] = useState<SupplierCatalogs>({ cities: [], categories: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +67,14 @@ export function useSuppliers() {
   const [showHistory, setShowHistory] = useState(false);
   const [form, setForm] = useState<SupplierFormState>(buildFormState());
   const [purchases, setPurchases] = useState<SupplierPurchaseRow[]>([]);
+  const [cacheVersion, setCacheVersion] = useState(0); // Force re-render when cache changes
 
   const pageSize = 12;
   const filtersRef = useRef<SupplierFilters>(filters);
+  const cacheRef = useRef<Record<number, CacheEntry>>({});
+  const isFetchingRef = useRef<Set<number>>(new Set()); // Track in-flight requests
 
-  const currentEntry = cache[page];
+  const currentEntry = cacheRef.current[page];
   const suppliers = currentEntry?.data ?? [];
   const total = currentEntry?.total ?? 0;
   const counters = currentEntry?.counters ?? { activo: 0, inactivo: 0, moroso: 0 };
@@ -86,7 +88,9 @@ export function useSuppliers() {
   }, [selected]);
 
   const resetCache = useCallback(() => {
-    setCache({});
+    cacheRef.current = {};
+    isFetchingRef.current.clear();
+    setCacheVersion((v) => v + 1); // Force re-render
     setPage(1);
   }, []);
 
@@ -116,7 +120,7 @@ export function useSuppliers() {
       }
       return true;
     });
-    setCache({
+    cacheRef.current = {
       1: {
         data: matches,
         total: matches.length,
@@ -130,13 +134,20 @@ export function useSuppliers() {
           { activo: 0, inactivo: 0, moroso: 0 } as Record<SupplierStatus, number>,
         ),
       },
-    });
+    };
+    setCacheVersion((v) => v + 1); // Force re-render
     setSelectedId(matches[0]?.id ?? null);
   }, [filters, pageSize]);
 
   const fetchPage = useCallback(
     async (targetPage: number, force = false) => {
-      if (!force && cache[targetPage]) return cache[targetPage];
+      // Check if already cached and not forcing refresh
+      if (!force && cacheRef.current[targetPage]) return cacheRef.current[targetPage];
+
+      // Prevent duplicate in-flight requests
+      if (isFetchingRef.current.has(targetPage)) return null;
+
+      isFetchingRef.current.add(targetPage);
       setLoading(true);
       try {
         const params: ListSuppliersParams = {
@@ -146,8 +157,8 @@ export function useSuppliers() {
           pageSize,
         };
         const response = await suppliersApi.list(params);
-        setCache((prev) => ({
-          ...prev,
+        cacheRef.current = {
+          ...cacheRef.current,
           [targetPage]: {
             data: response.data,
             total: response.total,
@@ -155,7 +166,8 @@ export function useSuppliers() {
             pageSize: response.pageSize,
             counters: response.counters,
           },
-        }));
+        };
+        setCacheVersion((v) => v + 1); // Force re-render
         if (!selectedId && response.data.length > 0) {
           setSelectedId(response.data[0].id);
           setForm(buildFormState(response.data[0]));
@@ -168,10 +180,11 @@ export function useSuppliers() {
         applyListFallback();
         return null;
       } finally {
+        isFetchingRef.current.delete(targetPage);
         setLoading(false);
       }
     },
-    [applyListFallback, cache, filters, pageSize, selectedId],
+    [applyListFallback, filters, pageSize, selectedId],
   );
 
   useEffect(() => {

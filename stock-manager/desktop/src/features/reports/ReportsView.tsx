@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ACTIVE_ITEM_TO_REPORT, FAVORITE_REPORTS, REPORT_MENU, REPORT_VIEWS, SCHEDULED_REPORTS, SEND_HISTORY } from '@/shared/data/reports';
 import type { ReportId } from '@/shared/types/reports';
 import { DESKTOP_BREAKPOINT, TABLET_BREAKPOINT } from '@/shared/constants/layout';
+import { useReports } from './hooks/useReports';
 
 type ReportsViewProps = {
   activeItem: string;
@@ -18,9 +19,10 @@ const STORAGE_CONFIG = 'reports-last-config';
 const ReportsView = ({ activeItem }: ReportsViewProps) => {
   const [viewport, setViewport] = useState({ isMobile: false, isTablet: false });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange>({ start: '2024-01-01', end: '2024-11-22' });
-  const [refreshing, setRefreshing] = useState(false);
-  const [status, setStatus] = useState('Listo');
+  const [dateRange, setDateRange] = useState<DateRange>({
+    start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+  });
   const [showFilters, setShowFilters] = useState(false);
 
   const persisted = ((): ReportId | null => {
@@ -31,6 +33,7 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
   const [selectedReport, setSelectedReport] = useState<ReportId>(initialReport);
 
   const view = REPORT_VIEWS[selectedReport];
+  const { data, loading, error, refetch } = useReports(selectedReport, dateRange);
 
   useEffect(() => {
     const mapped = ACTIVE_ITEM_TO_REPORT[activeItem];
@@ -56,28 +59,64 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
 
   const handleSelectReport = (reportId: ReportId) => {
     setSelectedReport(reportId);
-    setStatus(`Reporte ${reportId} seleccionado`);
     if (viewport.isMobile) setDrawerOpen(false);
-  };
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setStatus('Actualizando datos...');
-    setTimeout(() => {
-      setRefreshing(false);
-      setStatus(`Datos actualizados ${new Date().toLocaleTimeString()}`);
-    }, 900);
   };
 
   const handleSaveConfig = () => {
     const payload = { selectedReport, dateRange };
     localStorage.setItem(STORAGE_CONFIG, JSON.stringify(payload));
-    setStatus('Configuracion guardada como favorito');
   };
 
   const densities = ['Compacta', 'Normal', 'Comoda'] as const;
   const tableColumns = view.table.columns;
-  const tableRows = view.table.rows;
+
+  // Use fetched data if available, otherwise fallback to mock data (or empty)
+  // We need to map the backend data keys to the frontend column IDs if they differ.
+  // For now, assuming the views return data that matches the column IDs or we might need a mapper.
+  // The views return snake_case usually, frontend uses snake_case or camelCase?
+  // Let's check the view definitions.
+  // vista_resumen_ventas_diarias: fecha, sucursal, numero_ventas, subtotal, ...
+  // Frontend columns for 'ventas-fecha': fecha, ventas, productos, ticket, impuesto, total.
+  // We need to map 'numero_ventas' -> 'ventas', 'total_final' -> 'total', etc.
+
+  const mapDataToRows = (reportId: ReportId, rawData: any[]) => {
+    if (!rawData || rawData.length === 0) return [];
+
+    switch (reportId) {
+      case 'ventas-fecha':
+        return rawData.map(row => ({
+          fecha: new Date(row.fecha).toLocaleDateString(),
+          ventas: row.numero_ventas,
+          productos: 0, // Not in view
+          ticket: row.ticket_promedio,
+          impuesto: row.impuestos,
+          total: row.total
+        }));
+      case 'inventario-estado':
+        return rawData.map(row => ({
+          producto: row.nombre,
+          stock: row.cantidad_total,
+          minimo: 0, // Not in view
+          estado: row.cantidad_total > 0 ? 'Normal' : 'Agotado',
+          costo: row.costo_promedio,
+          valor: row.valor_inventario
+        }));
+      case 'ventas-producto':
+        return rawData.map((row, idx) => ({
+          rank: idx + 1,
+          producto: row.nombre,
+          unidades: row.cantidad_total_vendida,
+          monto: row.ingresos_totales,
+          porcentaje: '0%', // Need calculation
+          rotacion: 'N/A'
+        }));
+      // Add more mappings as needed
+      default:
+        return rawData;
+    }
+  };
+
+  const tableRows = data.length > 0 ? mapDataToRows(selectedReport, data) : view.table.rows;
 
   const toolbarTitle = useMemo(() => {
     const mainCategory = REPORT_MENU.find((cat) => cat.items.some((it) => it.id === selectedReport));
@@ -107,8 +146,8 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
                 onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
               />
             </label>
-            <button className={`btn ghost ${refreshing ? 'is-loading' : ''}`} onClick={handleRefresh}>
-              {refreshing ? 'Actualizando...' : 'Actualizar'}
+            <button className={`btn ghost ${loading ? 'is-loading' : ''}`} onClick={refetch}>
+              {loading ? 'Actualizando...' : 'Actualizar'}
             </button>
             <button className="btn primary" onClick={handleSaveConfig}>
               Guardar configuracion
@@ -178,7 +217,7 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
             </div>
           </div>
 
-          <div className={`kpi-tiles ${refreshing ? 'is-loading' : ''}`}>
+          <div className={`kpi-tiles ${loading ? 'is-loading' : ''}`}>
             {view.kpis.map((kpi) => (
               <article key={kpi.id} className={`kpi-tile tone-${kpi.tone ?? 'neutral'}`}>
                 <div className="kpi-meta">
@@ -248,28 +287,32 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
               </div>
             </div>
             <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    {tableColumns.map((col) => (
-                      <th key={col.id} style={{ width: col.width ?? 'auto', textAlign: col.align ?? 'left' }}>
-                        {col.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableRows.map((row, idx) => (
-                    <tr key={`${view.id}-${idx}`}>
+              {error ? (
+                <div className="error-message">Error cargando datos: {error}</div>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
                       {tableColumns.map((col) => (
-                        <td key={`${col.id}-${idx}`} className={col.align === 'right' ? 'align-right' : ''}>
-                          {row[col.id] as string}
-                        </td>
+                        <th key={col.id} style={{ width: col.width ?? 'auto', textAlign: col.align ?? 'left' }}>
+                          {col.label}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {tableRows.map((row, idx) => (
+                      <tr key={`${view.id}-${idx}`}>
+                        {tableColumns.map((col) => (
+                          <td key={`${col.id}-${idx}`} className={col.align === 'right' ? 'align-right' : ''}>
+                            {row[col.id] as string}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
             <footer className="table-footer">
               <div>{view.table.totals ? `Totales: ${view.table.totals.total ?? ''}` : 'Totales no disponibles'}</div>
@@ -357,7 +400,6 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
         </section>
       </section>
 
-      <div className="reports-status">{status}</div>
       {drawerOpen && viewport.isMobile ? <div className="reports-backdrop" onClick={() => setDrawerOpen(false)} /> : null}
     </main>
   );

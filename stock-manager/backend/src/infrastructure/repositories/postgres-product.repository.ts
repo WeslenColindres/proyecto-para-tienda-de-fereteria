@@ -172,6 +172,13 @@ export class PostgresProductRepository implements ProductRepository {
         );
     }
 
+    async delete(id: number): Promise<void> {
+        await query(
+            `UPDATE productos SET activo = FALSE, fecha_modificacion = CURRENT_TIMESTAMP WHERE id_producto = $1`,
+            [id]
+        );
+    }
+
     async getStock(productId: number, branchId: number): Promise<Stock | null> {
         const result = await query(
             `SELECT 
@@ -332,6 +339,41 @@ export class PostgresProductRepository implements ProductRepository {
                 data.reference
             ]
         );
+    }
+
+    async getMovements(productId: number, limit: number, offset: number): Promise<{ movements: any[], total: number }> {
+        // Get total
+        const countRes = await query(
+            `SELECT COUNT(*) as total FROM kardex_inventario WHERE id_producto = $1`,
+            [productId]
+        );
+        const total = Number(countRes.rows[0].total);
+
+        // Get data
+        const result = await query(
+            `SELECT 
+            k.id_movimiento as id,
+            k.fecha_movimiento as date,
+            tm.nombre as type,
+            k.cantidad as quantity,
+            k.stock_anterior as "stockBefore",
+            k.stock_nuevo as "stockAfter",
+            k.motivo as reason,
+            k.numero_documento as reference,
+            u.nombre_completo as user
+        FROM kardex_inventario k
+        JOIN tipos_movimiento tm ON k.id_tipo_movimiento = tm.id_tipo_movimiento
+        LEFT JOIN usuarios u ON k.id_usuario = u.id_usuario
+        WHERE k.id_producto = $1
+        ORDER BY k.fecha_movimiento DESC
+        LIMIT $2 OFFSET $3`,
+            [productId, limit, offset]
+        );
+
+        return {
+            movements: result.rows,
+            total
+        };
     }
 
     async getInventoryStats(): Promise<{ value: number; productsWithStock: number; lowStock: number }> {

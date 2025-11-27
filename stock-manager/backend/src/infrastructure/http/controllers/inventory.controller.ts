@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import path from 'path';
 import { InventoryService } from '../../../application/services/inventory.service';
 import { PostgresProductRepository } from '../../repositories/postgres-product.repository';
 import { importExportService } from '../../services/import-export.service';
@@ -58,6 +59,61 @@ export class InventoryController {
             res.json(product);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
+        }
+    }
+
+    async deleteProduct(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            await inventoryService.deleteProduct(id);
+            res.json({ message: 'Product deleted successfully' });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getProductMovements(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const limit = Number(req.query.limit) || 10;
+            const page = Number(req.query.page) || 1;
+            const offset = (page - 1) * limit;
+
+            const result = await inventoryService.getProductMovements(id, limit, offset);
+            res.json({
+                data: result.movements,
+                total: result.total,
+                page,
+                limit
+            });
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    async exportProducts(req: Request, res: Response) {
+        try {
+            const format = (req.query.format as 'xlsx' | 'csv') || 'xlsx';
+            const filters = {
+                search: req.query.search,
+                categoryId: req.query.categoryId,
+                stockState: req.query.stockState,
+                status: req.query.status
+            };
+            const filePath = await importExportService.exportProducts(format, filters);
+            res.download(path.join(process.cwd(), filePath));
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    async exportTemplate(req: Request, res: Response) {
+        try {
+            const format = (req.query.format as 'xlsx' | 'csv') || 'xlsx';
+            const filePath = await importExportService.exportProductTemplate(format);
+            res.download(path.join(process.cwd(), filePath));
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
         }
     }
 
@@ -154,6 +210,21 @@ export class InventoryController {
             const { price } = req.body;
             await inventoryService.updateSupplierPrice(productId, supplierId, price);
             res.json({ message: 'Supplier price updated successfully' });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async importProducts(req: Request, res: Response) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+            // Direct import: parse and process
+            const parsed = await importExportService.parseProductFile(req.file.path, req.file.originalname);
+            const userId = (req as any).user?.id || 'system';
+            const result = await importExportService.processProductImport(parsed, userId);
+            res.json(result);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }

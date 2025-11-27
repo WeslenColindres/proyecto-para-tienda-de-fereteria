@@ -65,6 +65,14 @@ export class InventoryService {
         return this.productRepository.update(updatedProduct);
     }
 
+    async deleteProduct(id: number): Promise<void> {
+        return this.productRepository.delete(id);
+    }
+
+    async getProductMovements(productId: number, limit: number, offset: number): Promise<{ movements: any[], total: number }> {
+        return this.productRepository.getMovements(productId, limit, offset);
+    }
+
     async getStock(productId: number, branchId: number): Promise<Stock | null> {
         return this.productRepository.getStock(productId, branchId);
     }

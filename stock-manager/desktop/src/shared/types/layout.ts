@@ -13,7 +13,7 @@ export type SidebarSection = {
   items: SidebarMenuItem[];
 };
 
-export type AppView = 'dashboard' | 'products' | 'suppliers' | 'customers' | 'sales' | 'reports' | 'users';
+export type AppView = 'dashboard' | 'products' | 'suppliers' | 'customers' | 'sales' | 'reports' | 'users' | 'configuration';
 
 export type SidebarMenuMeta = {
   item: SidebarMenuItem;

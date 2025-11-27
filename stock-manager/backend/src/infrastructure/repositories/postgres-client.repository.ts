@@ -47,6 +47,24 @@ export class PostgresClientRepository implements ClientRepository {
         return result.rows.map((row) => new Client(row));
     }
 
+    async searchByName(searchTerm: string, limit: number = 10): Promise<Client[]> {
+        const result = await query(
+            `SELECT 
+        id_cliente as id, nit, nombre as name, nombre_comercial as "tradeName",
+        id_tipo_cliente as "clientTypeId", email, telefono as phone,
+        fecha_nacimiento as "birthDate", limite_credito as "creditLimit",
+        dias_credito as "creditDays", activo as "isActive",
+        fecha_registro as "registeredAt", fecha_ultima_compra as "lastPurchaseAt"
+       FROM clientes 
+       WHERE (nombre ILIKE $1 OR nit ILIKE $1 OR nombre_comercial ILIKE $1)
+       AND activo = true
+       ORDER BY nombre
+       LIMIT $2`,
+            [`%${searchTerm}%`, limit]
+        );
+        return result.rows.map((row) => new Client(row));
+    }
+
     async save(client: Client): Promise<Client> {
         const result = await query(
             `INSERT INTO clientes (

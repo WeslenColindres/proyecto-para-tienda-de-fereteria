@@ -21,7 +21,13 @@ export const VIEW_BY_MENU: Record<string, AppView> = {
   'clientes-cxc': 'customers',
   'usuarios-gestion': 'users',
   'usuarios-permisos': 'users',
-  'usuarios-auditoria': 'users'
+  'usuarios-auditoria': 'users',
+  'config-empresa': 'configuration',
+  'config-impuestos': 'configuration',
+  'config-impresion': 'configuration',
+  'config-integraciones': 'configuration',
+  'config-notificaciones': 'configuration',
+  'config-seguridad': 'configuration'
 };
 
 export const sidebarSections: SidebarSection[] = [

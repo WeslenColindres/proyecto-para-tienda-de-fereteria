@@ -7,6 +7,8 @@ const router = Router();
 router.get('/', SuppliersController.list);
 router.get('/catalogs', SuppliersController.catalogs);
 router.get('/export', SuppliersController.exportSuppliers);
+router.get('/export', SuppliersController.exportSuppliers);
+router.get('/report', SuppliersController.report);
 router.get('/jobs/:jobId', SuppliersController.getJobStatus);
 router.get('/:id', SuppliersController.getById);
 router.post('/', SuppliersController.create);

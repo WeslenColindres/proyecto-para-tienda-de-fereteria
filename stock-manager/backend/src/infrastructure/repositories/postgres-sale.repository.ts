@@ -115,4 +115,78 @@ export class PostgresSaleRepository implements SaleRepository {
         );
         return sale;
     }
+
+    async findAll(params: any): Promise<{ sales: Sale[], total: number }> {
+        const limit = params.limit || 20;
+        const offset = params.offset || 0;
+
+        const whereClauses: string[] = [];
+        const queryParams: any[] = [];
+        let paramIndex = 1;
+
+        if (params.search) {
+            whereClauses.push(`(numero_documento ILIKE $${paramIndex} OR uuid_sat ILIKE $${paramIndex})`);
+            queryParams.push(`%${params.search}%`);
+            paramIndex++;
+        }
+
+        if (params.status && params.status !== 'all') {
+            whereClauses.push(`estado = $${paramIndex}`);
+            queryParams.push(params.status);
+            paramIndex++;
+        }
+
+        if (params.docType && params.docType !== 'all') {
+            whereClauses.push(`tipo_documento = $${paramIndex}`);
+            queryParams.push(params.docType);
+            paramIndex++;
+        }
+
+        if (params.from) {
+            whereClauses.push(`fecha_venta >= $${paramIndex}`);
+            queryParams.push(params.from);
+            paramIndex++;
+        }
+
+        if (params.to) {
+            whereClauses.push(`fecha_venta <= $${paramIndex}`);
+            queryParams.push(params.to);
+            paramIndex++;
+        }
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Count
+        const countRes = await query(`SELECT COUNT(*) as total FROM ventas ${whereSql}`, queryParams);
+        const total = Number(countRes.rows[0].total);
+
+        // Data
+        const result = await query(
+            `SELECT 
+        id_venta as id, uuid_interno as "internalUuid", id_sucursal as "branchId",
+        id_serie as "seriesId", numero_documento as "documentNumber",
+        tipo_documento as "documentType", id_cliente as "clientId",
+        id_direccion_envio as "shippingAddressId", id_usuario_vendedor as "sellerId",
+        uuid_sat as "satUuid", numero_autorizacion_sat as "satAuthNumber",
+        serie_sat as "satSeries", numero_sat as "satNumber",
+        fecha_certificacion as "certificationDate", subtotal,
+        total_descuentos as "totalDiscounts", total_impuestos as "totalTaxes",
+        total_final as "finalTotal", estado as status,
+        requiere_certificacion as "requiresCertification",
+        intentos_certificacion as "certificationAttempts",
+        error_certificacion as "certificationError", observaciones as observations,
+        fecha_venta as "saleDate", fecha_vencimiento as "dueDate",
+        fecha_anulacion as "cancellationDate", motivo_anulacion as "cancellationReason",
+        id_usuario_anula as "cancelledByUserId", fecha_creacion as "createdAt",
+        fecha_modificacion as "updatedAt"
+       FROM ventas
+       ${whereSql}
+       ORDER BY fecha_venta DESC
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+            [...queryParams, limit, offset]
+        );
+
+        const sales = result.rows.map(row => new Sale(row));
+        return { sales, total };
+    }
 }

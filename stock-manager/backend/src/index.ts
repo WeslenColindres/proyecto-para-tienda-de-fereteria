@@ -13,6 +13,8 @@ import accountsPayableRoutes from './infrastructure/http/routes/accounts-payable
 import notificationsRoutes from './infrastructure/http/routes/notifications.routes';
 import categoryRoutes from './infrastructure/http/routes/category.routes';
 import dashboardRoutes from './infrastructure/http/routes/dashboard.routes';
+import reportRoutes from './infrastructure/http/routes/report.routes';
+import clientsRoutes from './infrastructure/http/routes/clients.routes';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import path from 'path';
@@ -45,6 +47,8 @@ app.use('/api/accounts-payable', accountsPayableRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/clients', clientsRoutes);
 
 // WebSocket
 wss.on('connection', (ws) => {

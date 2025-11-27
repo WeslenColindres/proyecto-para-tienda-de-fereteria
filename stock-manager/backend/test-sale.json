@@ -1,0 +1,13 @@
+{
+    "docType": "COMPROBANTE",
+    "clientName": "Cliente de Prueba POS",
+    "clientNit": "CF",
+    "user": "admin",
+    "branchId": 7,
+    "items": [
+        {
+            "productId": "1",
+            "qty": 2
+        }
+    ]
+}

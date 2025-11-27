@@ -361,6 +361,86 @@ export class ImportExportService {
 
         return { processed, errors };
     }
+
+    async exportProducts(format: 'xlsx' | 'csv', filters?: any): Promise<string> {
+        const { products } = await productRepository.findAll(100000, 0, 'id_producto', 'DESC', filters);
+
+        const filename = `productos_${Date.now()}.${format}`;
+        const uploadDir = path.join(process.cwd(), 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const filepath = path.join(uploadDir, filename);
+
+        if (format === 'csv') {
+            throw new Error('CSV export not implemented yet');
+        } else {
+            const workbook = new xlsx.Workbook();
+            const worksheet = workbook.addWorksheet('Productos');
+
+            worksheet.columns = [
+                { header: 'Código', key: 'sku', width: 15 },
+                { header: 'Nombre', key: 'name', width: 30 },
+                { header: 'Categoría', key: 'category', width: 20 },
+                { header: 'Stock', key: 'stock', width: 10 },
+                { header: 'Precio', key: 'price', width: 10 },
+                { header: 'Estado', key: 'status', width: 10 }
+            ];
+
+            worksheet.addRows(products.map(p => ({
+                sku: p.sku,
+                name: p.name,
+                category: p.props.categoryName,
+                stock: p.stock,
+                price: p.price,
+                status: p.props.isActive ? 'Activo' : 'Inactivo'
+            })));
+
+            await workbook.xlsx.writeFile(filepath);
+        }
+
+        return `/uploads/${filename}`;
+    }
+
+    async exportProductTemplate(format: 'xlsx' | 'csv'): Promise<string> {
+        const filename = `plantilla_productos.${format}`;
+        const uploadDir = path.join(process.cwd(), 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const filepath = path.join(uploadDir, filename);
+
+        if (format === 'csv') {
+            // Create simple CSV
+            const content = 'Codigo,Nombre,Categoria,Costo,Precio,Stock\nPROD001,Ejemplo,General,10.00,15.00,100';
+            fs.writeFileSync(filepath, content);
+        } else {
+            const workbook = new xlsx.Workbook();
+            const worksheet = workbook.addWorksheet('Plantilla');
+
+            worksheet.columns = [
+                { header: 'Codigo', key: 'code', width: 15 },
+                { header: 'Nombre', key: 'name', width: 30 },
+                { header: 'Categoria', key: 'category', width: 20 },
+                { header: 'Costo', key: 'cost', width: 10 },
+                { header: 'Precio', key: 'price', width: 10 },
+                { header: 'Stock', key: 'stock', width: 10 }
+            ];
+
+            worksheet.addRow({
+                code: 'PROD001',
+                name: 'Ejemplo Producto',
+                category: 'General',
+                cost: 10.00,
+                price: 15.00,
+                stock: 100
+            });
+
+            await workbook.xlsx.writeFile(filepath);
+        }
+
+        return `/uploads/${filename}`;
+    }
 }
 
 export const importExportService = new ImportExportService();

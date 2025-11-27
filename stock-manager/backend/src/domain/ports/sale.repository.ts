@@ -5,4 +5,5 @@ export interface SaleRepository {
     findByDocumentNumber(documentNumber: string): Promise<Sale | null>;
     save(sale: Sale): Promise<Sale>;
     update(sale: Sale): Promise<Sale>;
+    findAll(params: any): Promise<{ sales: Sale[], total: number }>;
 }

@@ -6,6 +6,7 @@ import CustomersView from '@/features/customers/CustomersView';
 import SalesView from '@/features/sales/SalesView';
 import ReportsView from '@/features/reports/ReportsView';
 import UsersView from '@/features/users/UsersView';
+import ConfigurationView from '@/features/configuration/ConfigurationView';
 import { useDashboardData } from '@/shared/hooks/useDashboardData';
 import { useLayoutState } from '@/shared/hooks/useLayoutState';
 import { useRouteSync } from '@/shared/hooks/useRouteSync';
@@ -157,6 +158,7 @@ const App = () => {
           {activeView === 'users' && <UsersView activeItem={layout.activeItem} />}
           {activeView === 'reports' && <ReportsView activeItem={layout.activeItem} />}
           {activeView === 'sales' && <SalesView activeItem={layout.activeItem} />}
+          {activeView === 'configuration' && <ConfigurationView activeItem={layout.activeItem} />}
         </div>
       </div>
 

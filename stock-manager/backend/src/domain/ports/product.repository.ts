@@ -8,9 +8,11 @@ export interface ProductRepository {
     save(product: Product): Promise<Product>;
     update(product: Product): Promise<Product>;
     updatePrice(productId: number, price: number): Promise<void>;
+    delete(id: number): Promise<void>;
 
     // Stock methods
     getStock(productId: number, branchId: number): Promise<Stock | null>;
+    getMovements(productId: number, limit: number, offset: number): Promise<{ movements: any[], total: number }>;
     updateStock(stock: Stock): Promise<Stock>;
 
     // Supplier methods
