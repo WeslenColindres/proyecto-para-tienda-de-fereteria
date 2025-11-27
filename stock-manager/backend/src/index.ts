@@ -8,10 +8,13 @@ import inventoryRoutes from './infrastructure/http/routes/inventory.routes';
 import salesRoutes from './infrastructure/http/routes/sales.routes';
 import webhookRoutes from './infrastructure/http/routes/webhook.routes';
 import suppliersRoutes from './infrastructure/http/routes/suppliers.routes';
+import purchaseOrdersRoutes from './infrastructure/http/routes/purchase-orders.routes';
+import accountsPayableRoutes from './infrastructure/http/routes/accounts-payable.routes';
 import notificationsRoutes from './infrastructure/http/routes/notifications.routes';
 import dashboardRoutes from './infrastructure/http/routes/dashboard.routes';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
+import path from 'path';
 
 dotenv.config();
 
@@ -20,10 +23,15 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow serving static files
+}));
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+
+// Static files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -31,6 +39,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/suppliers', suppliersRoutes);
+app.use('/api/purchase-orders', purchaseOrdersRoutes);
+app.use('/api/accounts-payable', accountsPayableRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 

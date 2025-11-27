@@ -30,23 +30,19 @@ const SuppliersToolbar = ({
 }: SuppliersToolbarProps) => {
   return (
     <section className="suppliers-toolbar">
-      <div className="suppliers-actions">
-        <div className="actions-left">
-          <button className="supplier-btn new" onClick={onNew}>
-            ➕ Nuevo Proveedor
-          </button>
-          <button className="supplier-btn import" onClick={onImport}>
-            📥 Importar
-          </button>
-        </div>
-        <div className="actions-right">
-          <button className="supplier-btn export" onClick={onExport}>
-            📤 Exportar
-          </button>
-          <button className="supplier-btn refresh" onClick={onRefresh}>
-            🔄 Actualizar
-          </button>
-        </div>
+      <div className="suppliers-actions justify-center ">
+        <button className="supplier-btn new" onClick={onNew}>
+          ➕ Nuevo Proveedor
+        </button>
+        <button className="supplier-btn import" onClick={onImport}>
+          📥 Importar
+        </button>
+        <button className="supplier-btn export" onClick={onExport}>
+          📤 Exportar
+        </button>
+        <button className="supplier-btn refresh" onClick={onRefresh}>
+          🔄 Actualizar
+        </button>
       </div>
       <div className="suppliers-search">
         <div className="search-box">
@@ -84,7 +80,7 @@ const SuppliersToolbar = ({
           Limpiar filtros
         </button>
       </div>
-      <p className="muted" style={{ marginTop: 6 }}>
+      <p className="muted text-center" style={{ marginTop: 6 }}>
         {summary || 'Mostrando todo el catalogo'}
       </p>
     </section>

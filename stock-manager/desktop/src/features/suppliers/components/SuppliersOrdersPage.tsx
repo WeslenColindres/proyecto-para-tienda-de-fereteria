@@ -42,16 +42,16 @@ const SuppliersOrdersPage = () => {
   return (
     <main className="suppliers-view app-view is-visible" id="suppliers-orders-view" data-app-view>
       <section className="suppliers-toolbar">
-        <div className="suppliers-actions">
+        <div className="suppliers-actions ">
           <button className="supplier-btn new" onClick={() => alert('Nueva orden de compra')}>
             ➕ Nueva Orden de Compra
           </button>
         </div>
         <div className="suppliers-search">
-          <div className="search-box">
+          <button className="search-box">
             <span>🔍</span>
             <input type="search" placeholder="Numero de orden o referencia..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          </div>
+          </button>
           <select value={status} onChange={(e) => setStatus(e.target.value as OrderStatus | 'all')}>
             <option value="all">Estado</option>
             <option value="pendiente">Pendiente</option>
@@ -70,7 +70,7 @@ const SuppliersOrdersPage = () => {
         </div>
       </section>
 
-      <article className="supplier-card">
+      <article className="supplier-card mt-12 mb-12">
         <header className="card-header">
           <div>
             <h2 style={{ margin: 0 }}>Órdenes de compra</h2>
