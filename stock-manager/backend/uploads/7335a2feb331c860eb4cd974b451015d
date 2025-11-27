@@ -1,0 +1,2 @@
+code,name,description,categoryCode,cost,price,tax,unit,minStock,status,barcode
+P001,Producto ejemplo,Descripcion,BEB,10,15,12,unidad,5,activo,1234567890123

@@ -5,8 +5,38 @@ import { Stock } from '../../domain/entities/stock.entity';
 export class InventoryService {
     constructor(private readonly productRepository: ProductRepository) { }
 
-    async getAllProducts(limit: number, offset: number, orderBy?: string, orderDir?: 'ASC' | 'DESC'): Promise<Product[]> {
-        return this.productRepository.findAll(limit, offset, orderBy, orderDir);
+    async getAllProducts(limit: number, offset: number, orderBy?: string, orderDir?: 'ASC' | 'DESC', filters?: any): Promise<any> {
+        const { products, total } = await this.productRepository.findAll(limit, offset, orderBy, orderDir, filters);
+
+        const mappedProducts = products.map(p => ({
+            id: String(p.id),
+            code: p.sku,
+            name: p.name,
+            description: p.props.description,
+            categoryId: String(p.props.categoryId),
+            categoryName: p.props.categoryName || 'General',
+            barcode: p.props.barcode,
+            cost: p.cost,
+            price: p.price,
+            stock: p.stock,
+            unit: 'unidad', // TODO: Fetch unit
+            minStock: 5, // TODO: Fetch min stock
+            status: p.props.isActive ? 'activo' : 'inactivo',
+            tax: 12
+        }));
+
+        return {
+            data: mappedProducts,
+            page: Math.floor(offset / limit) + 1,
+            pageSize: limit,
+            total,
+            chunks: [],
+            counters: {
+                critical: 0,
+                low: 0,
+                preventive: 0
+            }
+        };
     }
 
     async getProductById(id: number): Promise<Product | null> {
@@ -39,7 +69,15 @@ export class InventoryService {
         return this.productRepository.getStock(productId, branchId);
     }
 
-    async updateStock(productId: number, branchId: number, quantityChange: number): Promise<Stock> {
+    async updateStock(
+        productId: number,
+        branchId: number,
+        quantityChange: number,
+        userId: number,
+        reason?: string,
+        reference?: string,
+        type?: string
+    ): Promise<Stock> {
         let stock = await this.productRepository.getStock(productId, branchId);
         if (!stock) {
             stock = new Stock({
@@ -61,7 +99,65 @@ export class InventoryService {
             quantityAvailable: newQuantity,
         });
 
-        return this.productRepository.updateStock(updatedStock);
+        const savedStock = await this.productRepository.updateStock(updatedStock);
+
+        // Log movement in Kardex
+        await this.productRepository.createMovement({
+            productId,
+            branchId,
+            type: type || (quantityChange >= 0 ? 'AJUSTE_ENTRADA' : 'AJUSTE_SALIDA'),
+            quantity: Math.abs(quantityChange),
+            stockBefore: stock.quantityAvailable,
+            stockAfter: newQuantity,
+            userId,
+            reason: reason || 'Ajuste de stock manual',
+            reference: reference || 'Manual',
+            documentType: 'AJUSTE'
+        });
+
+        return savedStock;
+    }
+
+    async getWarehouses(): Promise<any[]> {
+        return this.productRepository.getWarehouses();
+    }
+
+    async getOverview(): Promise<any> {
+        const stats = await this.productRepository.getInventoryStats();
+        const warehouseStats = await this.productRepository.getWarehouseStats();
+        const alerts = await this.productRepository.getLowStockAlerts();
+
+        // Get product details (reusing findAll but we might need a specific query for the report detail)
+        // For now, let's fetch top 50 products to show in the detail list
+        const { products } = await this.productRepository.findAll(50, 0, 'stock', 'ASC');
+
+        const detail = products.map(p => ({
+            product: p.name,
+            stock: p.stock,
+            value: p.price * p.stock,
+            last: p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '-',
+            rotation: 'Baja', // Placeholder
+            warehouse: 'Principal' // Placeholder, ideally we'd join with stock table to get warehouse name per row
+        }));
+
+        // Calculate percentages for warehouses
+        const totalValue = warehouseStats.reduce((sum, w) => sum + Number(w.value), 0);
+        const warehouses = warehouseStats.map(w => ({
+            ...w,
+            percentage: totalValue > 0 ? Math.round((Number(w.value) / totalValue) * 100) : 0
+        }));
+
+        return {
+            overview: {
+                inventoryValue: stats.value,
+                productsWithStock: stats.productsWithStock.toString(),
+                lowStock: stats.lowStock.toString(),
+                rotation: '12%' // Placeholder
+            },
+            detail,
+            warehouses,
+            alerts
+        };
     }
 
     async addSupplier(productId: number, supplierId: number, cost: number, code?: string, isMain: boolean = false): Promise<void> {

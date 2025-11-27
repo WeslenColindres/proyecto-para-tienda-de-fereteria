@@ -9,6 +9,7 @@ import {
 } from '@/shared/data/products';
 import type { InventoryReport } from '@/shared/types/products';
 import { formatCurrency } from '@/shared/utils/format';
+import { StockAdjustmentModal } from '../components/StockAdjustmentModal';
 
 const buildFallback = (): InventoryReport => ({
   overview: INVENTORY_OVERVIEW,
@@ -22,30 +23,49 @@ const ProductsStockPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await inventoryApi.overview();
+      setReport(data);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : 'No se pudo cargar inventario';
+      setError(message);
+      setReport(buildFallback());
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await inventoryApi.overview();
-        setReport(data);
-      } catch (err) {
-        const message = err instanceof ApiError ? err.message : 'No se pudo cargar inventario';
-        setError(message);
-        setReport(buildFallback());
-      } finally {
-        setLoading(false);
-      }
-    };
     load().catch(() => undefined);
   }, []);
+
+  const handleOpenAdjustment = (product?: { id: number; name: string }) => {
+    if (product) {
+      setSelectedProduct(product);
+    } else {
+      // If no product selected (global button), maybe show a product selector inside modal?
+      // For now, let's assume this button is primarily for a specific product context or we need to implement product search in modal.
+      // To keep it simple as per request, let's just open it. But the modal needs a product.
+      // Let's disable the global button for now or make it require selecting a product from the table first.
+      // Better yet, let's add the button to the table rows.
+      setSelectedProduct(null);
+    }
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="products-view app-view is-visible" data-app-view="productos-stock">
       <header className="products-toolbar">
         <div className="toolbar-actions">
           <button className="tool-btn export" onClick={() => window.print()}>Exportar</button>
-          <button className="tool-btn import" onClick={() => alert('Importar inventario no implementado')}>Importar</button>
+          {/* <button className="tool-btn" onClick={() => setIsModalOpen(true)}>Ajustar Stock</button> */}
         </div>
         <div className="toolbar-filters">
           <span className="muted">{loading ? 'Cargando...' : 'Vista analitica de stock'}</span>
@@ -72,75 +92,105 @@ const ProductsStockPage = () => {
           </article>
 
           <article className="existence-card">
-            <header className="card-header" style={{ marginBottom: 8 }}>
-              <h3 style={{ margin: 0 }}>Reporte de existencias</h3>
+            <header className="card-header" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Reporte de existencias</h3>
+              <span className="muted" style={{ fontSize: '0.9rem' }}>Actualizado: {new Date().toLocaleTimeString()}</span>
             </header>
-            <div className="kpi-row">
-              <div className="kpi-chip">
-                <small className="muted">Valor inventario</small>
-                <div id="inventory-kpi-value">{formatCurrency(report.overview.inventoryValue)}</div>
+            <div className="kpi-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+              <div className="kpi-chip" style={{ background: 'var(--bg-hover, #f8f9fa)', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+                <small className="muted" style={{ display: 'block', marginBottom: '0.5rem' }}>Valor inventario</small>
+                <div id="inventory-kpi-value" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color, #007bff)' }}>
+                  {formatCurrency(report.overview.inventoryValue)}
+                </div>
               </div>
-              <div className="kpi-chip">
-                <small className="muted">Productos con stock</small>
-                <div id="inventory-kpi-stock">{report.overview.productsWithStock}</div>
+              <div className="kpi-chip" style={{ background: 'var(--bg-hover, #f8f9fa)', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+                <small className="muted" style={{ display: 'block', marginBottom: '0.5rem' }}>Productos con stock</small>
+                <div id="inventory-kpi-stock" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--success-color, #28a745)' }}>
+                  {report.overview.productsWithStock}
+                </div>
               </div>
-              <div className="kpi-chip">
-                <small className="muted">Stock bajo</small>
-                <div id="inventory-kpi-low">{report.overview.lowStock}</div>
+              <div className="kpi-chip" style={{ background: 'var(--bg-hover, #f8f9fa)', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+                <small className="muted" style={{ display: 'block', marginBottom: '0.5rem' }}>Stock bajo</small>
+                <div id="inventory-kpi-low" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--warning-color, #ffc107)' }}>
+                  {report.overview.lowStock}
+                </div>
               </div>
-              <div className="kpi-chip">
-                <small className="muted">Rotacion promedio</small>
-                <div id="inventory-kpi-rotation">{report.overview.rotation}</div>
+              <div className="kpi-chip" style={{ background: 'var(--bg-hover, #f8f9fa)', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+                <small className="muted" style={{ display: 'block', marginBottom: '0.5rem' }}>Rotacion promedio</small>
+                <div id="inventory-kpi-rotation" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--info-color, #17a2b8)' }}>
+                  {report.overview.rotation}
+                </div>
               </div>
             </div>
-            <h4 style={{ margin: '6px 0 4px' }}>Detalle por producto</h4>
-            <table className="simple-table">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Stock</th>
-                  <th>Valor</th>
-                  <th>Ultimo mov.</th>
-                  <th>Rotacion</th>
-                  <th>Almacen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.detail.map((item) => (
-                  <tr key={`${item.product}-${item.warehouse}`}>
-                    <td>{item.product}</td>
-                    <td>{item.stock}</td>
-                    <td>{formatCurrency(item.value)}</td>
-                    <td>{item.last}</td>
-                    <td>{item.rotation}</td>
-                    <td>{item.warehouse}</td>
+
+            <h4 style={{ margin: '0 0 1rem', borderBottom: '1px solid var(--border-color, #eee)', paddingBottom: '0.5rem' }}>Detalle por producto</h4>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="simple-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-hover, #f8f9fa)', textAlign: 'left' }}>
+                    <th style={{ padding: '0.8rem' }}>Producto</th>
+                    <th style={{ padding: '0.8rem' }}>Stock</th>
+                    <th style={{ padding: '0.8rem' }}>Valor</th>
+                    <th style={{ padding: '0.8rem' }}>Ultimo mov.</th>
+                    <th style={{ padding: '0.8rem' }}>Rotacion</th>
+                    <th style={{ padding: '0.8rem' }}>Almacen</th>
+                    <th style={{ padding: '0.8rem' }}>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <h4 style={{ margin: '10px 0 4px' }}>Stock por almacen</h4>
-            <table className="simple-table">
-              <thead>
-                <tr>
-                  <th>Almacen</th>
-                  <th>Productos</th>
-                  <th>Valor</th>
-                  <th>% Total</th>
-                  <th>Capacidad</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.warehouses.map((warehouse) => (
-                  <tr key={warehouse.warehouse}>
-                    <td>{warehouse.warehouse}</td>
-                    <td>{warehouse.products}</td>
-                    <td>{formatCurrency(warehouse.value)}</td>
-                    <td>{warehouse.percentage}%</td>
-                    <td>{warehouse.capacity}%</td>
+                </thead>
+                <tbody>
+                  {report.detail.map((item, index) => (
+                    <tr key={`${item.product}-${index}`} style={{ borderBottom: '1px solid var(--border-color, #eee)' }}>
+                      <td style={{ padding: '0.8rem' }}>{item.product}</td>
+                      <td style={{ padding: '0.8rem', fontWeight: 'bold' }}>{item.stock}</td>
+                      <td style={{ padding: '0.8rem' }}>{formatCurrency(item.value)}</td>
+                      <td style={{ padding: '0.8rem' }}>{item.last}</td>
+                      <td style={{ padding: '0.8rem' }}>{item.rotation}</td>
+                      <td style={{ padding: '0.8rem' }}>{item.warehouse}</td>
+                      <td style={{ padding: '0.8rem' }}>
+                        <button
+                          className="icon-btn"
+                          title="Ajustar Stock"
+                          onClick={() => handleOpenAdjustment({ id: 0, name: item.product })}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                        >
+                          ✏️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h4 style={{ margin: '2rem 0 1rem', borderBottom: '1px solid var(--border-color, #eee)', paddingBottom: '0.5rem' }}>Stock por almacen</h4>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="simple-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-hover, #f8f9fa)', textAlign: 'left' }}>
+                    <th style={{ padding: '0.8rem' }}>Almacen</th>
+                    <th style={{ padding: '0.8rem' }}>Productos</th>
+                    <th style={{ padding: '0.8rem' }}>Valor</th>
+                    <th style={{ padding: '0.8rem' }}>% Total</th>
+                    <th style={{ padding: '0.8rem' }}>Capacidad</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {report.warehouses.map((warehouse) => (
+                    <tr key={warehouse.warehouse} style={{ borderBottom: '1px solid var(--border-color, #eee)' }}>
+                      <td style={{ padding: '0.8rem' }}>{warehouse.warehouse}</td>
+                      <td style={{ padding: '0.8rem' }}>{warehouse.products}</td>
+                      <td style={{ padding: '0.8rem' }}>{formatCurrency(warehouse.value)}</td>
+                      <td style={{ padding: '0.8rem' }}>{warehouse.percentage}%</td>
+                      <td style={{ padding: '0.8rem' }}>
+                        <div style={{ width: '100px', height: '8px', background: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ width: `${warehouse.capacity}%`, height: '100%', background: 'var(--success-color, #28a745)' }}></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </article>
         </section>
 
@@ -168,6 +218,15 @@ const ProductsStockPage = () => {
           </article>
         </aside>
       </div>
+
+      <StockAdjustmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          load(); // Reload data
+        }}
+        product={selectedProduct}
+      />
     </section>
   );
 };

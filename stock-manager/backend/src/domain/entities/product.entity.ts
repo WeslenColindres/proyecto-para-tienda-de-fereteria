@@ -16,6 +16,7 @@ export interface ProductProps {
     stock?: number;
     price?: number;
     cost?: number;
+    categoryName?: string;
 }
 
 export class Product {
@@ -47,5 +48,9 @@ export class Product {
 
     get cost(): number {
         return this.props.cost ?? 0;
+    }
+
+    get updatedAt(): Date | undefined {
+        return this.props.updatedAt;
     }
 }

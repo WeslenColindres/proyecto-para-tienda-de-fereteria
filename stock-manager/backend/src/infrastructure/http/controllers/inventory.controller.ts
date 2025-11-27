@@ -10,11 +10,20 @@ export class InventoryController {
     async getAllProducts(req: Request, res: Response) {
         try {
             const limit = Number(req.query.limit) || 20;
-            const offset = Number(req.query.offset) || 0;
+            const page = Number(req.query.page) || 1;
+            const offset = (page - 1) * limit;
             const orderBy = req.query.orderBy as string;
             const orderDir = (req.query.orderDir as string) === 'ASC' ? 'ASC' : 'DESC';
-            const products = await inventoryService.getAllProducts(limit, offset, orderBy, orderDir);
-            res.json(products);
+
+            const filters = {
+                search: req.query.search,
+                categoryId: req.query.categoryId,
+                stockState: req.query.stockState,
+                status: req.query.status
+            };
+
+            const result = await inventoryService.getAllProducts(limit, offset, orderBy, orderDir, filters);
+            res.json(result);
         } catch (error: any) {
             res.status(500).json({ message: error.message });
         }
@@ -66,11 +75,43 @@ export class InventoryController {
     async updateStock(req: Request, res: Response) {
         try {
             const productId = Number(req.params.productId);
-            const { branchId, quantityChange } = req.body;
-            const stock = await inventoryService.updateStock(productId, branchId, quantityChange);
+            const { branchId, quantityChange, reason, reference, type } = req.body;
+            const userId = (req as any).user?.id; // Extract user ID from token
+
+            if (!userId) {
+                return res.status(401).json({ message: 'User identifier missing' });
+            }
+
+            const stock = await inventoryService.updateStock(
+                productId,
+                branchId,
+                quantityChange,
+                userId,
+                reason,
+                reference,
+                type
+            );
             res.json(stock);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getWarehouses(req: Request, res: Response) {
+        try {
+            const warehouses = await inventoryService.getWarehouses();
+            res.json(warehouses);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    async getOverview(req: Request, res: Response) {
+        try {
+            const overview = await inventoryService.getOverview();
+            res.json(overview);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
         }
     }
 

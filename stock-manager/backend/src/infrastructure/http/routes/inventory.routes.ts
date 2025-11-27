@@ -5,12 +5,16 @@ import { authenticateToken, authorizeRole } from '../../middleware/auth.middlewa
 const router = Router();
 const inventoryController = new InventoryController();
 
+router.get('/overview', authenticateToken, inventoryController.getOverview);
 router.get('/products', authenticateToken, inventoryController.getAllProducts);
 router.get('/products/:id', authenticateToken, inventoryController.getProductById);
 router.post('/products', authenticateToken, authorizeRole([1, 3]), inventoryController.createProduct); // Admin, Bodeguero
 router.put('/products/:id', authenticateToken, authorizeRole([1, 3]), inventoryController.updateProduct);
 router.get('/products/:productId/stock', authenticateToken, inventoryController.getStock);
 router.post('/products/:productId/stock', authenticateToken, authorizeRole([1, 3]), inventoryController.updateStock);
+
+// Warehouses
+router.get('/warehouses', authenticateToken, inventoryController.getWarehouses);
 
 // Product Suppliers
 router.get('/products/:id/suppliers', authenticateToken, inventoryController.getSuppliers);

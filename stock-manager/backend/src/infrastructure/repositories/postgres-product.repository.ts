@@ -36,18 +36,53 @@ export class PostgresProductRepository implements ProductRepository {
         return new Product(result.rows[0]);
     }
 
-    async findAll(limit: number = 20, offset: number = 0, orderBy: string = 'id_producto', orderDir: 'ASC' | 'DESC' = 'DESC'): Promise<Product[]> {
+    async findAll(limit: number = 20, offset: number = 0, orderBy: string = 'id_producto', orderDir: 'ASC' | 'DESC' = 'DESC', filters: any = {}): Promise<{ products: Product[], total: number }> {
         const validColumns = ['id_producto', 'nombre', 'sku', 'stock', 'precio'];
         const sortCol = validColumns.includes(orderBy) ? orderBy : 'id_producto';
 
         let orderByClause = `ORDER BY ${sortCol} ${orderDir}`;
+        if (sortCol === 'id_producto') orderByClause = `ORDER BY p.id_producto ${orderDir}`;
         if (sortCol === 'stock') orderByClause = `ORDER BY stock ${orderDir}`;
         if (sortCol === 'precio') orderByClause = `ORDER BY price ${orderDir}`;
 
+        const whereClauses: string[] = ['p.activo = TRUE'];
+        const params: any[] = [];
+        let paramIndex = 1;
+
+        if (filters.search) {
+            whereClauses.push(`(p.nombre ILIKE $${paramIndex} OR p.sku ILIKE $${paramIndex} OR p.codigo_barras ILIKE $${paramIndex})`);
+            params.push(`%${filters.search}%`);
+            paramIndex++;
+        }
+
+        if (filters.categoryId && filters.categoryId !== 'all') {
+            whereClauses.push(`p.id_categoria = $${paramIndex}`);
+            params.push(filters.categoryId);
+            paramIndex++;
+        }
+
+        if (filters.status && filters.status !== 'all') {
+            // Assuming status is mapped to active/inactive for now, or we need a status column
+            // The entity has 'activo' boolean.
+            if (filters.status === 'activo') whereClauses.push(`p.activo = TRUE`);
+            if (filters.status === 'inactivo') whereClauses.push(`p.activo = FALSE`);
+        }
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Get total count
+        const countResult = await query(
+            `SELECT COUNT(*) as total FROM productos p ${whereSql}`,
+            params
+        );
+        const total = Number(countResult.rows[0].total);
+
+        // Get data
         const result = await query(
             `SELECT 
         p.id_producto as id, p.sku, p.codigo_barras as "barcode", p.nombre as name,
         p.descripcion as description, p.id_categoria as "categoryId",
+        c.nombre as "categoryName",
         p.id_unidad_medida as "unitOfMeasureId", p.id_proveedor_principal as "mainProviderId",
         p.es_inventariable as "isInventoriable", p.es_vendible as "isSellable",
         p.es_comprable as "isBuyable", p.activo as "isActive",
@@ -55,18 +90,23 @@ export class PostgresProductRepository implements ProductRepository {
         COALESCE(SUM(sp.cantidad_disponible), 0) as stock,
         COALESCE(MAX(pp.precio), 0) as price
        FROM productos p
+       LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
        LEFT JOIN stock_producto sp ON p.id_producto = sp.id_producto
        LEFT JOIN precios_producto pp ON p.id_producto = pp.id_producto AND pp.tipo_precio = 'VENTA' AND pp.activo = TRUE
-       GROUP BY p.id_producto
+       ${whereSql}
+       GROUP BY p.id_producto, c.nombre
        ${orderByClause}
-       LIMIT $1 OFFSET $2`,
-            [limit, offset]
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+            [...params, limit, offset]
         );
-        return result.rows.map((row) => new Product({
+
+        const products = result.rows.map((row) => new Product({
             ...row,
             stock: Number(row.stock),
             price: Number(row.price)
         }));
+
+        return { products, total };
     }
 
     async save(product: Product): Promise<Product> {
@@ -228,5 +268,123 @@ export class PostgresProductRepository implements ProductRepository {
             WHERE id_producto = $2 AND id_proveedor = $3`,
             [cost, productId, supplierId]
         );
+    }
+
+    async getWarehouses(): Promise<any[]> {
+        const result = await query(
+            `SELECT 
+                id_sucursal as id,
+                nombre as name,
+                direccion as address
+            FROM sucursales 
+            WHERE activa = TRUE`
+        );
+        return result.rows;
+    }
+
+    async createMovement(data: {
+        productId: number;
+        branchId: number;
+        type: string;
+        quantity: number;
+        stockBefore: number;
+        stockAfter: number;
+        userId: number;
+        reason: string;
+        reference: string;
+        documentType: string;
+    }): Promise<void> {
+        // First get the movement type ID
+        const typeResult = await query(
+            `SELECT id_tipo_movimiento FROM tipos_movimiento WHERE codigo = $1`,
+            [data.type]
+        );
+
+        let typeId = typeResult.rows[0]?.id_tipo_movimiento;
+
+        // Fallback if specific type not found
+        if (!typeId) {
+            const fallbackType = data.type.includes('ENTRADA') ? 'AJUSTE_ENTRADA' : 'AJUSTE_SALIDA';
+            const fallbackResult = await query(
+                `SELECT id_tipo_movimiento FROM tipos_movimiento WHERE codigo = $1`,
+                [fallbackType]
+            );
+            typeId = fallbackResult.rows[0]?.id_tipo_movimiento;
+        }
+
+        await query(
+            `INSERT INTO kardex_inventario (
+                id_producto, id_sucursal, id_tipo_movimiento,
+                cantidad, stock_anterior, stock_nuevo,
+                id_usuario, motivo, documento_origen, numero_documento,
+                fecha_movimiento
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)`,
+            [
+                data.productId,
+                data.branchId,
+                typeId,
+                data.quantity,
+                data.stockBefore,
+                data.stockAfter,
+                data.userId,
+                data.reason,
+                data.documentType,
+                data.reference
+            ]
+        );
+    }
+
+    async getInventoryStats(): Promise<{ value: number; productsWithStock: number; lowStock: number }> {
+        const result = await query(
+            `SELECT
+                COALESCE(SUM(sp.cantidad_disponible * pp.precio), 0) as value,
+                COUNT(DISTINCT CASE WHEN sp.cantidad_disponible > 0 THEN p.id_producto END) as "productsWithStock",
+                COUNT(DISTINCT CASE WHEN sp.cantidad_disponible <= ci.stock_minimo THEN p.id_producto END) as "lowStock"
+            FROM productos p
+            LEFT JOIN stock_producto sp ON p.id_producto = sp.id_producto
+            LEFT JOIN precios_producto pp ON p.id_producto = pp.id_producto AND pp.tipo_precio = 'VENTA' AND pp.activo = TRUE
+            LEFT JOIN configuracion_inventario ci ON p.id_producto = ci.id_producto AND sp.id_sucursal = ci.id_sucursal
+            WHERE p.activo = TRUE`
+        );
+        return {
+            value: Number(result.rows[0].value),
+            productsWithStock: Number(result.rows[0].productsWithStock),
+            lowStock: Number(result.rows[0].lowStock)
+        };
+    }
+
+    async getWarehouseStats(): Promise<any[]> {
+        const result = await query(
+            `SELECT
+                s.nombre as warehouse,
+                COUNT(DISTINCT sp.id_producto) as products,
+                COALESCE(SUM(sp.cantidad_disponible * pp.precio), 0) as value,
+                0 as percentage, -- Calculated in service
+                100 as capacity -- Placeholder
+            FROM sucursales s
+            LEFT JOIN stock_producto sp ON s.id_sucursal = sp.id_sucursal
+            LEFT JOIN precios_producto pp ON sp.id_producto = pp.id_producto AND pp.tipo_precio = 'VENTA' AND pp.activo = TRUE
+            WHERE s.activa = TRUE
+            GROUP BY s.id_sucursal, s.nombre`
+        );
+        return result.rows;
+    }
+
+    async getLowStockAlerts(): Promise<any[]> {
+        const result = await query(
+            `SELECT
+                'STOCK_BAJO' as type,
+                CASE WHEN sp.cantidad_disponible <= 0 THEN 'critical' ELSE 'warning' END as level,
+                'Stock bajo para ' || p.nombre as message,
+                p.nombre as "productId", -- Using name for display
+                CURRENT_TIMESTAMP as "createdAt"
+            FROM productos p
+            JOIN stock_producto sp ON p.id_producto = sp.id_producto
+            LEFT JOIN configuracion_inventario ci ON p.id_producto = ci.id_producto AND sp.id_sucursal = ci.id_sucursal
+            WHERE p.activo = TRUE
+            AND sp.cantidad_disponible <= COALESCE(ci.stock_minimo, 5)
+            LIMIT 10`
+        );
+        return result.rows;
     }
 }
