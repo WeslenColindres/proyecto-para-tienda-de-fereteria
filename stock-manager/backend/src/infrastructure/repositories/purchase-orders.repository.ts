@@ -172,18 +172,42 @@ export const PurchaseOrdersRepository: IPurchaseOrderRepository = {
         try {
             await client.query('BEGIN');
 
-            // Update items received quantity
+            // Get order details to know supplier and unit costs
+            const orderResult = await client.query(
+                'SELECT id_proveedor FROM ordenes_compra WHERE id_orden_compra = $1',
+                [id]
+            );
+            const supplierId = orderResult.rows[0]?.id_proveedor;
+
+            if (!supplierId) throw new Error('Order not found');
+
+            // Update items received quantity and supplier prices
             for (const item of items) {
+                // Get line item details for cost
+                const lineItemResult = await client.query(
+                    'SELECT precio_unitario FROM detalle_orden_compra WHERE id_orden_compra = $1 AND id_producto = $2',
+                    [id, item.productId]
+                );
+                const unitCost = parseFloat(lineItemResult.rows[0]?.precio_unitario || '0');
+
                 await client.query(
                     'UPDATE detalle_orden_compra SET cantidad_recibida = cantidad_recibida + $1 WHERE id_orden_compra = $2 AND id_producto = $3',
                     [item.quantity, id, item.productId]
                 );
 
-                // Update inventory stock (simplified)
-                // TODO: Use proper inventory service/repository
+                // Update inventory stock
                 await client.query(
                     'UPDATE stock_producto SET cantidad_disponible = cantidad_disponible + $1 WHERE id_producto = $2',
                     [item.quantity, item.productId]
+                );
+
+                // Update supplier price history
+                await client.query(
+                    `INSERT INTO productos_proveedores (id_producto, id_proveedor, precio_costo, fecha_ultima_compra)
+                     VALUES ($1, $2, $3, CURRENT_DATE)
+                     ON CONFLICT (id_producto, id_proveedor) 
+                     DO UPDATE SET precio_costo = EXCLUDED.precio_costo, fecha_ultima_compra = EXCLUDED.fecha_ultima_compra`,
+                    [item.productId, supplierId, unitCost]
                 );
             }
 
@@ -196,6 +220,20 @@ export const PurchaseOrdersRepository: IPurchaseOrderRepository = {
                     fecha_entrega_real = NOW() 
                 WHERE id_orden_compra = $2`,
                 [userId, id]
+            );
+
+            // Create Accounts Payable entry
+            // TODO: This should be handled by a domain event or service, but for now we do it here
+            const orderTotalResult = await client.query('SELECT total, numero_orden FROM ordenes_compra WHERE id_orden_compra = $1', [id]);
+            const orderTotal = parseFloat(orderTotalResult.rows[0].total);
+            const orderNumber = orderTotalResult.rows[0].numero_orden;
+
+            await client.query(
+                `INSERT INTO cuentas_por_pagar (
+                    id_orden_compra, id_proveedor, numero_factura, fecha_factura, 
+                    fecha_vencimiento, monto_total, monto_pendiente, estado
+                ) VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days', $4, $4, 'pendiente')`,
+                [id, supplierId, orderNumber, orderTotal]
             );
 
             await client.query('COMMIT');

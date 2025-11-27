@@ -70,4 +70,48 @@ export class InventoryController {
             res.status(400).json({ message: error.message });
         }
     }
+
+    async addSupplier(req: Request, res: Response) {
+        try {
+            const productId = Number(req.params.id);
+            const { supplierId, cost, code, isMain } = req.body;
+            await inventoryService.addSupplier(productId, supplierId, cost, code, isMain);
+            res.status(201).json({ message: 'Supplier added successfully' });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async removeSupplier(req: Request, res: Response) {
+        try {
+            const productId = Number(req.params.id);
+            const supplierId = Number(req.params.supplierId);
+            await inventoryService.removeSupplier(productId, supplierId);
+            res.json({ message: 'Supplier removed successfully' });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getSuppliers(req: Request, res: Response) {
+        try {
+            const productId = Number(req.params.id);
+            const suppliers = await inventoryService.getSuppliers(productId);
+            res.json(suppliers);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    async updateSupplierPrice(req: Request, res: Response) {
+        try {
+            const productId = Number(req.params.id);
+            const supplierId = Number(req.params.supplierId);
+            const { price } = req.body;
+            await inventoryService.updateSupplierPrice(productId, supplierId, price);
+            res.json({ message: 'Supplier price updated successfully' });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }

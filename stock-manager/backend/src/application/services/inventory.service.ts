@@ -63,4 +63,20 @@ export class InventoryService {
 
         return this.productRepository.updateStock(updatedStock);
     }
+
+    async addSupplier(productId: number, supplierId: number, cost: number, code?: string, isMain: boolean = false): Promise<void> {
+        return this.productRepository.addSupplier(productId, supplierId, cost, code, isMain);
+    }
+
+    async removeSupplier(productId: number, supplierId: number): Promise<void> {
+        return this.productRepository.removeSupplier(productId, supplierId);
+    }
+
+    async getSuppliers(productId: number): Promise<any[]> {
+        return this.productRepository.getSuppliers(productId);
+    }
+
+    async updateSupplierPrice(productId: number, supplierId: number, price: number): Promise<void> {
+        return this.productRepository.updateSupplierPrice(productId, supplierId, price);
+    }
 }

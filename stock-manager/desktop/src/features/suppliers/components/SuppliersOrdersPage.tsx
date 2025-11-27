@@ -1,67 +1,97 @@
-import { useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatCurrency } from '@/shared/utils/format';
-import { SUPPLIERS } from '@/shared/data/suppliers';
-
-type OrderStatus = 'pendiente' | 'enviada' | 'recibida' | 'cancelada';
-
-type PurchaseOrder = {
-  id: string;
-  number: string;
-  supplierId: string;
-  supplierName: string;
-  date: string;
-  amount: number;
-  status: OrderStatus;
-};
-
-const MOCK_ORDERS: PurchaseOrder[] = [
-  { id: 'po-001', number: 'OC-2024-001', supplierId: 'sup-001', supplierName: 'Proveedor ABC', date: '2024-11-20', amount: 5200, status: 'pendiente' },
-  { id: 'po-002', number: 'OC-2024-002', supplierId: 'sup-002', supplierName: 'Distribuidora XYZ', date: '2024-11-19', amount: 8400, status: 'enviada' },
-  { id: 'po-003', number: 'OC-2024-003', supplierId: 'sup-003', supplierName: 'Logistica del Norte', date: '2024-11-18', amount: 4100, status: 'recibida' },
-  { id: 'po-004', number: 'OC-2024-004', supplierId: 'sup-005', supplierName: 'Tecnica Industrial', date: '2024-11-15', amount: 9300, status: 'cancelada' },
-];
+import { usePurchaseOrders } from '../hooks/usePurchaseOrders';
+import { useSuppliers } from '../hooks/useSuppliers';
+import { CreatePurchaseOrderModal } from './CreatePurchaseOrderModal';
+import { ReceivePurchaseOrderModal } from './ReceivePurchaseOrderModal';
+import { PurchaseOrderDetailModal } from './PurchaseOrderDetailModal';
+import { UploadInvoiceModal } from './UploadInvoiceModal';
+import { PurchaseOrder } from '../types';
 
 const SuppliersOrdersPage = () => {
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<OrderStatus | 'all'>('all');
-  const [supplierId, setSupplierId] = useState<string | 'all'>('all');
+  const { orders, loading, fetchOrders, createOrder, receiveOrder, uploadInvoice } = usePurchaseOrders();
+  const { suppliers } = useSuppliers();
 
-  const filtered = useMemo(() => {
-    return MOCK_ORDERS.filter((order) => {
-      if (status !== 'all' && order.status !== status) return false;
-      if (supplierId !== 'all' && order.supplierId !== supplierId) return false;
-      if (search.trim()) {
-        const term = search.toLowerCase();
-        const haystack = `${order.number} ${order.supplierName}`;
-        if (!haystack.toLowerCase().includes(term)) return false;
-      }
-      return true;
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<string>('all');
+  const [supplierId, setSupplierId] = useState<string>('all');
+
+  // Modals state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchOrders({
+      search,
+      status: status === 'all' ? undefined : status,
+      supplierId: supplierId === 'all' ? undefined : supplierId
     });
-  }, [search, status, supplierId]);
+  }, [fetchOrders, search, status, supplierId]);
+
+  const handleCreateOrder = async (data: any) => {
+    await createOrder(data);
+    fetchOrders({}); // Refresh list
+  };
+
+  const handleReceiveOrder = async (id: string, data: any) => {
+    await receiveOrder(id, data);
+    fetchOrders({}); // Refresh list
+  };
+
+  const handleUploadInvoice = async (file: File) => {
+    if (selectedOrder) {
+      await uploadInvoice(selectedOrder.id, file);
+      fetchOrders({}); // Refresh list
+    }
+  };
+
+  const openReceiveModal = (order: PurchaseOrder) => {
+    setSelectedOrder(order);
+    setIsReceiveModalOpen(true);
+  };
+
+  const openDetailModal = (order: PurchaseOrder) => {
+    setSelectedOrder(order);
+    setIsDetailModalOpen(true);
+  };
+
+  const openUploadModal = (order: PurchaseOrder) => {
+    setSelectedOrder(order);
+    setIsUploadModalOpen(true);
+  };
 
   return (
     <main className="suppliers-view app-view is-visible" id="suppliers-orders-view" data-app-view>
       <section className="suppliers-toolbar">
         <div className="suppliers-actions ">
-          <button className="supplier-btn new" onClick={() => alert('Nueva orden de compra')}>
+          <button className="supplier-btn new" onClick={() => setIsCreateModalOpen(true)}>
             ➕ Nueva Orden de Compra
           </button>
         </div>
         <div className="suppliers-search">
           <button className="search-box">
             <span>🔍</span>
-            <input type="search" placeholder="Numero de orden o referencia..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input
+              type="search"
+              placeholder="Numero de orden..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </button>
-          <select value={status} onChange={(e) => setStatus(e.target.value as OrderStatus | 'all')}>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="all">Estado</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="enviada">Enviada</option>
-            <option value="recibida">Recibida</option>
-            <option value="cancelada">Cancelada</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="ENVIADA">Enviada</option>
+            <option value="PARCIAL">Parcial</option>
+            <option value="RECIBIDA">Recibida</option>
+            <option value="CANCELADA">Cancelada</option>
           </select>
           <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
             <option value="all">Proveedor</option>
-            {SUPPLIERS.map((s) => (
+            {suppliers.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
               </option>
@@ -90,32 +120,37 @@ const SuppliersOrdersPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {loading && orders.length === 0 && (
+                <tr><td colSpan={6} className="text-center">Cargando...</td></tr>
+              )}
+              {!loading && orders.length === 0 && (
                 <tr>
                   <td colSpan={6} className="muted">
                     No hay órdenes con estos filtros.
                   </td>
                 </tr>
               )}
-              {filtered.map((order) => (
+              {orders.map((order) => (
                 <tr key={order.id}>
-                  <td>{order.number}</td>
+                  <td>{order.orderNumber}</td>
                   <td>{order.supplierName}</td>
-                  <td>{order.date}</td>
-                  <td className="align-right">{formatCurrency(order.amount)}</td>
+                  <td>{new Date(order.date).toLocaleDateString()}</td>
+                  <td className="align-right">{formatCurrency(order.total)}</td>
                   <td>
-                    <span className={`badge-status ${order.status}`}>{order.status}</span>
+                    <span className={`badge-status ${order.status.toLowerCase()}`}>{order.status}</span>
                   </td>
                   <td>
                     <div className="supplier-actions">
-                      <button type="button" onClick={() => alert(`Detalle ${order.number}`)}>
+                      <button type="button" onClick={() => openDetailModal(order)} title="Ver Detalle">
                         🔍
                       </button>
-                      <button type="button" onClick={() => alert(`Recibir ${order.number}`)}>
-                        📦
-                      </button>
-                      <button type="button" onClick={() => alert(`Cancelar ${order.number}`)}>
-                        🛑
+                      {order.status !== 'RECIBIDA' && order.status !== 'CANCELADA' && (
+                        <button type="button" onClick={() => openReceiveModal(order)} title="Recibir Mercadería">
+                          📦
+                        </button>
+                      )}
+                      <button type="button" onClick={() => openUploadModal(order)} title="Subir Factura">
+                        �
                       </button>
                     </div>
                   </td>
@@ -125,6 +160,36 @@ const SuppliersOrdersPage = () => {
           </table>
         </div>
       </article>
+
+      <CreatePurchaseOrderModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateOrder}
+      />
+
+      {selectedOrder && (
+        <>
+          <ReceivePurchaseOrderModal
+            isOpen={isReceiveModalOpen}
+            onClose={() => setIsReceiveModalOpen(false)}
+            order={selectedOrder}
+            onSubmit={handleReceiveOrder}
+          />
+
+          <PurchaseOrderDetailModal
+            isOpen={isDetailModalOpen}
+            onClose={() => setIsDetailModalOpen(false)}
+            order={selectedOrder}
+          />
+
+          <UploadInvoiceModal
+            isOpen={isUploadModalOpen}
+            onClose={() => setIsUploadModalOpen(false)}
+            onSubmit={handleUploadInvoice}
+            title={`Subir Factura - ${selectedOrder.orderNumber}`}
+          />
+        </>
+      )}
     </main>
   );
 };

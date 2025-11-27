@@ -11,4 +11,10 @@ export interface ProductRepository {
     // Stock methods
     getStock(productId: number, branchId: number): Promise<Stock | null>;
     updateStock(stock: Stock): Promise<Stock>;
+
+    // Supplier methods
+    addSupplier(productId: number, supplierId: number, cost: number, code?: string, isMain?: boolean): Promise<void>;
+    removeSupplier(productId: number, supplierId: number): Promise<void>;
+    getSuppliers(productId: number): Promise<any[]>; // TODO: Return ProductSupplier[]
+    updateSupplierPrice(productId: number, supplierId: number, cost: number): Promise<void>;
 }

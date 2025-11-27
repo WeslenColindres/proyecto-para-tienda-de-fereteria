@@ -134,4 +134,67 @@ export class PostgresProductRepository implements ProductRepository {
         );
         return new Stock({ ...stock.props, id: result.rows[0].id });
     }
+
+    async addSupplier(productId: number, supplierId: number, cost: number, code?: string, isMain: boolean = false): Promise<void> {
+        if (isMain) {
+            // Si este es el principal, desmarcar otros
+            await query(
+                `UPDATE productos_proveedores SET es_proveedor_principal = FALSE WHERE id_producto = $1`,
+                [productId]
+            );
+            // También actualizar el proveedor principal en la tabla de productos
+            await query(
+                `UPDATE productos SET id_proveedor_principal = $1 WHERE id_producto = $2`,
+                [supplierId, productId]
+            );
+        }
+
+        await query(
+            `INSERT INTO productos_proveedores (
+                id_producto, id_proveedor, precio_costo, codigo_producto_proveedor, es_proveedor_principal
+            ) VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (id_producto, id_proveedor) DO UPDATE SET
+                precio_costo = EXCLUDED.precio_costo,
+                codigo_producto_proveedor = COALESCE(EXCLUDED.codigo_producto_proveedor, productos_proveedores.codigo_producto_proveedor),
+                es_proveedor_principal = EXCLUDED.es_proveedor_principal,
+                fecha_actualizacion = CURRENT_TIMESTAMP`,
+            [productId, supplierId, cost, code, isMain]
+        );
+    }
+
+    async removeSupplier(productId: number, supplierId: number): Promise<void> {
+        await query(
+            `DELETE FROM productos_proveedores WHERE id_producto = $1 AND id_proveedor = $2`,
+            [productId, supplierId]
+        );
+    }
+
+    async getSuppliers(productId: number): Promise<any[]> {
+        const result = await query(
+            `SELECT 
+                pp.id_producto as "productId",
+                pp.id_proveedor as "supplierId",
+                p.nombre as "supplierName",
+                pp.codigo_producto_proveedor as "supplierProductCode",
+                pp.precio_costo as "costPrice",
+                pp.moneda as "currency",
+                pp.es_proveedor_principal as "isMainSupplier",
+                pp.fecha_ultima_compra as "lastPurchaseDate"
+            FROM productos_proveedores pp
+            JOIN proveedores p ON pp.id_proveedor = p.id_proveedor
+            WHERE pp.id_producto = $1
+            ORDER BY pp.es_proveedor_principal DESC, p.nombre ASC`,
+            [productId]
+        );
+        return result.rows;
+    }
+
+    async updateSupplierPrice(productId: number, supplierId: number, cost: number): Promise<void> {
+        await query(
+            `UPDATE productos_proveedores 
+            SET precio_costo = $1, fecha_actualizacion = CURRENT_TIMESTAMP 
+            WHERE id_producto = $2 AND id_proveedor = $3`,
+            [cost, productId, supplierId]
+        );
+    }
 }

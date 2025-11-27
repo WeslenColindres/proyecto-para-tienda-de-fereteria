@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { productsApi } from '@/shared/api/products';
+import { suppliersApi } from '@/shared/api/suppliers';
 import { ApiError } from '@/shared/api/types';
 import { PRODUCT_MOVEMENTS } from '@/shared/data/products';
 import { useCategories } from '@/shared/hooks/useCategories';
@@ -73,7 +74,14 @@ const ProductsCatalogPage = () => {
   );
   const [importMode, setImportMode] = useState<'regular' | 'initial'>('regular');
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
-  const [editorTab, setEditorTab] = useState<'basic' | 'advanced'>('basic');
+  const [editorTab, setEditorTab] = useState<'basic' | 'advanced' | 'suppliers'>('basic');
+
+  const [productSuppliers, setProductSuppliers] = useState<any[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<any[]>([]);
+  const [newSupplierId, setNewSupplierId] = useState('');
+  const [newSupplierCost, setNewSupplierCost] = useState('');
+  const [newSupplierCode, setNewSupplierCode] = useState('');
+  const [newSupplierIsMain, setNewSupplierIsMain] = useState(false);
 
   const selectedProduct = useMemo(
     () => products.find((p) => p.id === selectedId),
@@ -97,7 +105,71 @@ const ProductsCatalogPage = () => {
       }
     };
     loadMovements().catch(() => undefined);
+
+    // Load product suppliers
+    const loadProductSuppliers = async () => {
+      if (selectedId) {
+        const suppliers = await productsApi.getSuppliers(selectedId);
+        setProductSuppliers(suppliers);
+      }
+    };
+    loadProductSuppliers();
   }, [selectedId]);
+
+  useEffect(() => {
+    // Load available suppliers for dropdown
+    const loadAvailableSuppliers = async () => {
+      try {
+        const response = await suppliersApi.list({ page: 1, pageSize: 100, status: 'activo' });
+        setAvailableSuppliers(response.data);
+      } catch (err) {
+        console.error('Error loading suppliers', err);
+      }
+    };
+    loadAvailableSuppliers();
+  }, []);
+
+  const handleAddSupplier = async () => {
+    if (!selectedId || !newSupplierId || !newSupplierCost) return;
+    try {
+      await productsApi.addSupplier(selectedId, {
+        supplierId: newSupplierId,
+        cost: parseFloat(newSupplierCost),
+        code: newSupplierCode,
+        isMain: newSupplierIsMain
+      });
+      const suppliers = await productsApi.getSuppliers(selectedId);
+      setProductSuppliers(suppliers);
+      setNewSupplierId('');
+      setNewSupplierCost('');
+      setNewSupplierCode('');
+      setNewSupplierIsMain(false);
+    } catch (err) {
+      alert('Error al agregar proveedor');
+    }
+  };
+
+  const handleRemoveSupplier = async (supplierId: string) => {
+    if (!selectedId) return;
+    if (!confirm('¿Estás seguro de eliminar este proveedor?')) return;
+    try {
+      await productsApi.removeSupplier(selectedId, supplierId);
+      const suppliers = await productsApi.getSuppliers(selectedId);
+      setProductSuppliers(suppliers);
+    } catch (err) {
+      alert('Error al eliminar proveedor');
+    }
+  };
+
+  const handleUpdateSupplierPrice = async (supplierId: string, price: string) => {
+    if (!selectedId) return;
+    try {
+      await productsApi.updateSupplierPrice(selectedId, supplierId, parseFloat(price));
+      // Optional: refresh list or show success toast
+    } catch (err) {
+      console.error('Error updating price', err);
+    }
+  };
 
   const visiblePanel = (panel: typeof activePanel) =>
     isDesktop || activePanel === panel ? '' : 'hidden-panel';
@@ -580,6 +652,13 @@ const ProductsCatalogPage = () => {
                 >
                   Avanzado
                 </button>
+                <button
+                  className={`tab-btn ${editorTab === 'suppliers' ? 'active' : ''}`}
+                  onClick={() => setEditorTab('suppliers')}
+                >
+                  Proveedores
+                </button>
+
               </div>
               {hasChanges && <span className="muted text-sm">Cambios sin guardar</span>}
             </div>
@@ -777,6 +856,119 @@ const ProductsCatalogPage = () => {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {editorTab === 'suppliers' && (
+              <div className="animate-fade-in">
+                <div className="bg-slate-50 p-4 rounded-lg mb-4 border border-slate-200">
+                  <h4 className="font-medium mb-3 text-sm text-slate-700">Agregar Proveedor</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Proveedor</label>
+                      <select
+                        className="w-full p-2 rounded border border-slate-300 text-sm"
+                        value={newSupplierId}
+                        onChange={(e) => setNewSupplierId(e.target.value)}
+                      >
+                        <option value="">Seleccionar...</option>
+                        {availableSuppliers.map(s => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Costo (Q)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="w-full p-2 rounded border border-slate-300 text-sm"
+                        placeholder="0.00"
+                        value={newSupplierCost}
+                        onChange={(e) => setNewSupplierCost(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Código Producto (Opcional)</label>
+                      <input
+                        type="text"
+                        className="w-full p-2 rounded border border-slate-300 text-sm"
+                        placeholder="Ej. PROD-001"
+                        value={newSupplierCode}
+                        onChange={(e) => setNewSupplierCode(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex items-center pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newSupplierIsMain}
+                          onChange={(e) => setNewSupplierIsMain(e.target.checked)}
+                        />
+                        <span className="text-sm text-slate-700">Proveedor Principal</span>
+                      </label>
+                    </div>
+                  </div>
+                  <button
+                    className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
+                    onClick={handleAddSupplier}
+                    disabled={!newSupplierId || !newSupplierCost}
+                  >
+                    Agregar Proveedor
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-100 text-slate-600">
+                      <tr>
+                        <th className="p-2 text-left">Proveedor</th>
+                        <th className="p-2 text-left">Código</th>
+                        <th className="p-2 text-right">Costo</th>
+                        <th className="p-2 text-center">Principal</th>
+                        <th className="p-2 text-center">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {productSuppliers.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="p-4 text-center text-slate-500 italic">
+                            No hay proveedores asignados
+                          </td>
+                        </tr>
+                      ) : (
+                        productSuppliers.map((ps) => (
+                          <tr key={ps.id_proveedor}>
+                            <td className="p-2">{ps.nombre_proveedor || 'Proveedor ' + ps.id_proveedor}</td>
+                            <td className="p-2 text-slate-500">{ps.codigo_producto_proveedor || '-'}</td>
+                            <td className="p-2 text-right font-medium">
+                              <input
+                                type="number"
+                                step="0.01"
+                                className="w-20 p-1 text-right border border-transparent hover:border-slate-300 rounded focus:border-blue-500 outline-none"
+                                defaultValue={ps.precio_costo}
+                                onBlur={(e) => handleUpdateSupplierPrice(ps.id_proveedor, e.target.value)}
+                              />
+                            </td>
+                            <td className="p-2 text-center">
+                              {ps.es_proveedor_principal ? (
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">Principal</span>
+                              ) : '-'}
+                            </td>
+                            <td className="p-2 text-center">
+                              <button
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => handleRemoveSupplier(ps.id_proveedor)}
+                              >
+                                ✕
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

@@ -274,5 +274,25 @@ export function useProductCatalog(initialFilters?: ProductFilters) {
     deleteProduct,
     setPage,
     reload: () => loadPage(meta.page),
+
+    // Suppliers
+    fetchSuppliers: async (productId: string) => {
+      try {
+        const data = await productsApi.getSuppliers(productId);
+        return data;
+      } catch (err) {
+        console.error(err);
+        return [];
+      }
+    },
+    addSupplier: async (productId: string, payload: { supplierId: string; cost: number; code?: string; isMain?: boolean }) => {
+      await productsApi.addSupplier(productId, payload);
+    },
+    removeSupplier: async (productId: string, supplierId: string) => {
+      await productsApi.removeSupplier(productId, supplierId);
+    },
+    updateSupplierPrice: async (productId: string, supplierId: string, price: number) => {
+      await productsApi.updateSupplierPrice(productId, supplierId, price);
+    }
   };
 }

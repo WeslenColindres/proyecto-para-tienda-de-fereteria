@@ -1,6 +1,6 @@
 import SuppliersPage from './components/SuppliersPage';
 import SuppliersOrdersPage from './components/SuppliersOrdersPage';
-import SuppliersPayablesPage from './components/SuppliersPayablesPage';
+import { SuppliersPayablesPage } from './components/SuppliersPayablesPage';
 
 type SuppliersViewProps = {
   activeItem: string;

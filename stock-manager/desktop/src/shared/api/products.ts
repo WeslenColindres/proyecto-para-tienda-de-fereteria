@@ -23,27 +23,37 @@ const buildQuery = (filters?: ProductFilters) => {
 };
 
 export const productsApi = {
-  list: (filters?: ProductFilters) => apiFetch<ProductListResponse>(`/api/products${buildQuery(filters)}`),
-  get: (id: string) => apiFetch<ProductDetail>(`/api/products/${id}`),
+  list: (filters?: ProductFilters) => apiFetch<ProductListResponse>(`/api/inventory/products${buildQuery(filters)}`),
+  get: (id: string) => apiFetch<ProductDetail>(`/api/inventory/products/${id}`),
   create: (payload: Partial<ProductItem>) =>
-    apiFetch<ProductItem>('/api/products', { method: 'POST', body: JSON.stringify(payload) }),
+    apiFetch<ProductItem>('/api/inventory/products', { method: 'POST', body: JSON.stringify(payload) }),
   update: (id: string, payload: Partial<ProductItem>) =>
-    apiFetch<ProductItem>(`/api/products/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
-  remove: (id: string) => apiFetch<ProductItem>(`/api/products/${id}`, { method: 'DELETE' }),
+    apiFetch<ProductItem>(`/api/inventory/products/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  remove: (id: string) => apiFetch<ProductItem>(`/api/inventory/products/${id}`, { method: 'DELETE' }),
   movements: (id: string, pagination?: { page?: number; limit?: number }) => {
     const params = new URLSearchParams();
     if (pagination?.page) params.set('page', String(pagination.page));
     if (pagination?.limit) params.set('limit', String(pagination.limit));
     const query = params.toString() ? `?${params.toString()}` : '';
-    return apiFetch<{ data: InventoryMovement[] }>(`/api/products/${id}/movements${query}`);
+    return apiFetch<{ data: InventoryMovement[] }>(`/api/inventory/products/${id}/movements${query}`);
   },
   exportTemplate: (format: 'xlsx' | 'csv' = 'xlsx') =>
-    apiFetchBlob(`/api/products/export/template?format=${format}`),
-  exportData: (filters?: ProductFilters) => apiFetchBlob(`/api/products/export${buildQuery(filters)}`),
+    apiFetchBlob(`/api/inventory/products/export/template?format=${format}`),
+  exportData: (filters?: ProductFilters) => apiFetchBlob(`/api/inventory/products/export${buildQuery(filters)}`),
   importFile: (file: File, mode: 'regular' | 'initial' = 'regular') => {
     const form = new FormData();
     form.append('file', file);
     const query = mode === 'initial' ? '?mode=initial' : '';
-    return apiFetch<ImportSummary>(`/api/products/import${query}`, { method: 'POST', body: form });
+    return apiFetch<ImportSummary>(`/api/inventory/products/import${query}`, { method: 'POST', body: form });
   },
+
+  // Suppliers
+  getSuppliers: (productId: string) =>
+    apiFetch<any[]>(`/api/inventory/products/${productId}/suppliers`),
+  addSupplier: (productId: string, payload: { supplierId: string; cost: number; code?: string; isMain?: boolean }) =>
+    apiFetch(`/api/inventory/products/${productId}/suppliers`, { method: 'POST', body: JSON.stringify(payload) }),
+  removeSupplier: (productId: string, supplierId: string) =>
+    apiFetch(`/api/inventory/products/${productId}/suppliers/${supplierId}`, { method: 'DELETE' }),
+  updateSupplierPrice: (productId: string, supplierId: string, price: number) =>
+    apiFetch(`/api/inventory/products/${productId}/suppliers/${supplierId}`, { method: 'PUT', body: JSON.stringify({ price }) }),
 };
