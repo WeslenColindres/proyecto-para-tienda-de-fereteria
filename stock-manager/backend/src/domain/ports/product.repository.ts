@@ -4,9 +4,10 @@ import { Stock } from '../entities/stock.entity';
 export interface ProductRepository {
     findById(id: number): Promise<Product | null>;
     findBySku(sku: string): Promise<Product | null>;
-    findAll(limit?: number, offset?: number): Promise<Product[]>;
+    findAll(limit?: number, offset?: number, orderBy?: string, orderDir?: 'ASC' | 'DESC'): Promise<Product[]>;
     save(product: Product): Promise<Product>;
     update(product: Product): Promise<Product>;
+    updatePrice(productId: number, price: number): Promise<void>;
 
     // Stock methods
     getStock(productId: number, branchId: number): Promise<Stock | null>;

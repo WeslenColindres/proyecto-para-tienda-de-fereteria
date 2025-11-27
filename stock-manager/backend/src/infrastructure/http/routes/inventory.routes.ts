@@ -18,4 +18,11 @@ router.post('/products/:id/suppliers', authenticateToken, authorizeRole([1, 3]),
 router.delete('/products/:id/suppliers/:supplierId', authenticateToken, authorizeRole([1, 3]), inventoryController.removeSupplier);
 router.put('/products/:id/suppliers/:supplierId', authenticateToken, authorizeRole([1, 3]), inventoryController.updateSupplierPrice);
 
+// Product Import
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/products/import/preview', authenticateToken, authorizeRole([1, 3]), upload.single('file'), (req, res) => inventoryController.previewImport(req, res));
+router.post('/products/import/confirm', authenticateToken, authorizeRole([1, 3]), (req, res) => inventoryController.confirmImport(req, res));
+
 export default router;

@@ -32,6 +32,11 @@ const buildHeaders = (init?: RequestInit) => {
   // Header de seguridad: identifica que la petición viene de la App Desktop
   headers.set('X-Source-App', 'stock-manager-desktop');
 
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
   return headers;
 };
 

@@ -1,59 +1,91 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { categoriesApi } from '@/shared/api/categories';
 import { ApiError } from '@/shared/api/types';
 import { useCategories } from '@/shared/hooks/useCategories';
 import type { Category } from '@/shared/types/products';
-import Modal from '@/ui/molecules/Modal/Modal';
 
 type FormState = {
-  code: string;
   name: string;
   description: string;
-  color: string;
-  status: 'activo' | 'inactivo';
+  parentId: string;
+  hasParent: boolean;
+  active: boolean;
 };
 
 const buildForm = (category?: Category): FormState => ({
-  code: category?.code ?? '',
   name: category?.name ?? '',
   description: category?.description ?? '',
-  color: category?.color ?? '#0ea5e9',
-  status: category?.status ?? 'activo',
+  parentId: category?.parentId ? String(category.parentId) : '',
+  hasParent: !!category?.parentId,
+  active: category?.active ?? true,
 });
 
+const Drawer = ({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) => (
+  <>
+    <div
+      className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      onClick={onClose}
+    />
+    <div
+      className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
+    >
+      <div className="h-full flex flex-col">
+        <header className="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+          <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors text-xl">✕</button>
+        </header>
+        <div className="flex-1 overflow-y-auto p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  </>
+);
+
 const ProductCategoriesPage = () => {
-  const { categories, reload } = useCategories();
-  const [selectedId, setSelectedId] = useState<string | null>(categories[0]?.id ?? null);
-  const selected = useMemo(() => categories.find((c) => c.id === selectedId), [categories, selectedId]);
-  const [form, setForm] = useState<FormState>(() => buildForm(selected));
-  const [showDelete, setShowDelete] = useState(false);
+  const { categories, reload, loading } = useCategories();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [form, setForm] = useState<FormState>(buildForm());
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (!selectedId && categories.length) {
-      setSelectedId(categories[0].id);
-      setForm(buildForm(categories[0]));
-    }
-  }, [categories, selectedId]);
-
-  const handleSelect = (id: string) => {
-    setSelectedId(id);
-    const cat = categories.find((c) => c.id === id);
-    setForm(buildForm(cat));
+  const handleEdit = (category: Category) => {
+    setSelectedId(category.id);
+    setForm(buildForm(category));
+    setIsDrawerOpen(true);
   };
 
-  const handleSave = async () => {
+  const handleCreate = () => {
+    setSelectedId(null);
+    setForm(buildForm());
+    setIsDrawerOpen(true);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      alert('El nombre es requerido');
+      return;
+    }
+
     setSaving(true);
     try {
-      if (selected) {
-        await categoriesApi.update(selected.id, form);
+      const payload = {
+        name: form.name,
+        description: form.description,
+        parentId: form.hasParent && form.parentId ? Number(form.parentId) : null,
+        active: form.active,
+      };
+
+      if (selectedId) {
+        await categoriesApi.update(selectedId, payload);
       } else {
-        const created = await categoriesApi.create(form);
-        setSelectedId(created.id);
+        await categoriesApi.create(payload);
       }
       await reload();
+      setIsDrawerOpen(false);
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'No se pudo guardar la categoria';
+      const message = err instanceof ApiError ? err.message : 'Error al guardar la categoría';
       alert(message);
     } finally {
       setSaving(false);
@@ -61,165 +93,190 @@ const ProductCategoriesPage = () => {
   };
 
   const handleDelete = async () => {
-    if (!selectedId) return;
+    if (!selectedId || !confirm('¿Estás seguro de desactivar esta categoría?')) return;
     try {
       await categoriesApi.remove(selectedId);
-      setSelectedId(null);
-      setForm(buildForm());
       await reload();
+      setIsDrawerOpen(false);
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'No se pudo eliminar';
-      alert(message);
-    } finally {
-      setShowDelete(false);
+      alert('Error al desactivar');
     }
   };
 
+  // Filter out the current category from parent options to avoid cycles (simple check)
+  const parentOptions = categories.filter(c => c.id !== selectedId);
+
   return (
-    <section className="products-view app-view is-visible" data-app-view="productos-categorias">
-      <header className="products-toolbar">
-        <div className="toolbar-actions">
-          <button className="tool-btn new" onClick={() => { setSelectedId(null); setForm(buildForm()); }}>
-            + Nueva categoria
-          </button>
-          <button className="tool-btn delete" disabled={!selectedId} onClick={() => setShowDelete(true)}>
-            Desactivar
-          </button>
+    <section className="products-view app-view is-visible h-full flex flex-col" data-app-view="productos-categorias">
+      <header className="products-toolbar flex justify-between items-center p-4 border-b bg-white">
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">Categorías</h2>
+          <p className="text-sm text-gray-500">Gestión del catálogo de categorías</p>
         </div>
-        <div className="toolbar-filters">
-          <span className="muted">Gestion de categorias</span>
-        </div>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm"
+          onClick={handleCreate}
+        >
+          <span>+</span> Nueva Categoría
+        </button>
       </header>
 
-      <div className="products-grid">
-        <section className="products-column">
-          <article className="products-table-card">
-            <header className="card-header" style={{ marginBottom: 8 }}>
-              <h3 style={{ margin: 0 }}>Tabla de categorias</h3>
-              <span className="muted">Codigo, nombre, estado y fecha</span>
-            </header>
-            <div className="products-table-wrapper">
-              <table className="products-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: 80 }}>Codigo</th>
-                    <th>Nombre</th>
-                    <th style={{ width: 120 }}>Estado</th>
-                    <th style={{ width: 120 }}>Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map((category) => (
+      <div className="flex-1 overflow-auto p-6 bg-gray-50">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Descripción</th>
+                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Categoría Padre</th>
+                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {loading ? (
+                <tr><td colSpan={5} className="p-6 text-center text-gray-500">Cargando...</td></tr>
+              ) : categories.length === 0 ? (
+                <tr><td colSpan={5} className="p-6 text-center text-gray-500">No hay categorías registradas</td></tr>
+              ) : (
+                categories.map((category) => {
+                  const parent = categories.find(c => String(c.id) === String(category.parentId));
+                  return (
                     <tr
                       key={category.id}
-                      className={selectedId === category.id ? 'selected' : ''}
-                      onClick={() => handleSelect(category.id)}
+                      className="hover:bg-gray-50 transition-colors group cursor-pointer"
+                      onClick={() => handleEdit(category)}
                     >
-                      <td>{category.code}</td>
-                      <td>{category.name}</td>
-                      <td>
-                        <span className={`status-chip status-${category.status}`}>{category.status}</span>
+                      <td className="px-6 py-4 font-medium text-gray-900">{category.name}</td>
+                      <td className="px-6 py-4 text-gray-500 text-sm">{category.description || '-'}</td>
+                      <td className="px-6 py-4 text-gray-500 text-sm">
+                        {parent ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {parent.name}
+                          </span>
+                        ) : '-'}
                       </td>
-                      <td>{category.createdAt?.slice?.(0, 10) ?? 'N/D'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                          }`}>
+                          {category.active ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right text-sm font-medium">
+                        <button
+                          className="text-blue-600 hover:text-blue-900 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => { e.stopPropagation(); handleEdit(category); }}
+                        >
+                          Editar
+                        </button>
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </section>
-
-        <aside className="products-column editor-panel">
-          <article className="editor-card">
-            <p className="section-eyebrow">Formulario de categoria</p>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="cat-code">Codigo</label>
-                <input
-                  id="cat-code"
-                  type="text"
-                  value={form.code}
-                  onChange={(e) => setForm((prev) => ({ ...prev, code: e.target.value }))}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="cat-name">Nombre</label>
-                <input
-                  id="cat-name"
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                />
-              </div>
-            </div>
-            <div className="field-grid full">
-              <div className="field">
-                <label htmlFor="cat-description">Descripcion</label>
-                <textarea
-                  id="cat-description"
-                  rows={3}
-                  value={form.description}
-                  onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                ></textarea>
-              </div>
-            </div>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="cat-color">Color</label>
-                <input
-                  id="cat-color"
-                  type="color"
-                  value={form.color}
-                  onChange={(e) => setForm((prev) => ({ ...prev, color: e.target.value }))}
-                />
-              </div>
-              <div className="field">
-                <label>Estado</label>
-                <div className="row-actions">
-                  {(['activo', 'inactivo'] as const).map((status) => (
-                    <label key={status} className={`status-chip status-${status}`}>
-                      <input
-                        type="radio"
-                        name="cat-status"
-                        checked={form.status === status}
-                        onChange={() => setForm((prev) => ({ ...prev, status }))}
-                      />
-                      {status}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="form-actions">
-              <button className="btn-primary" onClick={handleSave} disabled={saving}>
-                Guardar categoria
-              </button>
-              <button className="btn-outline" onClick={() => handleSelect(selectedId ?? '')}>
-                Cancelar
-              </button>
-            </div>
-          </article>
-        </aside>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <Modal
-        open={showDelete}
-        title="Desactivar categoria"
-        description="Se realizara borrado logico para mantener trazabilidad."
-        onClose={() => setShowDelete(false)}
-        footer={
-          <>
-            <button type="button" className="btn-outline" onClick={() => setShowDelete(false)}>
-              Cancelar
-            </button>
-            <button type="button" className="btn-danger" onClick={handleDelete}>
-              Confirmar
-            </button>
-          </>
-        }
+      <Drawer
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        title={selectedId ? 'Editar Categoría' : 'Nueva Categoría'}
       >
-        <p className="text-sm">No se eliminaran productos asociados.</p>
-      </Modal>
+        <form onSubmit={handleSave} className="flex flex-col gap-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+              <input
+                id="name"
+                type="text"
+                className="w-full rounded-lg border-gray-300 border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                placeholder="Ej. Herramientas Manuales"
+                value={form.name}
+                onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
+                autoFocus
+              />
+            </div>
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+              <textarea
+                id="description"
+                rows={3}
+                className="w-full rounded-lg border-gray-300 border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                placeholder="Breve descripción de la categoría..."
+                value={form.description}
+                onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  checked={form.hasParent}
+                  onChange={e => setForm(prev => ({ ...prev, hasParent: e.target.checked }))}
+                />
+                <span className="text-sm font-medium text-gray-700">¿Es una subcategoría?</span>
+              </label>
+
+              {form.hasParent && (
+                <div className="animate-fade-in pl-7">
+                  <label htmlFor="parentId" className="block text-xs font-medium text-gray-500 mb-1">Categoría Padre</label>
+                  <select
+                    id="parentId"
+                    className="w-full rounded-lg border-gray-300 border p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={form.parentId}
+                    onChange={e => setForm(prev => ({ ...prev, parentId: e.target.value }))}
+                  >
+                    <option value="">Seleccionar padre...</option>
+                    {parentOptions.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <span className="text-sm font-medium text-gray-700">Estado</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={form.active}
+                  onChange={e => setForm(prev => ({ ...prev, active: e.target.checked }))}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <span className="ml-3 text-sm font-medium text-gray-900">{form.active ? 'Activo' : 'Inactivo'}</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t flex gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-medium transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Guardando...' : (selectedId ? 'Guardar Cambios' : 'Crear Categoría')}
+            </button>
+            {selectedId && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg font-medium transition-colors"
+              >
+                Eliminar
+              </button>
+            )}
+          </div>
+        </form>
+      </Drawer>
     </section>
   );
 };

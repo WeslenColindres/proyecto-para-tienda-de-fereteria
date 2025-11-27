@@ -48,6 +48,8 @@ export function useProductCatalog(initialFilters?: ProductFilters) {
     categoryId: initialFilters?.categoryId ?? 'all',
     stockState: initialFilters?.stockState ?? 'all',
     status: initialFilters?.status ?? 'all',
+    orderBy: initialFilters?.orderBy ?? 'id_producto',
+    orderDir: initialFilters?.orderDir ?? 'DESC',
   }));
   const [meta, setMeta] = useState({
     page: filters.page ?? 1,
@@ -110,7 +112,7 @@ export function useProductCatalog(initialFilters?: ProductFilters) {
 
   useEffect(() => {
     loadPage(1);
-  }, [filters.search, filters.categoryId, filters.stockState, filters.status, filters.pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters.search, filters.categoryId, filters.stockState, filters.status, filters.pageSize, filters.orderBy, filters.orderDir]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Si no hay productos y el total es 0, limpiamos selección y formulario

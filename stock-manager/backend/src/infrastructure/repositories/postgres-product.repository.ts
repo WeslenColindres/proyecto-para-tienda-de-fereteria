@@ -36,19 +36,37 @@ export class PostgresProductRepository implements ProductRepository {
         return new Product(result.rows[0]);
     }
 
-    async findAll(limit: number = 20, offset: number = 0): Promise<Product[]> {
+    async findAll(limit: number = 20, offset: number = 0, orderBy: string = 'id_producto', orderDir: 'ASC' | 'DESC' = 'DESC'): Promise<Product[]> {
+        const validColumns = ['id_producto', 'nombre', 'sku', 'stock', 'precio'];
+        const sortCol = validColumns.includes(orderBy) ? orderBy : 'id_producto';
+
+        let orderByClause = `ORDER BY ${sortCol} ${orderDir}`;
+        if (sortCol === 'stock') orderByClause = `ORDER BY stock ${orderDir}`;
+        if (sortCol === 'precio') orderByClause = `ORDER BY price ${orderDir}`;
+
         const result = await query(
             `SELECT 
-        id_producto as id, sku, codigo_barras as "barcode", nombre as name,
-        descripcion as description, id_categoria as "categoryId",
-        id_unidad_medida as "unitOfMeasureId", id_proveedor_principal as "mainProviderId",
-        es_inventariable as "isInventoriable", es_vendible as "isSellable",
-        es_comprable as "isBuyable", activo as "isActive",
-        fecha_creacion as "createdAt", fecha_modificacion as "updatedAt"
-       FROM productos LIMIT $1 OFFSET $2`,
+        p.id_producto as id, p.sku, p.codigo_barras as "barcode", p.nombre as name,
+        p.descripcion as description, p.id_categoria as "categoryId",
+        p.id_unidad_medida as "unitOfMeasureId", p.id_proveedor_principal as "mainProviderId",
+        p.es_inventariable as "isInventoriable", p.es_vendible as "isSellable",
+        p.es_comprable as "isBuyable", p.activo as "isActive",
+        p.fecha_creacion as "createdAt", p.fecha_modificacion as "updatedAt",
+        COALESCE(SUM(sp.cantidad_disponible), 0) as stock,
+        COALESCE(MAX(pp.precio), 0) as price
+       FROM productos p
+       LEFT JOIN stock_producto sp ON p.id_producto = sp.id_producto
+       LEFT JOIN precios_producto pp ON p.id_producto = pp.id_producto AND pp.tipo_precio = 'VENTA' AND pp.activo = TRUE
+       GROUP BY p.id_producto
+       ${orderByClause}
+       LIMIT $1 OFFSET $2`,
             [limit, offset]
         );
-        return result.rows.map((row) => new Product(row));
+        return result.rows.map((row) => new Product({
+            ...row,
+            stock: Number(row.stock),
+            price: Number(row.price)
+        }));
     }
 
     async save(product: Product): Promise<Product> {
@@ -98,6 +116,20 @@ export class PostgresProductRepository implements ProductRepository {
             ]
         );
         return product;
+    }
+
+    async updatePrice(productId: number, price: number): Promise<void> {
+        await query(
+            `UPDATE precios_producto SET activo = FALSE WHERE id_producto = $1 AND tipo_precio = 'VENTA'`,
+            [productId]
+        );
+        await query(
+            `INSERT INTO precios_producto (id_producto, tipo_precio, precio, fecha_vigencia_inicio, activo)
+             VALUES ($1, 'VENTA', $2, CURRENT_DATE, TRUE)
+             ON CONFLICT (id_producto, tipo_precio, fecha_vigencia_inicio)
+             DO UPDATE SET precio = $2, activo = TRUE`,
+            [productId, price]
+        );
     }
 
     async getStock(productId: number, branchId: number): Promise<Stock | null> {

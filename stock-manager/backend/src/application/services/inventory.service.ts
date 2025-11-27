@@ -5,8 +5,8 @@ import { Stock } from '../../domain/entities/stock.entity';
 export class InventoryService {
     constructor(private readonly productRepository: ProductRepository) { }
 
-    async getAllProducts(limit: number, offset: number): Promise<Product[]> {
-        return this.productRepository.findAll(limit, offset);
+    async getAllProducts(limit: number, offset: number, orderBy?: string, orderDir?: 'ASC' | 'DESC'): Promise<Product[]> {
+        return this.productRepository.findAll(limit, offset, orderBy, orderDir);
     }
 
     async getProductById(id: number): Promise<Product | null> {

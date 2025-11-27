@@ -11,6 +11,7 @@ import suppliersRoutes from './infrastructure/http/routes/suppliers.routes';
 import purchaseOrdersRoutes from './infrastructure/http/routes/purchase-orders.routes';
 import accountsPayableRoutes from './infrastructure/http/routes/accounts-payable.routes';
 import notificationsRoutes from './infrastructure/http/routes/notifications.routes';
+import categoryRoutes from './infrastructure/http/routes/category.routes';
 import dashboardRoutes from './infrastructure/http/routes/dashboard.routes';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -42,6 +43,7 @@ app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/purchase-orders', purchaseOrdersRoutes);
 app.use('/api/accounts-payable', accountsPayableRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // WebSocket

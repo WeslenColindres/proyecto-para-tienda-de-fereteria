@@ -5,6 +5,25 @@ import fs from 'fs';
 import path from 'path';
 import { Supplier } from '../../domain/entities/Supplier';
 import { SuppliersRepository } from '../repositories/suppliers.repository';
+import { PostgresProductRepository } from '../repositories/postgres-product.repository';
+import { Product } from '../../domain/entities/product.entity';
+
+const productRepository = new PostgresProductRepository();
+
+export interface ParsedProduct {
+    code: string;
+    name: string;
+    category: string;
+    cost: number;
+    price: number;
+    stockToAdd: number;
+    // Computed fields
+    currentStock: number;
+    newTotalStock: number;
+    isNew: boolean;
+    categoryId?: number;
+    errors: string[];
+}
 
 export class ImportExportService {
     async importSuppliers(filePath: string, userId: string): Promise<string> {
@@ -185,6 +204,161 @@ export class ImportExportService {
     async getJobStatus(jobId: string) {
         const result = await pool.query('SELECT * FROM jobs WHERE id_job = $1', [jobId]);
         return result.rows[0];
+    }
+
+    async parseProductFile(filePath: string): Promise<ParsedProduct[]> {
+        const rows: any[] = [];
+
+        if (filePath.endsWith('.csv')) {
+            await new Promise((resolve, reject) => {
+                fs.createReadStream(filePath)
+                    .pipe(csv())
+                    .on('data', (data) => rows.push(data))
+                    .on('end', resolve)
+                    .on('error', reject);
+            });
+        } else {
+            const workbook = new xlsx.Workbook();
+            await workbook.xlsx.readFile(filePath);
+            const worksheet = workbook.getWorksheet(1);
+
+            if (worksheet) {
+                const headers: string[] = [];
+                worksheet.getRow(1).eachCell((cell, colNumber) => {
+                    headers[colNumber] = cell.text;
+                });
+
+                worksheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) return;
+                    const item: any = {};
+                    row.eachCell((cell, colNumber) => {
+                        const header = headers[colNumber];
+                        if (header) item[header] = cell.text;
+                    });
+                    rows.push(item);
+                });
+            }
+        }
+
+        // Clean up file after reading
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        const parsedProducts: ParsedProduct[] = [];
+
+        for (const row of rows) {
+            const code = row['Codigo'] || row['codigo'] || row['Code'] || row['code'] || '';
+            const name = row['Nombre'] || row['nombre'] || row['Name'] || row['name'] || '';
+            const category = row['Categoria'] || row['categoria'] || row['Category'] || row['category'] || '';
+            const cost = parseFloat(row['Costo'] || row['costo'] || row['Cost'] || row['cost'] || '0');
+            const price = parseFloat(row['Precio'] || row['precio'] || row['Price'] || row['price'] || '0');
+            const stockToAdd = parseInt(row['Stock'] || row['stock'] || '0');
+
+            const errors: string[] = [];
+            if (!code) errors.push('Codigo es requerido');
+            if (!name) errors.push('Nombre es requerido');
+
+            let currentStock = 0;
+            let isNew = true;
+            let categoryId: number | undefined;
+
+            // Check if product exists
+            if (code) {
+                const existing = await productRepository.findBySku(code);
+                if (existing) {
+                    isNew = false;
+                    // Get current stock (assuming branch 1 for now, or sum all)
+                    // For simplicity, we'll just show 0 if we can't easily get it without branch context, 
+                    // but let's try to get it if possible.
+                    // We'll assume a default branch or just show 0.
+                    // Actually, let's fetch stock for branch 1 (Main)
+                    const stock = await productRepository.getStock(existing.id!, 1);
+                    currentStock = stock ? stock.quantityAvailable : 0;
+                }
+            }
+
+            parsedProducts.push({
+                code,
+                name,
+                category,
+                cost,
+                price,
+                stockToAdd,
+                currentStock,
+                newTotalStock: currentStock + stockToAdd,
+                isNew,
+                categoryId,
+                errors
+            });
+        }
+
+        return parsedProducts;
+    }
+
+    async processProductImport(products: ParsedProduct[], userId: string): Promise<{ processed: number, errors: any[] }> {
+        let processed = 0;
+        const errors: any[] = [];
+
+        for (const item of products) {
+            try {
+                if (item.errors.length > 0) {
+                    throw new Error(item.errors.join(', '));
+                }
+
+                let productId: number | undefined;
+
+                if (item.isNew) {
+                    const productToSave = new Product({
+                        sku: item.code,
+                        name: item.name,
+                        description: item.category,
+                        categoryId: 1,
+                        unitOfMeasureId: 1,
+                        mainProviderId: null,
+                        isInventoriable: true,
+                        isSellable: true,
+                        isBuyable: true,
+                        isActive: true
+                    });
+
+                    const saved = await productRepository.save(productToSave);
+                    productId = saved.id;
+                } else {
+                    const existing = await productRepository.findBySku(item.code);
+                    if (existing) {
+                        productId = existing.id;
+                    }
+                }
+
+                if (productId && item.stockToAdd > 0) {
+                    const currentStock = await productRepository.getStock(productId, 1);
+                    const currentQty = currentStock ? currentStock.quantityAvailable : 0;
+
+                    const stockMock = {
+                        props: {
+                            productId,
+                            branchId: 1,
+                            quantityReserved: 0,
+                            quantityInTransit: 0
+                        },
+                        quantityAvailable: currentQty + item.stockToAdd
+                    };
+
+                    await productRepository.updateStock(stockMock as any);
+                }
+
+                if (productId && item.price > 0) {
+                    await productRepository.updatePrice(productId, item.price);
+                }
+
+                processed++;
+            } catch (err: any) {
+                errors.push({ code: item.code, error: err.message });
+            }
+        }
+
+        return { processed, errors };
     }
 }
 

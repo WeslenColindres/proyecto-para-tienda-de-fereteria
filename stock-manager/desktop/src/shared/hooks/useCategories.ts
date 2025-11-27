@@ -4,9 +4,9 @@ import { ApiError } from '../api/types';
 import type { Category } from '../types/products';
 
 const FALLBACK: Category[] = [
-  { id: 'cat-general', code: 'GEN', name: 'General', status: 'activo', description: 'Categoria por defecto' },
-  { id: 'cat-bebidas', code: 'BEB', name: 'Bebidas', status: 'activo' },
-  { id: 'cat-pan', code: 'PAN', name: 'Panaderia', status: 'activo' },
+  { id: '1', name: 'General', active: true, description: 'Categoria por defecto' },
+  { id: '2', name: 'Bebidas', active: true },
+  { id: '3', name: 'Panaderia', active: true },
 ];
 
 export function useCategories() {

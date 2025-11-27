@@ -17,6 +17,8 @@ const buildQuery = (filters?: ProductFilters) => {
   if (filters.status && filters.status !== 'all') params.set('status', filters.status);
   if (filters.page) params.set('page', String(filters.page));
   if (filters.pageSize) params.set('pageSize', String(filters.pageSize));
+  if (filters.orderBy) params.set('orderBy', filters.orderBy);
+  if (filters.orderDir) params.set('orderDir', filters.orderDir);
   params.set('preloadChunks', '3');
   const query = params.toString();
   return query ? `?${query}` : '';
@@ -46,6 +48,16 @@ export const productsApi = {
     const query = mode === 'initial' ? '?mode=initial' : '';
     return apiFetch<ImportSummary>(`/api/inventory/products/import${query}`, { method: 'POST', body: form });
   },
+  previewImport: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return apiFetch<any[]>('/api/inventory/products/import/preview', { method: 'POST', body: form });
+  },
+  confirmImport: (products: any[]) =>
+    apiFetch<{ processed: number; errors: any[] }>('/api/inventory/products/import/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ products }),
+    }),
 
   // Suppliers
   getSuppliers: (productId: string) =>

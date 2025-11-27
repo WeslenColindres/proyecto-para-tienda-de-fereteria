@@ -1,0 +1,6 @@
+code,name,description,categoryCode,cost,price,tax,unit,minStock,stock,status,barcode,createdAt,updatedAt
+P001,Cafe Espresso,Cafe espresso en grano,BEB,12.5,25,12,unidad,5,15,activo,12345001,2025-11-22T00:00:00.000Z,2025-11-22T00:00:00.000Z
+P002,Pan Frances,Pan fresco,PAN,4.5,8,12,unidad,5,8,activo,12345002,2025-11-22T00:00:00.000Z,2025-11-23T18:55:01.855Z
+P003,Empanada de Pollo,Empanada artesanal,PAN,6.5,12,12,unidad,5,25,activo,12345003,2025-11-22T00:00:00.000Z,2025-11-22T00:00:00.000Z
+P004,Te Earl Grey,Infusion de te,BEB,7,15,12,unidad,5,30,activo,12345004,2025-11-22T00:00:00.000Z,2025-11-22T00:00:00.000Z
+P005,Jugos Naturales,Variedad de jugos,BEB,9,18,15,litro,5,12,activo,12345005,2025-11-22T00:00:00.000Z,2025-11-23T18:50:04.544Z

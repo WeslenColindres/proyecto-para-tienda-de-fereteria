@@ -91,7 +91,17 @@ INSERT INTO clientes (nit, nombre, id_tipo_cliente, email, telefono, limite_cred
 ('321654-9', 'Inversiones Modernas S.A.', 2, 'ventas@inversiones.com', '3333-2222', 75000, 45)
 ON CONFLICT (nit) DO NOTHING;
 
--- 9. Notificaciones (solo si la tabla existe)
+-- 9. Notificaciones
+CREATE TABLE IF NOT EXISTS notifications (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50),
+    priority VARCHAR(20) DEFAULT 'info',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 INSERT INTO notifications (title, message, type, priority, is_read) VALUES
 ('Stock Bajo: Martillo', 'El producto Martillo de Uña 16oz ha llegado a su punto de reorden.', 'inventory', 'warning', FALSE),
 ('Stock Bajo: Pintura', 'Quedan solo 25 cubetas de Pintura Latex Blanco.', 'inventory', 'warning', FALSE),

@@ -84,15 +84,12 @@ export type InventoryWarehouseRow = {
 export type ProductTab = 'productos' | 'editar' | 'movimientos';
 
 export type Category = {
-  id: string;
-  code: string;
+  id: string; // mapped from number
   name: string;
   description?: string;
-  color?: string;
-  status: 'activo' | 'inactivo';
-  deletedAt?: string | null;
+  parentId?: number | null;
+  active: boolean;
   createdAt?: string;
-  updatedAt?: string;
 };
 
 export type AlertItem = {
@@ -112,6 +109,8 @@ export type ProductFilters = {
   status?: ProductStatus | 'all';
   page?: number;
   pageSize?: number;
+  orderBy?: string;
+  orderDir?: 'ASC' | 'DESC';
 };
 
 export type ProductListChunk = { page: number; data: ProductItem[] };

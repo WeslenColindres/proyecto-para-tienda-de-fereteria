@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { InventoryService } from '../../../application/services/inventory.service';
 import { PostgresProductRepository } from '../../repositories/postgres-product.repository';
+import { importExportService } from '../../services/import-export.service';
 
 const productRepository = new PostgresProductRepository();
 const inventoryService = new InventoryService(productRepository);
@@ -10,7 +11,9 @@ export class InventoryController {
         try {
             const limit = Number(req.query.limit) || 20;
             const offset = Number(req.query.offset) || 0;
-            const products = await inventoryService.getAllProducts(limit, offset);
+            const orderBy = req.query.orderBy as string;
+            const orderDir = (req.query.orderDir as string) === 'ASC' ? 'ASC' : 'DESC';
+            const products = await inventoryService.getAllProducts(limit, offset, orderBy, orderDir);
             res.json(products);
         } catch (error: any) {
             res.status(500).json({ message: error.message });
@@ -110,6 +113,29 @@ export class InventoryController {
             const { price } = req.body;
             await inventoryService.updateSupplierPrice(productId, supplierId, price);
             res.json({ message: 'Supplier price updated successfully' });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async previewImport(req: Request, res: Response) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+            const parsed = await importExportService.parseProductFile(req.file.path);
+            res.json(parsed);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async confirmImport(req: Request, res: Response) {
+        try {
+            const { products } = req.body;
+            const userId = (req as any).user?.id || 'system';
+            const result = await importExportService.processProductImport(products, userId);
+            res.json(result);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }

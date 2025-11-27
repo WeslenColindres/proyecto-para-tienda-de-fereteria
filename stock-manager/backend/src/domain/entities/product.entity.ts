@@ -13,6 +13,9 @@ export interface ProductProps {
     isActive: boolean;
     createdAt?: Date;
     updatedAt?: Date;
+    stock?: number;
+    price?: number;
+    cost?: number;
 }
 
 export class Product {
@@ -32,5 +35,17 @@ export class Product {
 
     get isInventoriable(): boolean {
         return this.props.isInventoriable;
+    }
+
+    get stock(): number {
+        return this.props.stock ?? 0;
+    }
+
+    get price(): number {
+        return this.props.price ?? 0;
+    }
+
+    get cost(): number {
+        return this.props.cost ?? 0;
     }
 }
