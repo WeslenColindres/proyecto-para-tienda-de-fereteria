@@ -16,4 +16,8 @@ export const authApi = {
             method: 'POST',
             body: JSON.stringify(credentials),
         }),
+
+    validateToken: () =>
+        apiFetch<{ id: number; username: string; roleId: number; fullName: string }>('/api/auth/profile'),
 };
+

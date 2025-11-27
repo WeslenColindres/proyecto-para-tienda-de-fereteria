@@ -23,10 +23,8 @@ if (!rootElement) {
 }
 
 // SEGURIDAD: Bloqueo de acceso vía navegador web estándar
-// Verificamos si el User Agent contiene "Electron". Si no, mostramos pantalla de bloqueo.
-// Esto evita que se acceda a la UI desde Chrome/Edge/Firefox directamente.
-// const isElectron = navigator.userAgent.toLowerCase().includes('electron');
-const isElectron = true; // FOR TESTING ONLY
+// Verificamos si el objeto "desktop" está disponible en window (inyectado por preload)
+const isElectron = typeof window !== 'undefined' && window.desktop !== undefined;
 
 if (!isElectron) {
   ReactDOM.createRoot(rootElement).render(

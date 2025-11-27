@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ProductItem } from '@/shared/types/products';
-import { formatMoney } from '@/shared/utils/format';
+import { formatCurrency } from '@/shared/utils/format';
 import { cn } from '@/shared/utils/cn';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 
@@ -71,7 +71,7 @@ const ProductCard = memo(({ product, onAdd }: ProductCardProps) => {
                     <div className="flex flex-col">
                         <span className="text-[10px] text-slate-500 font-mono">{product.code}</span>
                         <span className="text-lg font-bold text-white group-hover:text-indigo-300 transition-colors">
-                            {formatMoney(product.price)}
+                            {formatCurrency(product.price)}
                         </span>
                     </div>
                 </div>

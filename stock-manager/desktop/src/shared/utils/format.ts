@@ -10,6 +10,8 @@ export function formatCurrency(value: number): string {
   return currencyFormatter.format(value).replace(/\u00a0/g, ' ');
 }
 
+export const formatMoney = formatCurrency;
+
 export function formatDate(date: string | Date): string {
   if (!date) return '';
   const d = new Date(date);

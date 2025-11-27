@@ -1,5 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { AuthContext, User } from './AuthContext';
+import { authApi } from '@/shared/api/auth';
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -11,21 +12,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for existing session
-        const storedToken = localStorage.getItem('auth_token');
-        const storedUser = localStorage.getItem('user_info');
+        const initAuth = async () => {
+            const storedToken = localStorage.getItem('auth_token');
+            const storedUser = localStorage.getItem('user_info');
 
-        if (storedToken && storedUser) {
-            try {
-                setToken(storedToken);
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error('Failed to parse user info', error);
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('user_info');
+            if (storedToken && storedUser) {
+                try {
+                    // Validar el token con el backend
+                    await authApi.validateToken();
+                    setToken(storedToken);
+                    setUser(JSON.parse(storedUser));
+                } catch (error) {
+                    console.error('Token inválido o expirado:', error);
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('user_info');
+                    setToken(null);
+                    setUser(null);
+                }
             }
-        }
-        setLoading(false);
+            setLoading(false);
+        };
+
+        initAuth();
     }, []);
 
     const login = (newToken: string, newUser: User) => {

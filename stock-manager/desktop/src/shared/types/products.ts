@@ -6,6 +6,7 @@ export type ProductItem = {
   sku?: string; // alias/codigo alterno
   name: string;
   description?: string;
+  imageUrl?: string;
   category?: string;
   categoryId?: string;
   categoryName?: string;
