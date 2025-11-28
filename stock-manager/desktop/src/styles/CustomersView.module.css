@@ -1,10 +1,6 @@
-:root {
-  --customer-green: #27ae60;
-  --customer-blue: #3498db;
-  --customer-gold: #f1c40f;
-  --customer-pink: #f472b6;
-  --customer-red: #e74c3c;
-}
+/* =========================================
+   CUSTOMERS VIEW LAYOUT
+   ========================================= */
 
 .customers-view {
   display: flex;
@@ -12,13 +8,14 @@
   gap: 14px;
 }
 
+/* Toolbar superior (acciones + filtros) */
 .customers-toolbar {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   position: sticky;
@@ -32,15 +29,38 @@
   gap: 8px;
 }
 
+/* Botones de acción de la toolbar */
 .customer-btn {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   background: rgba(255, 255, 255, 0.02);
   color: var(--text-primary);
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
 
+.customer-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border);
+  transform: translateY(-1px);
+}
+
+.customer-btn:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 2px;
+}
+
+/* Variantes de botón específicas del módulo Clientes */
 .customer-btn.new {
   background: linear-gradient(135deg, var(--customer-green), var(--customer-blue));
   border: none;
@@ -65,6 +85,7 @@
   color: #2d0c1c;
 }
 
+/* Bloque de búsqueda / filtros en la toolbar */
 .customers-search {
   display: flex;
   flex-wrap: wrap;
@@ -74,12 +95,28 @@
 .customers-search input,
 .customers-search select {
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   background: var(--panel-soft);
   color: var(--text-primary);
   padding: 8px 10px;
   min-width: 160px;
+  font-size: 14px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
+
+.customers-search input:focus-visible,
+.customers-search select:focus-visible {
+  outline: none;
+  border-color: var(--customer-blue);
+  box-shadow: 0 0 0 1px rgba(52, 152, 219, 0.35);
+}
+
+/* =========================================
+   TABS RESPONSIVE (solo móviles/tablet)
+   ========================================= */
 
 .customer-tabs {
   display: none;
@@ -89,9 +126,15 @@
 .customer-tabs button {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   background: var(--panel-soft);
   color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .customer-tabs button.active {
@@ -100,6 +143,10 @@
   border-color: var(--customer-blue);
 }
 
+/* =========================================
+   GRID PRINCIPAL: LISTA + DETALLE
+   ========================================= */
+
 .customers-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
@@ -107,17 +154,22 @@
   align-items: start;
 }
 
+/* Cards de la vista de clientes */
 .customer-card,
 .customer-detail,
 .sales-card,
 .credit-card,
 .discount-card {
   padding: 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
 }
+
+/* =========================================
+   TABLA DE CLIENTES
+   ========================================= */
 
 .customer-table {
   width: 100%;
@@ -149,6 +201,7 @@
   font-weight: 700;
 }
 
+/* Estado del cliente (chips de estado) */
 .customer-status {
   border-radius: 999px;
   padding: 6px 10px;
@@ -179,19 +232,34 @@
   color: var(--customer-gold);
 }
 
+/* Botones por fila en la tabla */
 .customer-actions {
   display: inline-flex;
   gap: 6px;
 }
 
 .customer-actions button {
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   background: transparent;
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
   padding: 4px 6px;
   cursor: pointer;
+  font-size: 12px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
+
+.customer-actions button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+/* =========================================
+   PANEL DETALLE CLIENTE / FORMULARIO
+   ========================================= */
 
 .customer-detail {
   display: flex;
@@ -227,15 +295,29 @@
 .customer-detail textarea {
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   background: var(--panel-soft);
   color: var(--text-primary);
+  font-size: 14px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.customer-detail input:focus-visible,
+.customer-detail select:focus-visible,
+.customer-detail textarea:focus-visible {
+  outline: none;
+  border-color: var(--customer-blue);
+  box-shadow: 0 0 0 1px rgba(52, 152, 219, 0.35);
 }
 
 .customer-detail textarea {
   min-height: 70px;
 }
 
+/* Botonera inferior del formulario */
 .customer-detail .detail-actions {
   display: flex;
   gap: 8px;
@@ -245,10 +327,21 @@
 .customer-detail .detail-actions button {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   background: var(--panel-soft);
   color: var(--text-primary);
   cursor: pointer;
+  font-size: 14px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.customer-detail .detail-actions button:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-1px);
 }
 
 .customer-detail .detail-actions .primary {
@@ -263,6 +356,10 @@
   color: #260b0b;
 }
 
+/* =========================================
+   LISTADO DE VENTAS / CRÉDITO / DESCUENTOS
+   ========================================= */
+
 .sales-list,
 .credit-cards,
 .discount-body {
@@ -270,12 +367,13 @@
   gap: 8px;
 }
 
+/* Fila de venta */
 .sales-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   background: var(--panel-soft);
 }
@@ -307,6 +405,7 @@
   color: var(--customer-red);
 }
 
+/* Tarjetas de crédito */
 .credit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -314,12 +413,13 @@
 }
 
 .credit-pill {
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   padding: 10px;
   background: var(--panel-soft);
 }
 
+/* Barra de progreso */
 .progress {
   height: 8px;
   border-radius: 999px;
@@ -334,14 +434,16 @@
   background: linear-gradient(90deg, var(--customer-blue), var(--customer-pink));
 }
 
+/* Banner de alerta */
 .alert-banner {
   padding: 10px 12px;
   border-radius: var(--radius-md);
   background: rgba(241, 196, 15, 0.12);
   color: var(--customer-gold);
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--card-border);
 }
 
+/* Descuentos */
 .discount-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -349,7 +451,7 @@
 }
 
 .discount-card section {
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   padding: 10px;
   border-radius: var(--radius-md);
   background: var(--panel-soft);
@@ -374,6 +476,10 @@
   padding: 0 2px;
   border-radius: 4px;
 }
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
 
 @media (max-width: 1180px) {
   .customers-grid {
@@ -414,16 +520,18 @@
   }
 }
 
-/* --- Premium UI Enhancements --- */
+/* =========================================
+   PREMIUM UI ENHANCEMENTS
+   ========================================= */
 
-/* Tabbed Interface */
+/* Tabbed Interface (interno del módulo) */
 .tab-group {
   display: flex;
   gap: 4px;
   background: var(--panel-soft);
   padding: 4px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   margin-bottom: 16px;
 }
 
@@ -447,13 +555,13 @@
 }
 
 .tab-btn.active {
-  background: var(--panel);
+  background: var(--card-bg);
   color: var(--customer-blue);
   box-shadow: var(--shadow-sm);
   font-weight: 600;
 }
 
-/* Animations */
+/* Animaciones localizadas */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -470,11 +578,17 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
+}
+
 /* Input Groups */
 .input-group {
   display: flex;
   align-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
   background: var(--panel-soft);
   overflow: hidden;
@@ -490,7 +604,7 @@
   color: var(--text-muted);
   font-size: 14px;
   background: rgba(255, 255, 255, 0.02);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--card-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -501,13 +615,15 @@
   border-radius: 0;
   flex: 1;
   background: transparent;
+  padding: 8px 10px;
+  color: var(--text-primary);
 }
 
 .input-group input:focus {
   outline: none;
 }
 
-/* Section Headers */
+/* Section Headers dentro del módulo */
 .section-title {
   font-size: 12px;
   text-transform: uppercase;
@@ -524,11 +640,11 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: var(--card-border);
   opacity: 0.5;
 }
 
-/* Status Chips (Enhanced) */
+/* Status Chips (filtros, etc.) */
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -551,29 +667,45 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.status-chip input[type="radio"] {
+.status-chip input[type='radio'] {
   accent-color: currentColor;
 }
 
-/* Form Actions */
+/* Form Actions (zona inferior de formularios) */
 .form-actions {
   display: flex;
   gap: 10px;
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--card-border);
 }
+
+/* Nota importante: estas clases (.btn-primary, etc.)
+   conviven con el sistema global de botones.
+   Para mejor escalabilidad, en React puedes combinar:
+
+   <button className={`btn btn-primary ${styles['formPrimary']}`}>...</button>
+
+   y aquí definir .formPrimary en lugar de re-declarar .btn-primary.
+*/
 
 .btn-primary {
   background: linear-gradient(135deg, var(--customer-blue), #2980b9);
-  color: white;
+  color: #ffffff;
   border: none;
   padding: 10px 20px;
   border-radius: var(--radius-sm);
   font-weight: 500;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.1s;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background 0.15s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary:active {
@@ -587,6 +719,9 @@
   padding: 10px 16px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .btn-ghost:hover {
@@ -602,6 +737,9 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   margin-left: auto;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .btn-danger-ghost:hover {

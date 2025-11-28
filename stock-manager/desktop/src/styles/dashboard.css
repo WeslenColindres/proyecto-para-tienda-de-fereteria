@@ -1,6 +1,14 @@
+/* =========================================
+   DASHBOARD VIEW HELPERS
+   (El layout base de .dashboard y .card
+    vive en theme-override.css)
+   ========================================= */
+
 .dashboard {
-  display: flex;
-  flex-direction: column;
+  /* En theme-override.css ya se define:
+     display: flex; flex-direction: column;
+     aquí solo afinamos el espaciado interno
+     específico de esta vista. */
   gap: 14px;
 }
 
@@ -12,16 +20,27 @@
   margin-top: 10px;
 }
 
+/* =========================================
+   TABLE / ACTIONS
+   ========================================= */
+
 .table-actions {
   text-align: right;
 }
 
+/* Botón con apariencia de link:
+   se puede usar tanto en <button> como en <a> */
 .link-button {
   color: var(--accent-1);
   font-weight: 700;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
+/* Encabezados dentro de cards:
+   aseguramos contraste correcto */
 .tables-grid .card-header h3,
 .card-header h3,
 .card-header h2,
@@ -29,6 +48,16 @@
   color: var(--text-primary);
 }
 
+/* =========================================
+   ESTADO DE ERROR PARA LOADING BANNER
+   ========================================= */
+
+/* Variante de error sobre la base de .loading-banner
+   definida en theme-override.css */
 .loading-banner#dashboard-error {
+  /* borde más cercano al "danger" */
   border-color: rgba(239, 68, 68, 0.4);
+  color: var(--danger);
+  /* si quieres diferenciar también el fondo, descomenta: */
+  /* background: rgba(239, 68, 68, 0.12); */
 }

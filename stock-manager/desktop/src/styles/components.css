@@ -1,10 +1,8 @@
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
+/* =========================================
+   DASHBOARD COMPONENTS (Cards, KPIs, Charts, Tables)
+   Nota: el .card base (bg, borde, radios, sombra)
+   vive en theme-override.css para centralizar estilos.
+   ========================================= */
 
 .card-header {
   display: flex;
@@ -12,6 +10,10 @@
   justify-content: space-between;
   gap: 10px;
 }
+
+/* =========================================
+   KPI GRID
+   ========================================= */
 
 .kpi-grid {
   display: grid;
@@ -21,17 +23,19 @@
 }
 
 .kpi-card {
-  display:flex;
+  display: flex;
   flex-direction: column;
-  justify-content: center; 
+  justify-content: center;
   padding: 14px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(160deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.06);
   position: relative;
   overflow: hidden;
   min-height: 120px;
-  gap: 10px;  
+  gap: 10px;
 }
 
 .kpi-icon {
@@ -56,6 +60,10 @@
 .kpi-subvalue {
   color: var(--text-muted);
 }
+
+/* =========================================
+   MAIN CHARTS LAYOUT
+   ========================================= */
 
 .charts-grid {
   display: grid;
@@ -91,6 +99,7 @@
 
 .toggle-group button.active {
   background: rgba(79, 139, 255, 0.2);
+  /* podría mapearse a accent-1 más adelante */
   color: var(--text-primary);
 }
 
@@ -113,6 +122,10 @@
   width: 100%;
   height: 260px;
 }
+
+/* =========================================
+   SIDE CHARTS (Donut / Top products / Comparison)
+   ========================================= */
 
 .side-charts {
   display: flex;
@@ -158,6 +171,10 @@
   border-radius: 50%;
 }
 
+/* =========================================
+   TOP PRODUCTS LIST
+   ========================================= */
+
 .top-products-list {
   display: flex;
   flex-direction: column;
@@ -183,6 +200,10 @@
   height: 100%;
   background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
 }
+
+/* =========================================
+   COMPARISON CARD
+   ========================================= */
 
 .comparison-card {
   padding: 16px;
@@ -210,6 +231,10 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
+/* =========================================
+   TABLES GRID + DATA TABLE
+   ========================================= */
+
 .tables-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -220,64 +245,53 @@
   overflow: auto;
 }
 
-table {
+/* Alias para migrar poco a poco:
+   puedes ir cambiando <table> por <table class="data-table">
+   en los componentes nuevos, sin romper los viejos. */
+
+table,
+.data-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
 th,
-td {
+td,
+.data-table th,
+.data-table td {
   text-align: left;
   padding: 8px 6px;
 }
 
-thead {
+thead,
+.data-table thead {
   color: var(--text-muted);
 }
 
-tbody tr {
+tbody tr,
+.data-table tbody tr {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-tbody tr:hover {
+tbody tr:hover,
+.data-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.02);
 }
 
-.align-right {
-  text-align: right;
-}
-
-.status-pill {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 12px;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.status-pill.up {
-  color: var(--success);
-}
-
-.status-pill.down {
-  color: var(--danger);
-}
-
-.btn-outline {
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
+/* =========================================
+   STATUS / LOG
+   ========================================= */
 
 .update-log {
   white-space: pre-wrap;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 12px;
 }
+
+/* =========================================
+   ANIMACIONES
+   ========================================= */
 
 .fade-in {
   animation: fade-in 0.2s ease-in;
@@ -288,14 +302,30 @@ tbody tr:hover {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* Reduce motion para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    animation: none;
+  }
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
 @media (max-width: 1100px) {
   .charts-grid {
     grid-template-columns: 1fr;
+  }
+
+  .side-charts {
+    flex-direction: column;
   }
 }

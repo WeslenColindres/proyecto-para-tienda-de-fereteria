@@ -1,14 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
 
+/* =========================================
+   RESET BÁSICO / NORMALIZACIÓN
+   ========================================= */
+
+/* Box model consistente en todo el documento */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-p {
+/* El margin base se controla desde los componentes.
+   Aquí evitamos márgenes inesperados. */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote {
   margin: 0;
 }
+
+/* Aseguramos que los medios no desborden contenedores */
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =========================================
+   TIPOGRAFÍA BASE
+   (La familia final se define en theme-override.css)
+   ========================================= */
 
 button,
 input,
@@ -17,7 +49,18 @@ textarea {
   font-family: inherit;
 }
 
+/* =========================================
+   ENLACES
+   ========================================= */
+
 a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Si en algún momento quieres subrayado global,
+   puedes descomentar esto:
+   a:hover {
+     text-decoration: underline;
+   }
+*/

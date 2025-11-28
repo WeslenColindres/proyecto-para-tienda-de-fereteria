@@ -1,24 +1,35 @@
 /* =========================================
-   SCROLLBARS GLOBALES
+   SCROLLBARS GLOBALES (THEME-AWARE)
    ========================================= */
+
+/* Tokens de scrollbar.
+   Si quieres, luego podemos moverlos a theme-override.css
+   para que también cambien por tema. */
+:root {
+  --scrollbar-size: 4px;
+  --scrollbar-track: var(--bg-soft, #111827);
+  --scrollbar-thumb: var(--border-subtle, #4b5563);
+}
 
 /* Chrome, Edge, Safari (WebKit) */
 *::-webkit-scrollbar {
-  width: 6px;
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
 }
 
 *::-webkit-scrollbar-track {
-  background: #555;
+  background: var(--scrollbar-track);
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #555;
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
 }
 
 /* Firefox */
-* {
+html {
   scrollbar-width: thin;
-  scrollbar-color: #555 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 /* =========================================
@@ -29,6 +40,12 @@
    El resto de estilos de body viven en theme-override.css */
 body {
   -webkit-font-smoothing: antialiased;
+}
+
+/* Helpers globales de alineación */
+.text-right,
+.align-right {
+  text-align: right;
 }
 
 /* =========================================
@@ -73,33 +90,56 @@ body {
    ========================================= */
 
 .btn {
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.9rem;
-  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  cursor: pointer;
+
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 }
+
+/* Accesibilidad / estados comunes */
+.btn:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Variantes */
 
 .btn-primary {
   background: var(--primary-500);
   color: #ffffff;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--primary-700);
 }
 
 .btn-secondary {
   background: var(--secondary-500);
-  color: #000000;
+  color: var(--text-inverse);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background: var(--secondary-700);
 }
 
@@ -109,7 +149,7 @@ body {
   color: var(--text-primary);
 }
 
-.btn-outline:hover {
+.btn-outline:hover:not(:disabled) {
   background: var(--bg-soft);
   border-color: var(--text-muted);
 }
@@ -119,39 +159,74 @@ body {
   color: #ffffff;
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background: var(--danger-soft);
+}
+
+/* Tamaños opcionales (por si quieres escalar botones) */
+.btn-sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.btn-lg {
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
 }
 
 /* =========================================
    BADGES DE ESTADO
    ========================================= */
 
-.badge-success {
-  background: var(--success-soft);
-  color: var(--success);
+.badge-success,
+.badge-warning,
+.badge-danger {
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.badge-success {
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .badge-warning {
   background: var(--warning-soft);
   color: var(--warning);
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
 }
 
 .badge-danger {
   background: var(--danger-soft);
   color: var(--danger);
-  padding: 2px 8px;
+}
+
+/* =========================================
+   STATUS PILLS GLOBALES (para subidas/bajadas, etc.)
+   ========================================= */
+
+.status-pill {
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Nota: aquí podríamos también migrar a variables
+   si más adelante definimos tokens específicos
+   para "soft" backgrounds de éxito / error. */
+.status-pill.up {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
+}
+
+.status-pill.down {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
 }
 
 /* =========================================
@@ -159,19 +234,36 @@ body {
    ========================================= */
 
 .sidebar-scroll::-webkit-scrollbar {
-  width: 1px;
+  width: 4px;
+  height: 4px;
 }
 
 .sidebar-scroll::-webkit-scrollbar-track {
-  background: #555;
+  background: var(--scrollbar-track);
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background-color: #555;
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
 }
 
 /* Firefox */
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #555 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+/* =========================================
+   REDUCCIÓN DE MOVIMIENTO (ACCESIBILIDAD)
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .btn,
+  .status-pill,
+  .badge-success,
+  .badge-warning,
+  .badge-danger {
+    transition: none;
+  }
 }
