@@ -19,6 +19,7 @@ export class AuthController {
             const result = await authService.login(username, password);
             res.json(result);
         } catch (error: any) {
+            console.error('Login error:', error.message);
             res.status(401).json({ message: error.message });
         }
     }

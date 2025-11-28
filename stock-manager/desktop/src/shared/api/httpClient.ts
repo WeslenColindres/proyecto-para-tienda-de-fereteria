@@ -57,6 +57,11 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
+      // Don't reload if it's a login attempt (invalid credentials)
+      if (path.includes('/auth/login')) {
+        throw new ApiError(body?.message ?? 'Credenciales inválidas', response.status, body?.error, body);
+      }
+
       // Token expired or invalid
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_info');
