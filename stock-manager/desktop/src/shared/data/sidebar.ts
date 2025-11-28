@@ -9,6 +9,7 @@ export const VIEW_BY_MENU: Record<string, AppView> = {
   'informes-rotacion': 'reports',
   'ventas-pdv': 'sales',
   'ventas-facturas': 'sales',
+  'ventas-comprobantes': 'sales',
   'ventas-devoluciones': 'sales',
   'productos-catalogo': 'products',
   'productos-categorias': 'products',
@@ -49,7 +50,8 @@ export const sidebarSections: SidebarSection[] = [
         icon: '[VT]',
         children: [
           { id: 'ventas-pdv', label: 'Punto de Venta (PDV)', icon: '[PDV]', route: '/ventas/pdv' },
-          { id: 'ventas-facturas', label: 'Facturas y Comprobantes', icon: '[FAC]', route: '/ventas/facturas' },
+          { id: 'ventas-facturas', label: 'Facturas', icon: '[FAC]', route: '/ventas/facturas' },
+          { id: 'ventas-comprobantes', label: 'Comprobantes', icon: '[COM]', route: '/ventas/comprobantes' },
           { id: 'ventas-devoluciones', label: 'Devoluciones', icon: '[DEV]', route: '/ventas/devoluciones' }
         ]
       },
