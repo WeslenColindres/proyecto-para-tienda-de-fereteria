@@ -24,6 +24,7 @@ export type SupplierFormState = {
   creditDays: number;
   creditLimit: number;
   status: SupplierStatus;
+  paymentConditions: string;
 };
 
 type CacheEntry = {
@@ -46,6 +47,7 @@ const buildFormState = (supplier?: SupplierItem): SupplierFormState => ({
   creditDays: supplier?.creditDays ?? 0,
   creditLimit: supplier?.creditLimit ?? 0,
   status: supplier?.status ?? 'activo',
+  paymentConditions: supplier?.paymentConditions ?? '',
 });
 
 export function useSuppliers() {

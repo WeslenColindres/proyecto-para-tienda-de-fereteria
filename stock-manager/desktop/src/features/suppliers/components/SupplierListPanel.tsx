@@ -37,9 +37,9 @@ const highlight = (text: string, term?: string) => {
 };
 
 const balanceClass = (supplier: SupplierItem) => {
-  if (supplier.balance === 0) return 'ok';
-  if (supplier.overdueDays > 30) return 'danger';
-  return 'warn';
+  if (supplier.balance === 0) return 'text-green-600 font-medium';
+  if (supplier.overdueDays > 30) return 'text-red-600 font-bold';
+  return 'text-orange-500 font-medium';
 };
 
 const SupplierListPanel = ({
@@ -64,6 +64,7 @@ const SupplierListPanel = ({
             aria-label="Seleccionar proveedor"
             checked={item.id === selectedId}
             readOnly
+            className="rounded border-subtle text-blue-600 focus:ring-blue-500 bg-panel-strong"
           />
         ),
         sortable: false,
@@ -74,50 +75,51 @@ const SupplierListPanel = ({
         header: 'NIT',
         accessor: (item) => highlight(item.nit, searchTerm),
         sortable: true,
+        className: 'font-mono text-sm text-muted',
       },
       {
         key: 'name',
         header: 'Nombre',
         accessor: (item) => highlight(item.name, searchTerm),
         sortable: true,
-        className: 'supplier-name font-medium',
+        className: 'font-medium text-primary',
       },
       {
         key: 'contactName',
         header: 'Contacto',
         accessor: (item) => highlight(item.contactName, searchTerm),
         sortable: true,
+        className: 'text-secondary',
       },
       {
         key: 'cityName',
         header: 'Ciudad',
         accessor: (item) => item.cityName ?? item.cityId,
         sortable: true,
-        className: 'desktop-only',
-        headerClassName: 'desktop-only',
+        className: 'hidden md:table-cell text-muted',
+        headerClassName: 'hidden md:table-cell',
       },
       {
         key: 'balance',
         header: 'Saldo',
         render: (item) => (
-          <span className={`balance ${balanceClass(item)}`}>
+          <span className={balanceClass(item)}>
             {formatCurrency(item.balance)}
           </span>
         ),
         sortable: true,
-        className: 'align-right',
-        headerClassName: 'align-right',
+        className: 'text-right',
+        headerClassName: 'text-right',
       },
       {
         key: 'status',
         header: 'Estado',
         render: (item) => (
-          <span className={`badge-status ${item.status}`}>
-            {item.status === 'activo'
-              ? '✅'
-              : item.status === 'moroso'
-                ? '🔴'
-                : '⚫'}{' '}
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+            ${item.status === 'activo' ? 'badge-success' :
+              item.status === 'moroso' ? 'badge-danger' :
+                item.status === 'bloqueado' ? 'badge-neutral' :
+                  'badge-neutral'}`}>
             {item.status}
           </span>
         ),
@@ -133,40 +135,48 @@ const SupplierListPanel = ({
           />
         ),
         sortable: false,
+        className: 'w-20 text-center',
       },
     ],
     [selectedId, searchTerm, onEdit, onDelete]
   );
 
   return (
-    <article className="supplier-card">
-      <header className="card-header">
+    <article className="bg-panel rounded-lg shadow-sm border border-subtle overflow-hidden flex flex-col h-full">
+      <header className="px-6 py-4 border-b border-subtle flex justify-between items-center bg-panel-soft">
         <div>
-          <h2 style={{ margin: 0 }}>Lista de proveedores</h2>
-          <small style={{ color: 'var(--text-muted)' }}>
-            Cabecera fija, seleccion multiple y acciones rapidas
-          </small>
+          <h2 className="text-lg font-semibold text-primary m-0">Lista de proveedores</h2>
+          <p className="text-sm text-muted mt-1">
+            Gestione sus proveedores y cuentas por pagar
+          </p>
         </div>
         {!loading && suppliers.length === 0 && (
-          <button className="supplier-btn new" onClick={onCreate}>
+          <button
+            className="px-4 py-2 btn-primary rounded-lg transition-colors text-sm font-medium shadow-sm"
+            onClick={onCreate}
+          >
             Crear primero
           </button>
         )}
       </header>
 
-      <DataTable
-        data={suppliers}
-        columns={columns}
-        keyField="id"
-        selectedId={selectedId}
-        onSelect={onSelect}
-        onDoubleClick={(item) => onOpenDetail?.(item.id)}
-        loading={loading}
-        emptyMessage="No se encontraron proveedores."
-      />
+      <div className="flex-1 overflow-hidden">
+        <DataTable
+          data={suppliers}
+          columns={columns}
+          keyField="id"
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onDoubleClick={(item) => onOpenDetail?.(item.id)}
+          loading={loading}
+          emptyMessage="No se encontraron proveedores."
+        />
+      </div>
 
       {!loading && suppliers.length > 0 && suppliers.length < 5 && (
-        <div className="muted p-4">Resultados limitados, ajusta los filtros.</div>
+        <div className="px-6 py-3 bg-panel-soft border-t border-subtle text-xs text-muted text-center">
+          Mostrando {suppliers.length} resultados
+        </div>
       )}
     </article>
   );

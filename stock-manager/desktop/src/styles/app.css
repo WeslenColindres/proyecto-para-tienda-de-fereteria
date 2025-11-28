@@ -1,26 +1,10 @@
-:root {
-  --bg: #06080f;
-  --panel: #0b1020;
-  --panel-strong: #0f1528;
-  --panel-soft: #11182c;
-  --border: rgba(255, 255, 255, 0.06);
-  --text-primary: #f7f8fc;
-  --text-secondary: #cdd4e6;
-  --text-muted: #8b93a7;
-  --accent-1: #4f8bff;
-  --accent-2: #67f0c7;
-  --accent-3: #fbbf24;
-  --danger: #ef4444;
-  --success: #10b981;
-  --shadow: 0 12px 45px rgba(0, 0, 0, 0.3);
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-}
+/* =========================================
+   SCROLLBARS GLOBALES
+   ========================================= */
 
-/* Para Chrome, Edge, Safari (WebKit) */
+/* Chrome, Edge, Safari (WebKit) */
 *::-webkit-scrollbar {
-  width: 6px; /* o 1px si lo quieres súper fino */
+  width: 6px;
 }
 
 *::-webkit-scrollbar-track {
@@ -28,95 +12,151 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #555;  /* "invisible" pero funcional */
+  background-color: #555;
 }
 
-/* Para Firefox */
+/* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #555 transparent;  /* pulgar y fondo */
+  scrollbar-color: #555 transparent;
 }
 
+/* =========================================
+   AJUSTES GENERALES
+   ========================================= */
+
+/* Solo suavizado de fuente.
+   El resto de estilos de body viven en theme-override.css */
 body {
-  margin: 0;
-  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
 
-.app-shell {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 64px 1fr;
-  background: radial-gradient(circle at 0 0, rgba(79, 139, 255, 0.13), transparent 25%),
-    radial-gradient(circle at 80% 10%, rgba(103, 240, 199, 0.12), transparent 30%),
-    var(--bg);
+/* =========================================
+   UTILITARIOS SEMÁNTICOS GLOBALES
+   (Consumen variables definidas en theme-override.css)
+   ========================================= */
+
+.bg-app {
+  background-color: var(--bg);
 }
 
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  background: rgba(17, 24, 44, 0.9);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 30;
+.bg-panel {
+  background-color: var(--bg-elevated);
 }
 
-.header-left,
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.bg-panel-strong {
+  background-color: var(--bg-soft);
 }
 
-.logo {
-  font-weight: 800;
-  letter-spacing: 0.6px;
+.text-primary {
+  color: var(--text-primary);
 }
 
-.view-title {
-  font-weight: 700;
+.text-secondary {
   color: var(--text-secondary);
 }
 
-.app-body {
-  display: grid;
-  grid-template-columns: 270px 1fr;
-  min-height: calc(100vh - 64px);
-}
-
-.app-content {
-  padding: 18px 20px 40px ;
-  margin-left: 289px;
-  overflow: auto;
-  background: linear-gradient(180deg, rgba(79, 139, 255, 0.03), transparent 20%), var(--bg);
-}
-
-.breadcrumbs {
+.text-muted {
   color: var(--text-muted);
-  margin-bottom: 12px;
 }
 
-.app-sidebar {
-  background: linear-gradient(180deg, rgba(17, 24, 44, 0.95), rgba(10, 14, 24, 0.95));
-  border-right: 1px solid var(--border);
-  overflow: auto;
+.text-inverse {
+  color: var(--text-inverse);
 }
 
-.app-sidebar.collapsed {
-  width: 78px;
+.border-subtle {
+  border-color: var(--border-subtle);
 }
 
-.sidebar-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+/* =========================================
+   SISTEMA DE BOTONES BASE (TOKEN-BASED)
+   ========================================= */
+
+.btn {
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
+
+.btn-primary {
+  background: var(--primary-500);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-700);
+}
+
+.btn-secondary {
+  background: var(--secondary-500);
+  color: #000000;
+}
+
+.btn-secondary:hover {
+  background: var(--secondary-700);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: var(--bg-soft);
+  border-color: var(--text-muted);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: var(--danger-soft);
+}
+
+/* =========================================
+   BADGES DE ESTADO
+   ========================================= */
+
+.badge-success {
+  background: var(--success-soft);
+  color: var(--success);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================
+   SCROLLBAR ESPECÍFICO PARA SIDEBAR
+   ========================================= */
 
 .sidebar-scroll::-webkit-scrollbar {
   width: 1px;
@@ -127,235 +167,11 @@ body {
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background-color: #555;  /* Invisible pero funcional */
+  background-color: #555;
 }
 
-/* Para Firefox */
+/* Firefox */
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #555 transparent;  /* pulgar y fondo invisibles */
-}
-
-.sidebar-drawer-header {
-  display: none;
-}
-
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  background: var(--panel-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-}
-
-.sidebar-version {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.sidebar-section + .sidebar-section {
-  margin-top: 6px;
-}
-
-.section-title {
-  font-size: 12px;
-  letter-spacing: 0.4px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  padding: 6px 10px;
-}
-
-.menu-item-wrapper {
-  display: block;
-}
-
-.menu-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 120ms ease;
-}
-
-.menu-item.active {
-  background: rgba(79, 139, 255, 0.15);
-  color: var(--text-primary);
-  border-color: rgba(79, 139, 255, 0.35);
-}
-
-.menu-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: var(--border);
-}
-
-.menu-item.has-children {
-  justify-content: space-between;
-  display: grid;
-  grid-template-columns: auto 1fr auto ;
-  align-items: center;
-}
-
-.badge {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-.chevron {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.submenu {
-  margin-left: 8px;
-  border-left: 1px dashed var(--border);
-  padding-left: 8px;
-}
-
-.submenu-item {
-  display:grid;
-  grid-template-columns: 1fr;
-  max-width: 226px;
-}
-
-.app-view {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.loading-banner {
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-}
-
-.sidebar-overlay {
-  display: none;
-}
-
-.quick-action {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-2), var(--accent-1));
-  border: none;
-  color: #0c0f1d;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 12px 30px rgba(79, 139, 255, 0.35);
-}
-
-.icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.icon-button.has-badge {
-  position: relative;
-}
-
-.icon-button .badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: var(--danger);
-  color: white;
-}
-
-.user-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--accent-1);
-  color: #05070d;
-  font-weight: 800;
-  border: none;
-}
-
-.user-info strong {
-  display: block;
-}
-
-.user-menu-chevron {
-  padding: 6px 8px;
-}
-
-@media (max-width: 1100px) {
-  .app-body {
-    grid-template-columns: 150px 1fr;
-  }
-
-  .app-sidebar.collapsed {
-    width: 78px;
-  }
-}
-
-@media (max-width: 900px) {
-  .app-body {
-    grid-template-columns: 1fr;
-  }
-
-  .app-sidebar {
-    position: fixed;
-    left: 0;
-    top: 64px;
-    bottom: 0;
-    width: 280px;
-    z-index: 20;
-    transform: translateX(-100%);
-    transition: transform 160ms ease;
-  }
-
-  .app-sidebar.drawer-open {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay.visible {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 15;
-  }
-
-  .sidebar-drawer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-  }
+  scrollbar-color: #555 transparent;
 }

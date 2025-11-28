@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { SuppliersRepository } from '../../repositories/suppliers.repository';
 import { Supplier } from '../../../domain/entities/Supplier';
 import { importExportService } from '../../services/import-export.service';
+import { createSupplierSchema, updateSupplierSchema, supplierFilterSchema } from '../validators/suppliers.validator';
+import { z } from 'zod';
+import { WebsocketHub } from '../../realtime/websocketHub';
 
 // Mapear de BD a formato frontend
 const mapSupplierToFrontend = (supplier: Supplier) => ({
@@ -21,23 +24,26 @@ const mapSupplierToFrontend = (supplier: Supplier) => ({
     creditLimit: supplier.props.creditLimit || 0,
     status: supplier.props.status,
     balance: supplier.props.balance || 0,
-    overdueDays: supplier.props.overdueDays || 0
+    overdueDays: supplier.props.overdueDays || 0,
+    paymentConditions: supplier.props.paymentConditions || '',
+    version: supplier.props.version,
+    updatedAt: supplier.props.updatedAt
 });
 
 export const SuppliersController = {
     list: async (req: Request, res: Response) => {
         try {
-            const { page, pageSize, search, status, cityId, categoryId, sortBy, sortOrder } = req.query;
+            const params = supplierFilterSchema.parse(req.query);
 
             const result = await SuppliersRepository.findAll({
-                page: page ? parseInt(page as string) : undefined,
-                pageSize: pageSize ? parseInt(pageSize as string) : undefined,
-                search: search as string,
-                status: status as any,
-                cityId: cityId as string,
-                categoryId: categoryId as string,
-                sortBy: sortBy as any,
-                sortOrder: sortOrder as any
+                page: params.page,
+                pageSize: params.pageSize,
+                search: params.search,
+                status: params.status,
+                cityId: params.cityId,
+                categoryId: params.categoryId,
+                sortBy: params.sortBy,
+                sortOrder: params.sortOrder
             });
 
             res.json({
@@ -48,6 +54,9 @@ export const SuppliersController = {
                 counters: result.counters
             });
         } catch (error) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({ message: 'Parámetros inválidos', errors: (error as any).errors });
+            }
             console.error('Error listing suppliers:', error);
             res.status(500).json({ message: 'Error al obtener proveedores' });
         }
@@ -71,27 +80,14 @@ export const SuppliersController = {
 
     create: async (req: Request, res: Response) => {
         try {
-            const { nit, name, contactName, phone, email, address, creditDays, creditLimit, cityId, categoryId } = req.body;
-
-            // Validación básica
-            if (!nit || !name) {
-                return res.status(400).json({ message: 'NIT y nombre son requeridos' });
-            }
+            const data = createSupplierSchema.parse(req.body);
+            const userId = (req as any).user?.id; // Assuming auth middleware
 
             const supplier = new Supplier({
                 id: '', // New
-                nit,
-                name,
-                commercialName: name, // Default to name if not provided separately
-                contactName,
-                phone,
-                email,
-                address,
-                cityId,
-                categoryId,
-                creditDays: creditDays || 0,
-                creditLimit: creditLimit || 0,
-                status: 'activo',
+                ...data,
+                createdBy: userId,
+                version: 1,
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
@@ -99,14 +95,28 @@ export const SuppliersController = {
             await SuppliersRepository.save(supplier);
 
             // Fetch created to return full object
-            const created = await SuppliersRepository.findByNit(nit);
+            const created = await SuppliersRepository.findByNit(data.nit);
             if (!created) throw new Error('Error retrieving created supplier');
 
-            res.status(201).json(mapSupplierToFrontend(created));
+            const frontendSupplier = mapSupplierToFrontend(created);
+
+            // Emit event
+            try {
+                WebsocketHub.getInstance().broadcast({
+                    type: 'supplier.created',
+                    payload: frontendSupplier
+                });
+            } catch (e) {
+                console.error('Error emitting websocket event:', e);
+            }
+
+            res.status(201).json(frontendSupplier);
         } catch (error: any) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({ message: 'Datos inválidos', errors: (error as any).errors });
+            }
             console.error('Error creating supplier:', error);
 
-            // Manejar error de NIT duplicado
             if (error.code === '23505') {
                 return res.status(409).json({ message: 'Ya existe un proveedor con ese NIT' });
             }
@@ -118,7 +128,8 @@ export const SuppliersController = {
     update: async (req: Request, res: Response) => {
         try {
             const id = req.params.id;
-            const data = req.body;
+            const data = updateSupplierSchema.parse(req.body);
+            const userId = (req as any).user?.id;
 
             const existing = await SuppliersRepository.findById(id);
             if (!existing) {
@@ -126,14 +137,45 @@ export const SuppliersController = {
             }
 
             // Update props
-            const updatedProps = { ...existing.props, ...data, id };
+            const updatedProps = {
+                ...existing.props,
+                ...data,
+                id,
+                updatedBy: userId
+            };
             const supplier = new Supplier(updatedProps);
 
             await SuppliersRepository.save(supplier);
 
-            res.json(mapSupplierToFrontend(supplier));
+            // Fetch updated
+            const updated = await SuppliersRepository.findById(id);
+            if (!updated) throw new Error('Error retrieving updated supplier');
+
+            const frontendSupplier = mapSupplierToFrontend(updated);
+
+            // Emit event
+            try {
+                WebsocketHub.getInstance().broadcast({
+                    type: 'supplier.updated',
+                    payload: frontendSupplier
+                });
+            } catch (e) {
+                console.error('Error emitting websocket event:', e);
+            }
+
+            res.json(frontendSupplier);
         } catch (error: any) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({ message: 'Datos inválidos', errors: (error as any).errors });
+            }
             console.error('Error updating supplier:', error);
+
+            if (error.code === 'SUPPLIER_VERSION_CONFLICT') {
+                return res.status(409).json({
+                    message: 'El proveedor ha sido modificado por otro usuario. Por favor, recargue y vuelva a intentar.',
+                    code: 'VERSION_CONFLICT'
+                });
+            }
 
             if (error.code === '23505') {
                 return res.status(409).json({ message: 'Ya existe un proveedor con ese NIT' });
@@ -147,6 +189,17 @@ export const SuppliersController = {
         try {
             const id = req.params.id;
             await SuppliersRepository.softDelete(id);
+
+            // Emit event
+            try {
+                WebsocketHub.getInstance().broadcast({
+                    type: 'supplier.deleted',
+                    payload: { id }
+                });
+            } catch (e) {
+                console.error('Error emitting websocket event:', e);
+            }
+
             res.json({ success: true, message: 'Proveedor eliminado correctamente' });
         } catch (error: any) {
             console.error('Error deleting supplier:', error);
@@ -158,6 +211,21 @@ export const SuppliersController = {
         try {
             const id = req.params.id;
             await SuppliersRepository.restore(id);
+
+            // Fetch restored
+            const restored = await SuppliersRepository.findById(id);
+            if (restored) {
+                // Emit event
+                try {
+                    WebsocketHub.getInstance().broadcast({
+                        type: 'supplier.updated', // Or restored if we add it
+                        payload: mapSupplierToFrontend(restored)
+                    });
+                } catch (e) {
+                    console.error('Error emitting websocket event:', e);
+                }
+            }
+
             res.json({ success: true, message: 'Proveedor restaurado correctamente' });
         } catch (error: any) {
             console.error('Error restoring supplier:', error);
@@ -181,8 +249,6 @@ export const SuppliersController = {
                 return res.status(400).json({ message: 'No se ha subido ningún archivo' });
             }
 
-            // Assuming user ID is available in req.user (middleware)
-            // For now using a placeholder or getting from body if auth not fully set up
             const userId = (req as any).user?.id || '1';
 
             const jobId = await importExportService.importSuppliers(req.file.path, userId);
@@ -198,10 +264,8 @@ export const SuppliersController = {
             const format = req.query.format as 'xlsx' | 'csv' || 'xlsx';
             const filePath = await importExportService.exportSuppliers(format);
 
-            // Send file for download
             res.download(filePath, (err) => {
                 if (err) console.error('Error sending file:', err);
-                // Optional: delete file after send? Maybe keep for history.
             });
         } catch (error: any) {
             console.error('Error exporting suppliers:', error);

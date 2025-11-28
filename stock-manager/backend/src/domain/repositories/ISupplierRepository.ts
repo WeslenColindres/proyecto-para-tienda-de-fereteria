@@ -11,6 +11,7 @@ export interface SupplierListResult {
         activo: number;
         inactivo: number;
         moroso: number;
+        bloqueado: number;
     };
 }
 
@@ -18,7 +19,7 @@ export interface ListSuppliersParams {
     page?: number;
     pageSize?: number;
     search?: string;
-    status?: 'activo' | 'inactivo' | 'moroso' | 'all';
+    status?: 'activo' | 'inactivo' | 'moroso' | 'bloqueado' | 'eliminado' | 'all';
     cityId?: string;
     categoryId?: string;
     sortBy?: 'name' | 'nit' | 'balance' | 'creditDays' | 'status';

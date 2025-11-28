@@ -1,4 +1,4 @@
-export type SupplierStatus = 'activo' | 'inactivo' | 'moroso';
+export type SupplierStatus = 'activo' | 'inactivo' | 'moroso' | 'bloqueado';
 
 export type SupplierPurchaseStatus = 'pendiente' | 'pagado' | 'vencido';
 
@@ -21,6 +21,8 @@ export type SupplierItem = {
   creditLimit: number;
   lastPurchase?: string;
   lastDocument?: string;
+  paymentConditions?: string;
+  version?: number;
   readonly createdAt?: string; // fecha_creacion
   readonly updatedAt?: string; // fecha_modificacion
 };

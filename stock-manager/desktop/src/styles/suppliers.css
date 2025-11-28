@@ -1,11 +1,6 @@
-:root {
-  --supplier-green: #27ae60;
-  --supplier-blue: #3498db;
-  --supplier-orange: #f39c12;
-  --supplier-gray: #95a5a6;
-  --supplier-yellow: #f1c40f;
-  --supplier-red: #e74c3c;
-}
+/* =========================================
+   SUPPLIERS MODULE STYLES
+   ========================================= */
 
 .suppliers-view {
   display: flex;
@@ -18,8 +13,8 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   position: sticky;
@@ -36,33 +31,47 @@
 .supplier-btn {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
   color: var(--text-primary);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.supplier-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--text-muted);
 }
 
 .supplier-btn.new {
-  background: var(--supplier-green);
-  color: #0c2612;
+  background: var(--primary-500);
+  color: #ffffff;
   border: none;
+}
+
+.supplier-btn.new:hover {
+  background: var(--primary-700);
 }
 
 .supplier-btn.export {
-  background: var(--supplier-blue);
+  background: var(--secondary-500);
   border: none;
-  color: #041221;
+  color: #000000;
+}
+
+.supplier-btn.export:hover {
+  background: var(--secondary-700);
 }
 
 .supplier-btn.import {
-  background: var(--supplier-orange);
+  background: var(--warning);
   border: none;
-  color: #241200;
+  color: #000000;
 }
 
 .supplier-btn.refresh {
-  background: var(--panel-soft);
-  border: 1px dashed var(--border);
+  background: var(--bg-soft);
+  border: 1px dashed var(--border-subtle);
 }
 
 .suppliers-search {
@@ -74,8 +83,8 @@
 
 .suppliers-search select {
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--panel-soft);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
   color: var(--text-primary);
   padding: 8px 10px;
   min-width: 180px;
@@ -87,9 +96,9 @@
   gap: 8px;
   flex: 1;
   max-width: 400px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  background: var(--panel-soft);
+  background: var(--bg-soft);
   padding: 0px 10px;
   color: var(--text-primary);
 }
@@ -97,6 +106,10 @@
 .suppliers-search .search-box input {
   flex: 1;
   min-width: 220px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  outline: none;
 }
 
 .suppliers-tabs {
@@ -107,15 +120,17 @@
 .suppliers-tabs button {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--panel-soft);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
   color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .suppliers-tabs button.active {
-  background: rgba(79, 139, 255, 0.2);
-  color: var(--text-primary);
-  border-color: var(--supplier-blue);
+  background: rgba(59, 130, 246, 0.15);
+  /* primary-500 with opacity */
+  color: var(--primary-500);
+  border-color: var(--primary-500);
 }
 
 .suppliers-grid {
@@ -124,7 +139,6 @@
   gap: 12px;
   align-items: start;
   margin-top: 50px;
-
 }
 
 .supplier-card,
@@ -132,8 +146,8 @@
 .purchase-card,
 .report-card {
   padding: 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
 }
@@ -146,25 +160,27 @@
 .supplier-table thead th {
   position: sticky;
   top: 0;
-  background: var(--panel);
+  background: var(--bg-elevated);
   color: var(--text-muted);
   font-weight: 600;
+  text-align: left;
 }
 
 .supplier-table th,
 .supplier-table td {
   padding: 10px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-subtle);
   font-size: 13px;
+  color: var(--text-primary);
 }
 
 .supplier-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-soft);
 }
 
 .supplier-table tbody tr.selected {
-  background: rgba(79, 139, 255, 0.08);
-  border-left: 3px solid var(--supplier-blue);
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid var(--primary-500);
 }
 
 .supplier-name {
@@ -181,15 +197,15 @@
 }
 
 .balance.ok {
-  color: var(--supplier-green);
+  color: var(--success);
 }
 
 .balance.warn {
-  color: var(--supplier-orange);
+  color: var(--warning);
 }
 
 .balance.danger {
-  color: var(--supplier-red);
+  color: var(--danger);
   animation: pulse 1.2s ease-in-out infinite;
 }
 
@@ -204,18 +220,18 @@
 }
 
 .badge-status.activo {
-  background: rgba(39, 174, 96, 0.08);
-  color: var(--supplier-green);
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .badge-status.inactivo {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-soft);
   color: var(--text-muted);
 }
 
 .badge-status.moroso {
-  background: rgba(231, 76, 60, 0.12);
-  color: var(--supplier-red);
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .supplier-actions {
@@ -224,12 +240,17 @@
 }
 
 .supplier-actions button {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
   padding: 4px 6px;
   cursor: pointer;
+}
+
+.supplier-actions button:hover {
+  background: var(--bg-soft);
+  color: var(--text-primary);
 }
 
 .supplier-detail {
@@ -256,13 +277,14 @@
 .mini-kpi {
   padding: 10px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--panel-soft);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
   min-width: 140px;
 }
 
 .mini-kpi strong {
   display: block;
+  color: var(--text-primary);
 }
 
 .detail-grid {
@@ -284,9 +306,17 @@
 .detail-grid textarea {
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--panel-soft);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
   color: var(--text-primary);
+  outline: none;
+}
+
+.detail-grid input:focus,
+.detail-grid select:focus,
+.detail-grid textarea:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .detail-grid textarea {
@@ -303,22 +333,30 @@
 .detail-actions button {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--panel-soft);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
   color: var(--text-primary);
   cursor: pointer;
 }
 
 .detail-actions .primary {
-  background: var(--supplier-green);
+  background: var(--primary-500);
   border: none;
-  color: #0c2612;
+  color: #ffffff;
+}
+
+.detail-actions .primary:hover {
+  background: var(--primary-700);
 }
 
 .detail-actions .danger {
-  background: var(--supplier-red);
+  background: var(--danger);
   border: none;
-  color: #260b0b;
+  color: #ffffff;
+}
+
+.detail-actions .danger:hover {
+  background: var(--danger-soft);
 }
 
 .purchase-card ul {
@@ -334,9 +372,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: var(--panel-soft);
+  background: var(--bg-soft);
 }
 
 .purchase-meta {
@@ -352,18 +390,18 @@
 }
 
 .purchase-status.pendiente {
-  background: rgba(241, 196, 15, 0.12);
-  color: var(--supplier-orange);
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 
 .purchase-status.pagado {
-  background: rgba(39, 174, 96, 0.12);
-  color: var(--supplier-green);
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .purchase-status.vencido {
-  background: rgba(231, 76, 60, 0.15);
-  color: var(--supplier-red);
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .report-grid {
@@ -373,7 +411,7 @@
 }
 
 .report-grid .mini-kpi {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-subtle);
 }
 
 .report-table {
@@ -385,28 +423,29 @@
 .report-table th,
 .report-table td {
   padding: 8px 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-subtle);
   font-size: 13px;
+  color: var(--text-primary);
 }
 
 .highlight-term {
-  background: var(--supplier-yellow);
-  color: #1a1a1a;
+  background: var(--warning);
+  color: #000000;
   padding: 0 2px;
   border-radius: 4px;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.6);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
   }
 
   70% {
-    box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
 

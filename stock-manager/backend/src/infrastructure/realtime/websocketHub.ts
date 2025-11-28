@@ -21,13 +21,28 @@ export type RealtimeEvent =
   | { type: 'ready' };
 
 export class WebsocketHub {
+  private static instance: WebsocketHub;
   private readonly wss: WebSocketServer;
 
-  constructor(server: Server, private readonly webhookEndpoint?: string) {
+  private constructor(server: Server, private readonly webhookEndpoint?: string) {
     this.wss = new WebSocketServer({ server, path: '/ws' });
     this.wss.on('connection', (socket: WebSocket) => {
       socket.send(JSON.stringify({ type: 'ready' }));
     });
+  }
+
+  public static initialize(server: Server, webhookEndpoint?: string): WebsocketHub {
+    if (!WebsocketHub.instance) {
+      WebsocketHub.instance = new WebsocketHub(server, webhookEndpoint);
+    }
+    return WebsocketHub.instance;
+  }
+
+  public static getInstance(): WebsocketHub {
+    if (!WebsocketHub.instance) {
+      throw new Error('WebsocketHub not initialized');
+    }
+    return WebsocketHub.instance;
   }
 
   broadcast(event: RealtimeEvent) {

@@ -26,7 +26,7 @@ dotenv.config();
 const app = express();
 const server = createServer(app);
 // Initialize WebsocketHub
-const wsHub = new WebsocketHub(server);
+const wsHub = WebsocketHub.initialize(server);
 
 // Middleware
 app.use(helmet({

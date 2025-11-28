@@ -1,6 +1,6 @@
 import pool from '../database/postgres';
 import { ISupplierRepository, ListSuppliersParams, SupplierListResult, SupplierCatalogs } from '../../domain/repositories/ISupplierRepository';
-import { Supplier, SupplierProps } from '../../domain/entities/Supplier';
+import { Supplier, SupplierProps, SupplierStatus } from '../../domain/entities/Supplier';
 import { SupplierCategory } from '../../domain/entities/SupplierCategory';
 import { City } from '../../domain/entities/City';
 
@@ -18,39 +18,68 @@ const mapToEntity = (row: any): Supplier => {
         cityName: row.nombre_ciudad,
         categoryId: row.id_categoria_proveedor?.toString(),
         categoryName: row.nombre_categoria,
-        creditDays: row.dias_entrega,
+        creditDays: row.plazo_credito_dias || row.dias_entrega || 0, // Fallback to dias_entrega if plazo not set
         creditLimit: parseFloat(row.limite_credito || '0'),
-        status: row.dias_mora > 0 ? 'moroso' : (row.activo ? 'activo' : 'inactivo'),
-        balance: parseFloat(row.saldo_pendiente || '0'),
-        overdueDays: row.dias_mora,
+        status: row.estado_proveedor as SupplierStatus,
+        balance: parseFloat(row.saldo_actual || row.saldo_pendiente || '0'),
+        overdueDays: row.dias_mora || 0,
+        paymentConditions: row.condiciones_pago,
+        version: row.version || 1,
+        createdBy: row.creado_por?.toString(),
+        updatedBy: row.actualizado_por?.toString(),
         deletedAt: row.deleted_at,
         createdAt: row.fecha_registro,
-        updatedAt: row.fecha_registro // TODO: Add updated_at to table
+        updatedAt: row.fecha_actualizacion || row.fecha_registro
     });
 };
 
 export const SuppliersRepository: ISupplierRepository = {
     async save(supplier: Supplier): Promise<void> {
-        const { id, nit, name, commercialName, contactName, email, phone, address, cityId, categoryId, creditDays, creditLimit, status } = supplier.props;
+        const {
+            id, nit, name, commercialName, contactName, email, phone, address,
+            cityId, categoryId, creditDays, creditLimit, status, paymentConditions,
+            version, createdBy, updatedBy
+        } = supplier.props;
 
         if (id) {
-            await pool.query(
+            // Optimistic locking: check version
+            const result = await pool.query(
                 `UPDATE proveedores SET 
                     nit = $1, nombre = $2, nombre_comercial = $3, nombre_contacto = $4, 
                     email = $5, telefono = $6, direccion = $7, id_ciudad = $8, 
-                    id_categoria_proveedor = $9, dias_entrega = $10, limite_credito = $11, 
-                    activo = $12
-                WHERE id_proveedor = $13`,
-                [nit, name, commercialName, contactName, email, phone, address, cityId, categoryId, creditDays, creditLimit, status === 'activo', id]
+                    id_categoria_proveedor = $9, plazo_credito_dias = $10, limite_credito = $11, 
+                    estado_proveedor = $12, condiciones_pago = $13, 
+                    actualizado_por = $14, version = version + 1, fecha_actualizacion = NOW()
+                WHERE id_proveedor = $15 AND version = $16`,
+                [
+                    nit, name, commercialName, contactName, email, phone, address,
+                    cityId, categoryId, creditDays, creditLimit, status, paymentConditions,
+                    updatedBy, id, version
+                ]
             );
+
+            if (result.rowCount === 0) {
+                // Check if record exists to distinguish between 404 and 409
+                const exists = await pool.query('SELECT 1 FROM proveedores WHERE id_proveedor = $1', [id]);
+                if (exists.rowCount === 0) {
+                    throw new Error('Supplier not found');
+                } else {
+                    const error: any = new Error('Conflict: Supplier has been modified by another user');
+                    error.code = 'SUPPLIER_VERSION_CONFLICT';
+                    throw error;
+                }
+            }
         } else {
             await pool.query(
                 `INSERT INTO proveedores (
                     nit, nombre, nombre_comercial, nombre_contacto, email, telefono, 
-                    direccion, id_ciudad, id_categoria_proveedor, dias_entrega, 
-                    limite_credito, activo
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-                [nit, name, commercialName, contactName, email, phone, address, cityId, categoryId, creditDays, creditLimit, status === 'activo']
+                    direccion, id_ciudad, id_categoria_proveedor, plazo_credito_dias, 
+                    limite_credito, estado_proveedor, condiciones_pago, creado_por, version
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 1)`,
+                [
+                    nit, name, commercialName, contactName, email, phone, address,
+                    cityId, categoryId, creditDays, creditLimit, status, paymentConditions, createdBy
+                ]
             );
         }
     },
@@ -61,7 +90,7 @@ export const SuppliersRepository: ISupplierRepository = {
              FROM proveedores p
              LEFT JOIN ciudades c ON p.id_ciudad = c.id_ciudad
              LEFT JOIN categorias_proveedor cat ON p.id_categoria_proveedor = cat.id_categoria_proveedor
-             WHERE p.id_proveedor = $1 AND p.deleted_at IS NULL`,
+             WHERE p.id_proveedor = $1 AND (p.estado_proveedor != 'eliminado' OR p.estado_proveedor IS NULL)`,
             [id]
         );
         return result.rows[0] ? mapToEntity(result.rows[0]) : null;
@@ -69,7 +98,7 @@ export const SuppliersRepository: ISupplierRepository = {
 
     async findByNit(nit: string): Promise<Supplier | null> {
         const result = await pool.query(
-            `SELECT * FROM proveedores WHERE nit = $1 AND deleted_at IS NULL`,
+            `SELECT * FROM proveedores WHERE nit = $1 AND (estado_proveedor != 'eliminado' OR estado_proveedor IS NULL)`,
             [nit]
         );
         return result.rows[0] ? mapToEntity(result.rows[0]) : null;
@@ -80,7 +109,7 @@ export const SuppliersRepository: ISupplierRepository = {
         const pageSize = params.pageSize || 12;
         const offset = (page - 1) * pageSize;
 
-        let whereClause = 'WHERE p.deleted_at IS NULL';
+        let whereClause = "WHERE (p.estado_proveedor != 'eliminado' OR p.estado_proveedor IS NULL)";
         const queryParams: any[] = [];
         let paramIndex = 1;
 
@@ -91,13 +120,9 @@ export const SuppliersRepository: ISupplierRepository = {
         }
 
         if (params.status && params.status !== 'all') {
-            if (params.status === 'moroso') {
-                whereClause += ` AND p.dias_mora > 0`;
-            } else {
-                whereClause += ` AND p.activo = $${paramIndex}`;
-                queryParams.push(params.status === 'activo');
-                paramIndex++;
-            }
+            whereClause += ` AND p.estado_proveedor = $${paramIndex}`;
+            queryParams.push(params.status);
+            paramIndex++;
         }
 
         if (params.cityId && params.cityId !== 'all') {
@@ -118,9 +143,9 @@ export const SuppliersRepository: ISupplierRepository = {
             switch (params.sortBy) {
                 case 'name': orderBy = `ORDER BY p.nombre ${direction}`; break;
                 case 'nit': orderBy = `ORDER BY p.nit ${direction}`; break;
-                case 'balance': orderBy = `ORDER BY p.saldo_pendiente ${direction}`; break;
-                case 'creditDays': orderBy = `ORDER BY p.dias_entrega ${direction}`; break;
-                case 'status': orderBy = `ORDER BY p.activo ${direction}`; break;
+                case 'balance': orderBy = `ORDER BY p.saldo_actual ${direction}`; break;
+                case 'creditDays': orderBy = `ORDER BY p.plazo_credito_dias ${direction}`; break;
+                case 'status': orderBy = `ORDER BY p.estado_proveedor ${direction}`; break;
             }
         }
 
@@ -138,10 +163,12 @@ export const SuppliersRepository: ISupplierRepository = {
 
         const countersQuery = `
             SELECT 
-                COUNT(*) FILTER (WHERE activo = true AND dias_mora = 0 AND deleted_at IS NULL) as activo,
-                COUNT(*) FILTER (WHERE activo = false AND deleted_at IS NULL) as inactivo,
-                COUNT(*) FILTER (WHERE dias_mora > 0 AND deleted_at IS NULL) as moroso
+                COUNT(*) FILTER (WHERE estado_proveedor = 'activo') as activo,
+                COUNT(*) FILTER (WHERE estado_proveedor = 'inactivo') as inactivo,
+                COUNT(*) FILTER (WHERE estado_proveedor = 'moroso') as moroso,
+                COUNT(*) FILTER (WHERE estado_proveedor = 'bloqueado') as bloqueado
             FROM proveedores
+            WHERE estado_proveedor != 'eliminado' OR estado_proveedor IS NULL
         `;
 
         const [dataResult, countResult, countersResult] = await Promise.all([
@@ -158,28 +185,29 @@ export const SuppliersRepository: ISupplierRepository = {
             counters: {
                 activo: parseInt(countersResult.rows[0].activo || 0),
                 inactivo: parseInt(countersResult.rows[0].inactivo || 0),
-                moroso: parseInt(countersResult.rows[0].moroso || 0)
+                moroso: parseInt(countersResult.rows[0].moroso || 0),
+                bloqueado: parseInt(countersResult.rows[0].bloqueado || 0)
             }
         };
     },
 
     async softDelete(id: string): Promise<void> {
         await pool.query(
-            'UPDATE proveedores SET deleted_at = NOW(), activo = false WHERE id_proveedor = $1',
+            "UPDATE proveedores SET estado_proveedor = 'eliminado', deleted_at = NOW() WHERE id_proveedor = $1",
             [id]
         );
     },
 
     async restore(id: string): Promise<void> {
         await pool.query(
-            'UPDATE proveedores SET deleted_at = NULL, activo = true WHERE id_proveedor = $1',
+            "UPDATE proveedores SET estado_proveedor = 'activo', deleted_at = NULL WHERE id_proveedor = $1",
             [id]
         );
     },
 
     async updateBalance(id: string, balance: number): Promise<void> {
         await pool.query(
-            'UPDATE proveedores SET saldo_pendiente = $1 WHERE id_proveedor = $2',
+            'UPDATE proveedores SET saldo_actual = $1 WHERE id_proveedor = $2',
             [balance, id]
         );
     },
@@ -208,7 +236,7 @@ export const SuppliersRepository: ISupplierRepository = {
     },
 
     async getReport(params: { from?: string; to?: string }): Promise<any> {
-        let whereClause = 'WHERE deleted_at IS NULL';
+        let whereClause = "WHERE (estado_proveedor != 'eliminado' OR estado_proveedor IS NULL)";
         const queryParams: any[] = [];
 
         if (params.from) {

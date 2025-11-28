@@ -1,4 +1,5 @@
 import type { SidebarMenuItem } from '@/shared/types/layout';
+import { ChevronRight } from 'lucide-react';
 
 type SidebarItemProps = {
   item: SidebarMenuItem;
@@ -24,6 +25,7 @@ const SidebarItem = ({
         className={`menu-item ${isActive ? 'active' : ''} ${item.children?.length ? 'has-children' : ''}`}
         data-item-id={item.id}
         title={item.label}
+        aria-expanded={isOpen}
         onClick={() => {
           if (item.children?.length) {
             onToggleSection(item.id);
@@ -37,7 +39,11 @@ const SidebarItem = ({
           <span className="menu-label">{item.label}</span>
           {item.badge ? <span className="badge">{item.badge}</span> : null}
         </div>
-        {item.children?.length ? <span className="chevron">{isOpen ? '>' : '>'}</span> : null}
+        {item.children?.length ? (
+          <span className="chevron">
+            <ChevronRight size={16} />
+          </span>
+        ) : null}
       </button>
 
       {item.children?.length ? (

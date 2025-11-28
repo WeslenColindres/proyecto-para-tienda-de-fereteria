@@ -10,6 +10,8 @@ import SuppliersTabs, { type SupplierTab } from './SuppliersTabs';
 import SupplierListPanel from './SupplierListPanel';
 import SupplierDetailPanel from './SupplierDetailPanel';
 import SupplierPurchasesPanel from './SupplierPurchasesPanel';
+import SupplierForm from './SupplierForm';
+import { SuppliersAnalysisPage } from './SuppliersAnalysisPage';
 
 type SuppliersPageProps = {
   activeItem?: string;
@@ -27,6 +29,7 @@ const emptyForm = (fallbackCity?: string, fallbackCategory?: string): SupplierFo
   creditDays: 0,
   creditLimit: 0,
   status: 'activo',
+  paymentConditions: '',
 });
 
 const SuppliersPage = (_props: SuppliersPageProps) => {
@@ -217,6 +220,10 @@ const SuppliersPage = (_props: SuppliersPageProps) => {
             kpis={activeKpis}
           />
         </section>
+
+        <section className={`w-full ${visiblePanel('analysis')}`}>
+          <SuppliersAnalysisPage />
+        </section>
       </div>
 
       <section className={`purchase-card ${visiblePanel('compras')}`}>
@@ -233,78 +240,22 @@ const SuppliersPage = (_props: SuppliersPageProps) => {
         }}
         footer={
           <>
-            <button type="button" className="btn-outline" onClick={() => setShowCreate(false)}>
+            <button type="button" className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => setShowCreate(false)}>
               Cancelar
             </button>
-            <button type="button" className="btn-primary" onClick={handleCreate}>
-              Guardar
+            <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm" onClick={handleCreate}>
+              Guardar Proveedor
             </button>
           </>
         }
       >
-        <div className="detail-grid">
-          <label>
-            NIT
-            <input value={newForm.nit} onChange={(e) => setNewForm((prev) => ({ ...prev, nit: e.target.value }))} />
-          </label>
-          <label>
-            Nombre
-            <input value={newForm.name} onChange={(e) => setNewForm((prev) => ({ ...prev, name: e.target.value }))} />
-          </label>
-          <label>
-            Contacto
-            <input value={newForm.contactName} onChange={(e) => setNewForm((prev) => ({ ...prev, contactName: e.target.value }))} />
-          </label>
-          <label>
-            Telefono
-            <input value={newForm.phone} onChange={(e) => setNewForm((prev) => ({ ...prev, phone: e.target.value }))} />
-          </label>
-          <label>
-            Email
-            <input value={newForm.email} onChange={(e) => setNewForm((prev) => ({ ...prev, email: e.target.value }))} />
-          </label>
-          <label>
-            Ciudad
-            <select value={newForm.cityId} onChange={(e) => setNewForm((prev) => ({ ...prev, cityId: e.target.value }))}>
-              {catalogs.cities.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Categoria
-            <select value={newForm.categoryId} onChange={(e) => setNewForm((prev) => ({ ...prev, categoryId: e.target.value }))}>
-              {catalogs.categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Direccion
-            <textarea value={newForm.address} onChange={(e) => setNewForm((prev) => ({ ...prev, address: e.target.value }))} />
-          </label>
-          <label>
-            Dias credito
-            <input
-              type="number"
-              min={0}
-              max={90}
-              value={newForm.creditDays}
-              onChange={(e) => setNewForm((prev) => ({ ...prev, creditDays: Number(e.target.value) }))}
-            />
-          </label>
-          <label>
-            Limite credito
-            <input
-              type="number"
-              value={newForm.creditLimit}
-              onChange={(e) => setNewForm((prev) => ({ ...prev, creditLimit: Number(e.target.value) }))}
-            />
-          </label>
+        <div className="w-full max-w-4xl mx-auto">
+          <SupplierForm
+            form={newForm}
+            onChange={(next) => setNewForm((prev) => ({ ...prev, ...next }))}
+            catalogs={catalogs}
+            showValidation={false}
+          />
         </div>
       </Modal>
 
