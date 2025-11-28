@@ -4,12 +4,12 @@ import type { CustomerItem } from '@/shared/types/customers';
 
 type Props = {
   customers: CustomerItem[];
-  selectedId: string | null;
+  selectedId: number | null;
   search: string;
   filtersSummary: string;
   onSearchChange: (value: string) => void;
-  onSelect: (id: string) => void;
-  onEdit: (id: string) => void;
+  onSelect: (id: number) => void;
+  onEdit: (id: number) => void;
   onCreate: () => void;
   onClearFilters: () => void;
   loading?: boolean;

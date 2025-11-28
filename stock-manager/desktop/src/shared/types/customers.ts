@@ -2,7 +2,7 @@ export type CustomerStatus = 'activo' | 'inactivo' | 'credito' | 'contado';
 export type CustomerType = 'persona-natural' | 'persona-juridica' | 'extranjero';
 
 export type CustomerItem = {
-  id: string;
+  id: number;
   nit: string;
   name: string;
   phone: string;
@@ -28,7 +28,7 @@ export type CustomerItem = {
 };
 
 export type CustomerSaleRow = {
-  id?: string;
+  id?: number;
   customerId?: string;
   date: string;
   document: string;

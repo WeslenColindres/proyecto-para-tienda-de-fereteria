@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { customersApi, type ListCustomersParams, type SaveCustomerPayload } from '@/shared/api/customers';
 import { ApiError } from '@/shared/api/types';
 import { subscribeRealtime } from '@/shared/api/realtime';
-import { CUSTOMERS } from '@/shared/data/customers';
 import type { CustomerItem, CustomerStatus, CustomerType } from '@/shared/types/customers';
 
 type Cache = Record<number, { data: CustomerItem[]; total: number; page: number; pageSize: number }>;
@@ -56,7 +55,7 @@ export function useCustomersData(pageSize = 15) {
   const [cache, setCache] = useState<Cache>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<CustomerFormState>(buildFormState());
   const filtersRef = useRef(filters);
 
@@ -83,25 +82,12 @@ export function useCustomersData(pageSize = 15) {
     if (selected) setForm(buildFormState(selected));
   }, [selected]);
 
+  // Fallback removed as we are fully integrated with backend
   const applyFallback = useCallback(() => {
-    const filtered = CUSTOMERS.filter((c) => {
-      if (filters.status !== 'all' && c.status !== filters.status) return false;
-      if (filters.city !== 'all' && c.city !== filters.city) return false;
-      if (filters.type !== 'all' && c.type !== filters.type) return false;
-      if (filters.credit === 'con' && !c.hasCredit) return false;
-      if (filters.credit === 'sin' && c.hasCredit) return false;
-      if (filters.search.trim()) {
-        const term = filters.search.toLowerCase();
-        const haystack = `${c.nit} ${c.name} ${c.phone} ${c.email}`.toLowerCase();
-        if (!haystack.includes(term)) return false;
-      }
-      return true;
-    });
-    setCache({
-      1: { data: filtered, total: filtered.length, page: 1, pageSize },
-    });
-    setSelectedId(filtered[0]?.id ?? null);
-  }, [filters, pageSize]);
+    setError('No se pudo cargar clientes. Intente nuevamente.');
+    setCache({});
+    setSelectedId(null);
+  }, []);
 
   const fetchPage = useCallback(
     async (target: number, force = false) => {
@@ -162,7 +148,7 @@ export function useCustomersData(pageSize = 15) {
   }, [fetchPage, page]);
 
   const saveCustomer = useCallback(
-    async (id?: string) => {
+    async (id?: number) => {
       const payload: SaveCustomerPayload = { ...form };
       if (id) {
         await customersApi.update(id, payload);
@@ -184,7 +170,7 @@ export function useCustomersData(pageSize = 15) {
   );
 
   const deleteCustomer = useCallback(
-    async (id?: string) => {
+    async (id?: number) => {
       const target = id ?? selectedId;
       if (!target) return;
       await customersApi.remove(target);

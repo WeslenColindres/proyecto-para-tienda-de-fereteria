@@ -1,8 +1,13 @@
 import { ClientRepository } from '../../domain/ports/client.repository';
 import { Client } from '../../domain/entities/client.entity';
+import { SaleRepository } from '../../domain/ports/sale.repository';
+import { Sale } from '../../domain/entities/sale.entity';
 
 export class ClientService {
-    constructor(private readonly clientRepository: ClientRepository) { }
+    constructor(
+        private readonly clientRepository: ClientRepository,
+        private readonly saleRepository?: SaleRepository
+    ) { }
 
     /**
      * Validates Guatemalan NIT format
@@ -52,6 +57,13 @@ export class ClientService {
             return [];
         }
         return this.clientRepository.searchByName(searchTerm.trim(), limit);
+    }
+
+    /**
+     * Get clients with pagination and filters
+     */
+    async getClients(params: any): Promise<{ clients: Client[], total: number }> {
+        return this.clientRepository.findAll(params);
     }
 
     /**
@@ -143,5 +155,62 @@ export class ClientService {
             name: data.name,
             phone: data.phone,
         });
+    }
+
+    /**
+     * Update client
+     */
+    async updateClient(id: number, data: any): Promise<Client> {
+        const client = await this.clientRepository.findById(id);
+        if (!client) {
+            throw new Error('Cliente no encontrado');
+        }
+
+        // If NIT is changing, check uniqueness
+        if (data.nit && data.nit !== client.nit) {
+            const validation = this.validateNit(data.nit);
+            if (!validation.valid) throw new Error(validation.message);
+
+            const existing = await this.clientRepository.findByNit(data.nit);
+            if (existing) throw new Error('Ya existe un cliente con este NIT');
+        }
+
+        const normalized = this.normalizeClientData({ ...client.props, ...data });
+
+        const updatedClient = new Client({
+            ...client.props,
+            ...normalized,
+            id: client.id
+        });
+
+        return this.clientRepository.update(updatedClient);
+    }
+
+    /**
+     * Delete client (soft delete)
+     */
+    async deleteClient(id: number): Promise<void> {
+        const client = await this.clientRepository.findById(id);
+        if (!client) {
+            throw new Error('Cliente no encontrado');
+        }
+        await this.clientRepository.delete(id);
+    }
+
+    /**
+     * Get client sales history
+     */
+    async getClientSales(clientId: number, params: any): Promise<{ sales: Sale[], total: number }> {
+        if (!this.saleRepository) {
+            throw new Error('SaleRepository not injected');
+        }
+        return this.saleRepository.findAll({ ...params, clientId });
+    }
+
+    /**
+     * Get client credit info
+     */
+    async getClientCredit(clientId: number): Promise<{ limit: number, used: number, available: number }> {
+        return this.clientRepository.getAccountsReceivable(clientId);
     }
 }

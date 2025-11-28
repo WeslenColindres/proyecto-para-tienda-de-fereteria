@@ -154,6 +154,12 @@ export class PostgresSaleRepository implements SaleRepository {
             paramIndex++;
         }
 
+        if (params.clientId) {
+            whereClauses.push(`id_cliente = $${paramIndex}`);
+            queryParams.push(params.clientId);
+            paramIndex++;
+        }
+
         const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
         // Count
