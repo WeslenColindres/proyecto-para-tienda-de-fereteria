@@ -1,6 +1,6 @@
 import { ApiError } from './types';
 
-const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:4000';
+const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 const stripApiSuffix = (value: string) => value.replace(/\/api$/i, '');
@@ -46,6 +46,7 @@ const buildUrl = (path: string) => {
 };
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  console.log('Fetching:', buildUrl(path), init?.method || 'GET');
   const response = await fetch(buildUrl(path), {
     ...init,
     headers: buildHeaders(init),
