@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import Modal from '@/ui/molecules/Modal/Modal';
 import { productsApi } from '@/shared/api/products';
 
@@ -54,6 +55,66 @@ export const ProductImportModal = ({ onClose, onSuccess }: ProductImportModalPro
         setPreviewData(newData);
     };
 
+    const columns: Column<any>[] = useMemo(() => [
+        {
+            key: 'code',
+            header: 'Código',
+            render: (row) => (
+                <div className="flex items-center gap-2">
+                    {row.errors && row.errors.length > 0 && (
+                        <div className="group relative">
+                            <div className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold cursor-help">!</div>
+                            <div className="absolute left-full top-0 ml-2 w-48 p-2 bg-red-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
+                                <ul className="list-disc pl-3">
+                                    {row.errors.map((err: string, idx: number) => (
+                                        <li key={idx}>{err}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                    {row.code}
+                </div>
+            ),
+            className: 'font-mono text-xs',
+        },
+        {
+            key: 'name',
+            header: 'Nombre',
+            render: (row) => {
+                // We need the index to update. DataTable doesn't pass index to render directly in Column type usually, 
+                // but we can find index in data or pass it if we modify data.
+                // Or we can rely on row reference if it's stable? No, we need index for updateRow.
+                // Let's assume row has an ID or we add one.
+                // If not, we can use `previewData.indexOf(row)`.
+                const index = previewData.indexOf(row);
+                return (
+                    <input
+                        value={row.name}
+                        onChange={e => updateRow(index, 'name', e.target.value)}
+                        className={`w-full border rounded text-sm focus:ring-1 focus:ring-blue-500 ${!row.name ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
+                    />
+                );
+            },
+        },
+        { key: 'category', header: 'Categoría', accessor: 'category', className: 'text-gray-600' },
+        { key: 'currentStock', header: 'Stock Actual', accessor: 'currentStock', className: 'text-right text-gray-600' },
+        { key: 'stockToAdd', header: 'A Ingresar', accessor: (row) => `+${row.stockToAdd}`, className: 'text-right font-medium text-blue-600' },
+        { key: 'total', header: 'Total', accessor: (row) => row.currentStock + row.stockToAdd, className: 'text-right font-bold' },
+        {
+            key: 'status',
+            header: 'Estado',
+            render: (row) => (
+                row.isNew ? (
+                    <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs">Nuevo</span>
+                ) : (
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">Existente</span>
+                )
+            ),
+            className: 'text-center',
+        },
+    ], [previewData]);
+
     return (
         <Modal
             open={true}
@@ -104,60 +165,14 @@ export const ProductImportModal = ({ onClose, onSuccess }: ProductImportModalPro
                     </div>
 
                     <div className="flex-1 overflow-auto p-4">
-                        <table className="w-full text-sm border-collapse">
-                            <thead className="bg-gray-50 sticky top-0 z-10">
-                                <tr>
-                                    <th className="p-2 text-left border-b font-semibold text-gray-600">Código</th>
-                                    <th className="p-2 text-left border-b font-semibold text-gray-600">Nombre</th>
-                                    <th className="p-2 text-left border-b font-semibold text-gray-600">Categoría</th>
-                                    <th className="p-2 text-right border-b font-semibold text-gray-600">Stock Actual</th>
-                                    <th className="p-2 text-right border-b font-semibold text-gray-600">A Ingresar</th>
-                                    <th className="p-2 text-right border-b font-semibold text-gray-600">Total</th>
-                                    <th className="p-2 text-center border-b font-semibold text-gray-600">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {previewData.map((row, i) => (
-                                    <tr key={i} className={`border-b hover:bg-gray-50 ${row.isNew ? 'bg-green-50/30' : ''}`}>
-                                        <td className="p-2 font-mono text-xs">
-                                            <div className="flex items-center gap-2">
-                                                {row.errors && row.errors.length > 0 && (
-                                                    <div className="group relative">
-                                                        <div className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold cursor-help">!</div>
-                                                        <div className="absolute left-full top-0 ml-2 w-48 p-2 bg-red-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
-                                                            <ul className="list-disc pl-3">
-                                                                {row.errors.map((err: string, idx: number) => (
-                                                                    <li key={idx}>{err}</li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {row.code}
-                                            </div>
-                                        </td>
-                                        <td className="p-2">
-                                            <input
-                                                value={row.name}
-                                                onChange={e => updateRow(i, 'name', e.target.value)}
-                                                className={`w-full border rounded text-sm focus:ring-1 focus:ring-blue-500 ${!row.name ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
-                                            />
-                                        </td>
-                                        <td className="p-2 text-gray-600">{row.category}</td>
-                                        <td className="p-2 text-right text-gray-600">{row.currentStock}</td>
-                                        <td className="p-2 text-right font-medium text-blue-600">+{row.stockToAdd}</td>
-                                        <td className="p-2 text-right font-bold">{row.currentStock + row.stockToAdd}</td>
-                                        <td className="p-2 text-center">
-                                            {row.isNew ? (
-                                                <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs">Nuevo</span>
-                                            ) : (
-                                                <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">Existente</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <DataTable
+                            data={previewData.map((row, i) => ({ ...row, id: i }))} // Add ID for keyField
+                            columns={columns}
+                            keyField="id"
+                            className="w-full text-sm border-collapse"
+                            headerClassName="bg-gray-50 sticky top-0 z-10"
+                            rowClassName="border-b hover:bg-gray-50"
+                        />
                     </div>
 
                     <div className="p-4 border-t flex justify-between items-center bg-white">

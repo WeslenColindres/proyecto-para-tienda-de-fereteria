@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { categoriesApi } from '@/shared/api/categories';
 import { ApiError } from '@/shared/api/types';
 import { useCategories } from '@/shared/hooks/useCategories';
@@ -106,6 +107,49 @@ const ProductCategoriesPage = () => {
   // Filter out the current category from parent options to avoid cycles (simple check)
   const parentOptions = categories.filter(c => c.id !== selectedId);
 
+  const columns: Column<Category>[] = useMemo(() => [
+    { key: 'name', header: 'Nombre', accessor: 'name', className: 'font-medium text-gray-900' },
+    { key: 'description', header: 'Descripción', accessor: (c) => c.description || '-', className: 'text-gray-500 text-sm' },
+    {
+      key: 'parent',
+      header: 'Categoría Padre',
+      render: (category) => {
+        const parent = categories.find(c => String(c.id) === String(category.parentId));
+        return parent ? (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {parent.name}
+          </span>
+        ) : '-';
+      },
+      className: 'text-gray-500 text-sm',
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      render: (category) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.active
+          ? 'bg-green-100 text-green-800'
+          : 'bg-red-100 text-red-800'
+          }`}>
+          {category.active ? 'Activo' : 'Inactivo'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (category) => (
+        <button
+          className="text-blue-600 hover:text-blue-900 transition-colors"
+          onClick={(e) => { e.stopPropagation(); handleEdit(category); }}
+        >
+          Editar
+        </button>
+      ),
+      className: 'text-right',
+    },
+  ], [categories, handleEdit]);
+
   return (
     <section className="products-view app-view is-visible h-full flex flex-col" data-app-view="productos-categorias">
       <header className="products-toolbar flex justify-between items-center p-4 border-b bg-white">
@@ -123,61 +167,14 @@ const ProductCategoriesPage = () => {
 
       <div className="flex-1 overflow-auto p-6 bg-gray-50">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Descripción</th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Categoría Padre</th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {loading ? (
-                <tr><td colSpan={5} className="p-6 text-center text-gray-500">Cargando...</td></tr>
-              ) : categories.length === 0 ? (
-                <tr><td colSpan={5} className="p-6 text-center text-gray-500">No hay categorías registradas</td></tr>
-              ) : (
-                categories.map((category) => {
-                  const parent = categories.find(c => String(c.id) === String(category.parentId));
-                  return (
-                    <tr
-                      key={category.id}
-                      className="hover:bg-gray-50 transition-colors group cursor-pointer"
-                      onClick={() => handleEdit(category)}
-                    >
-                      <td className="px-6 py-4 font-medium text-gray-900">{category.name}</td>
-                      <td className="px-6 py-4 text-gray-500 text-sm">{category.description || '-'}</td>
-                      <td className="px-6 py-4 text-gray-500 text-sm">
-                        {parent ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {parent.name}
-                          </span>
-                        ) : '-'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                          }`}>
-                          {category.active ? 'Activo' : 'Inactivo'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right text-sm font-medium">
-                        <button
-                          className="text-blue-600 hover:text-blue-900 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => { e.stopPropagation(); handleEdit(category); }}
-                        >
-                          Editar
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+          <DataTable
+            data={categories}
+            columns={columns}
+            keyField="id"
+            loading={loading}
+            emptyMessage="No hay categorías registradas"
+            onDoubleClick={(item) => handleEdit(item)}
+          />
         </div>
       </div>
 

@@ -1,0 +1,1664 @@
+﻿­ƒôè Starting Supplier Analysis...
+
+Found 205 suppliers:
+
+­ƒÅó [ID: 1] Distribuidora Ferretera S.A. (Disfer)
+   NIT: 111111-1 | Tel: 2333-4444 | Email: ventas@disfer.com
+   Status: Ô£à Active
+   Products Supplied: 53
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 3] Herramientas Stanley (Stanley)
+   NIT: 333333-3 | Tel: 2555-6666 | Email: latam@stanley.com
+   Status: Ô£à Active
+   Products Supplied: 3
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 2] Cementos Progreso S.A. (Cempro)
+   NIT: 222222-2 | Tel: 2444-5555 | Email: pedidos@cempro.com
+   Status: Ô£à Active
+   Products Supplied: 2
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 4] Pinturas Sherwin Williams (Sherwin)
+   NIT: 444444-4 | Tel: 2666-7777 | Email: guatemala@sherwin.com
+   Status: Ô£à Active
+   Products Supplied: 1
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 28] Jerde Inc (Batz, MacGyver and Nienow)
+   NIT: 58393816-9 | Tel: (562) 235-6578 x810 | Email: Donavon20@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 29] Crooks Group (Graham, Dietrich and Goyette)
+   NIT: 00976880-3 | Tel: (812) 232-2176 x8837 | Email: Aurelie26@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 30] Hilll Group (Hilpert, O'Connell and Rolfson)
+   NIT: 79943875-0 | Tel: 751.294.5019 | Email: Matilda_Satterfield93@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 31] Labadie - Luettgen (Treutel, Torphy and Larkin)
+   NIT: 76301165-9 | Tel: 957-258-8337 x979 | Email: Melany54@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 32] Murazik Group (Koepp - Fisher)
+   NIT: 62256993-2 | Tel: (344) 981-3490 x777 | Email: Brandyn8@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 33] Littel, Donnelly and Dickinson (Hegmann, Jaskolski and Bergstrom)
+   NIT: 60308554-0 | Tel: (893) 702-3010 | Email: Vida.Hodkiewicz@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 34] Kulas LLC (Simonis, Littel and Ziemann)
+   NIT: 99775023-6 | Tel: 389-415-2545 x576 | Email: Kelsi_Abshire41@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 35] Cole, Abernathy and Wilderman (Parker - Purdy)
+   NIT: 42015366-7 | Tel: 784-756-9406 | Email: Theo.Stehr38@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 36] Morar Inc (Kerluke, Crooks and Schroeder)
+   NIT: 88147249-4 | Tel: 234-804-6794 x280 | Email: Jacky_OKon19@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 37] Simonis, Haag and Sipes (Spinka - Rohan)
+   NIT: 38389262-0 | Tel: 687-300-2392 x88797 | Email: Jarrell.Satterfield49@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 38] Berge - Jacobs (Hirthe Inc)
+   NIT: 15152300-9 | Tel: (541) 656-1472 x2873 | Email: Bartholome_Wyman@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 39] D'Amore - Wisoky (McKenzie Group)
+   NIT: 01162840-7 | Tel: 742-892-3497 x88128 | Email: Renee_Sauer25@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 40] Dickens and Sons (Olson, Von and Strosin)
+   NIT: 60156136-0 | Tel: 520-603-6323 x356 | Email: Pearline_Lubowitz86@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 41] Sporer - Ullrich (Lubowitz and Sons)
+   NIT: 88099350-7 | Tel: 1-441-310-5576 | Email: Corbin73@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 42] Becker Inc (Roberts - Walter)
+   NIT: 80596200-1 | Tel: 497-278-9597 x833 | Email: Cristina11@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 43] Shanahan - Kemmer (Powlowski - Schulist)
+   NIT: 28486293-9 | Tel: 1-233-483-4896 | Email: Hipolito23@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 44] Friesen, Bartell and Hills (McLaughlin - Crooks)
+   NIT: 59569186-7 | Tel: 1-587-656-3216 x229 | Email: Gordon.Roberts@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 45] Kuhlman, Stracke and Johnson (Nader Group)
+   NIT: 29341351-9 | Tel: 819.245.1130 x9291 | Email: Odie_Berge71@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 46] Franey, Brakus and Tillman (Bradtke LLC)
+   NIT: 44032073-6 | Tel: (486) 896-0594 x365 | Email: Aglae.Bogisich86@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 47] Wilderman, Beahan and Heaney (Armstrong Group)
+   NIT: 95052058-1 | Tel: 203.546.1215 | Email: Haleigh41@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 48] Zulauf - Ebert (Witting, Stiedemann and Volkman)
+   NIT: 25659703-4 | Tel: 1-898-566-8774 | Email: Rose68@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 49] Beer - Blanda (Mosciski, Pacocha and Bogan)
+   NIT: 46592674-8 | Tel: 798-259-0995 x971 | Email: Eulah89@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 50] Sporer - Gutmann (Champlin Group)
+   NIT: 25297906-9 | Tel: 1-744-672-2724 x6805 | Email: Bennett67@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 51] Gottlieb Inc (Schoen and Sons)
+   NIT: 71699993-2 | Tel: 973.688.1443 x3569 | Email: Miller9@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 52] Cremin and Sons (Kuvalis, Wilderman and Quigley)
+   NIT: 17854825-8 | Tel: 1-960-828-7212 x2384 | Email: Minerva15@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 53] Kulas - Steuber (Quitzon - Kreiger)
+   NIT: 47203682-9 | Tel: 970-992-8420 x315 | Email: Emmett_Kertzmann@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 54] Monahan and Sons (Walker - Heaney)
+   NIT: 65703163-8 | Tel: 664.561.7633 x7418 | Email: Troy1@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 55] Dickens, Dickens and Hudson (Schoen, Ledner and Moen)
+   NIT: 20016820-0 | Tel: (373) 744-3099 x2669 | Email: Vincent.Kassulke15@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 56] Balistreri, Wiza and Heathcote (Sauer LLC)
+   NIT: 90273776-0 | Tel: 438-316-0426 x74884 | Email: Wyatt78@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 57] Daniel LLC (Thompson - Reichel)
+   NIT: 49430973-1 | Tel: (644) 260-0988 x0573 | Email: Seth.Olson@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 58] Kuhlman - Dickens (Weissnat, Jaskolski and Kutch)
+   NIT: 77680658-9 | Tel: 1-363-950-2048 x314 | Email: Johnson.Bergstrom71@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 59] Bins - Quitzon (Koelpin Inc)
+   NIT: 67948069-1 | Tel: (795) 250-7550 x0622 | Email: Oscar.Jakubowski@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 60] Cummerata - Stamm (Kiehn Group)
+   NIT: 48230090-9 | Tel: 570-988-9398 | Email: Myah.Moore12@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 61] Wolff LLC (Waelchi, Towne and Tremblay)
+   NIT: 78523453-2 | Tel: 293.721.4274 | Email: Elroy53@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 62] Jacobi Inc (Hickle, Labadie and Dibbert)
+   NIT: 93988645-4 | Tel: 1-911-960-4830 x5294 | Email: Madelyn76@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 63] Hills - Hoppe (Bergstrom LLC)
+   NIT: 11563480-5 | Tel: 595-851-7394 x772 | Email: Grover.Mohr@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 64] Kling, Schinner and Simonis (Williamson, Fritsch and Keeling)
+   NIT: 96583491-5 | Tel: 993-786-9726 x45469 | Email: Micah_Little@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 65] Hoppe, Ullrich and Bartoletti (Spencer, Nicolas and Berge)
+   NIT: 89404572-8 | Tel: 312.237.6888 x7437 | Email: Rickey76@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 66] Predovic and Sons (Flatley, Block and Dare)
+   NIT: 78108683-7 | Tel: 1-697-957-5653 x8942 | Email: Rhett99@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 67] Conn, Pfannerstill and Kub (Olson - Aufderhar)
+   NIT: 70760979-2 | Tel: 483.499.2983 | Email: Angus_Williamson63@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 68] Kemmer Group (Collins - Skiles)
+   NIT: 27572823-0 | Tel: 685-495-4880 x72159 | Email: Dee94@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 69] Krajcik LLC (Beer - Gutkowski)
+   NIT: 79283727-8 | Tel: 519.810.5079 x49204 | Email: Ocie14@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 70] Strosin, Kautzer and Schoen (Cormier - Muller)
+   NIT: 33717068-8 | Tel: 999-341-8920 x17101 | Email: Rosendo.White66@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 71] Kling LLC (Lebsack, Marquardt and Tremblay)
+   NIT: 31225758-0 | Tel: 1-758-827-1897 x037 | Email: Augustine.Spinka98@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 72] Franecki, Homenick and Cormier (Considine - Brakus)
+   NIT: 45934534-3 | Tel: 1-771-732-4406 x1892 | Email: Carolyne_Corkery48@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 73] Herzog and Sons (Bradtke, Hegmann and Douglas)
+   NIT: 82990236-8 | Tel: (861) 859-8101 x0337 | Email: Zane.Simonis@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 74] Kassulke - Bernhard (Kuhn, Gusikowski and Cummerata)
+   NIT: 81672103-6 | Tel: 480-285-2585 x39618 | Email: Keven.Flatley97@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 75] Batz, Miller and Ortiz (Nicolas Group)
+   NIT: 76140198-2 | Tel: (465) 894-1658 x3407 | Email: Imelda_Roberts@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 76] Shanahan, Pacocha and Wolf (Hackett Group)
+   NIT: 42599316-7 | Tel: 743.847.9377 x166 | Email: Stella33@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 77] Gutkowski, Ruecker and Bashirian (Lang, Turner and Hirthe)
+   NIT: 78284715-6 | Tel: 1-366-201-7605 x9253 | Email: Elbert28@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 78] Bode, Quitzon and Frami (Jones, Moore and Hintz)
+   NIT: 07705853-5 | Tel: 961.301.4147 x64785 | Email: Mohammad_Boehm62@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 79] Kilback - Parker (Lang - Rodriguez)
+   NIT: 97958101-4 | Tel: 865-241-7499 x593 | Email: Rachel69@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 80] Ebert, Grimes and Sporer (Jaskolski - Goldner)
+   NIT: 03522436-3 | Tel: 329.845.2402 | Email: Alvena_Collins80@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 81] Kovacek Group (Baumbach LLC)
+   NIT: 86743443-6 | Tel: 462.487.0906 x625 | Email: Devante0@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 82] Hoppe Inc (Donnelly LLC)
+   NIT: 88560910-3 | Tel: 401.431.6315 x3220 | Email: Zaria_Lemke38@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 83] Bednar - Jenkins (Leffler - Borer)
+   NIT: 86686842-9 | Tel: 645.365.0233 x826 | Email: Claire.Beahan69@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 84] Nolan - Langosh (Emard, Swift and Barrows)
+   NIT: 33493631-1 | Tel: 1-369-846-2007 x0220 | Email: Aglae_Botsford78@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 85] Connelly - Bednar (Rippin, Spencer and Ritchie)
+   NIT: 32654662-9 | Tel: 264.836.5161 x729 | Email: Bo72@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 86] Boehm - Kirlin (Sawayn Inc)
+   NIT: 58340986-1 | Tel: 807.298.0873 x038 | Email: Alan.Frami24@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 87] DuBuque and Sons (Bernhard - Nitzsche)
+   NIT: 98441124-1 | Tel: (962) 772-8523 | Email: Diana23@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 88] Weimann - Zulauf (Wolff - Purdy)
+   NIT: 53782752-5 | Tel: 605.245.3177 x492 | Email: Glennie29@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 89] Feeney, Ledner and Jerde (Gottlieb, Gislason and Harris)
+   NIT: 78475672-5 | Tel: 1-549-668-3703 x9692 | Email: Beau_Spencer47@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 90] Durgan Inc (Olson, Gislason and Kihn)
+   NIT: 72104030-4 | Tel: 319.690.7851 x6919 | Email: Wilton_Metz97@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 91] Morar, Dietrich and Rau (Von Inc)
+   NIT: 38152336-0 | Tel: 964-251-6930 x27260 | Email: Celine_Labadie88@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 92] Collier, Terry and Lockman (Schneider, O'Kon and Fadel)
+   NIT: 10541461-0 | Tel: 754-511-9163 x04725 | Email: Mariana55@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 93] Welch, Barton and Bergnaum (Larkin - Kuhn)
+   NIT: 33093256-3 | Tel: (218) 810-5202 | Email: Leo13@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 94] Gorczany - Bahringer (Jenkins - Ward)
+   NIT: 39555718-5 | Tel: 1-472-963-5922 | Email: Harold_Schulist59@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 95] Purdy Group (Beer - Runolfsdottir)
+   NIT: 50983175-5 | Tel: 1-668-575-5273 x859 | Email: Claud.Fadel68@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 96] Hintz and Sons (Little - Quigley)
+   NIT: 20900854-3 | Tel: 1-677-727-8865 | Email: Javier.Gislason@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 97] Kunde - Bernhard (Stracke LLC)
+   NIT: 35637477-5 | Tel: (262) 896-8152 x6282 | Email: Noel.Lehner89@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 98] Borer, Bins and Davis (Hackett, Dickens and Schowalter)
+   NIT: 01214036-9 | Tel: 225-312-1217 x63105 | Email: Daphney_Koepp@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 99] Jerde, Bruen and Ortiz (Huel and Sons)
+   NIT: 14015697-3 | Tel: 750-571-0186 | Email: Melyssa55@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 100] Gutkowski, Hackett and Walker (Hoppe, Durgan and Borer)
+   NIT: 59333931-7 | Tel: 1-323-496-1633 x9119 | Email: Roderick29@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 101] Hudson and Sons (Baumbach, Bosco and Durgan)
+   NIT: 97776060-7 | Tel: (592) 621-3727 x429 | Email: Kayleigh12@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 102] Hermiston - Prosacco (MacGyver - Terry)
+   NIT: 73674969-4 | Tel: 951-754-5833 x867 | Email: Hayden_Wyman@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 103] Bergstrom, Kiehn and Carter (Frami, Flatley and Hane)
+   NIT: 96394810-6 | Tel: 1-449-608-1927 | Email: Lou.Bogan98@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 104] Rosenbaum, Nicolas and Kovacek (Bartoletti - Ward)
+   NIT: 40599522-9 | Tel: 1-525-304-7847 x9665 | Email: Una.Schinner29@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 105] Ward Inc (Adams Inc)
+   NIT: 69429075-8 | Tel: 801.927.2458 x80684 | Email: Vincent93@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 106] Nitzsche - Carter (Von - Hilll)
+   NIT: 93991881-5 | Tel: 254-614-4754 x376 | Email: Rosie_Lehner@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 107] Mills, Moen and Okuneva (Lockman, Boyer and Huels)
+   NIT: 95475598-9 | Tel: 834.511.6654 x64642 | Email: Halle.Rice26@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 108] Jacobi Group (Graham - Sipes)
+   NIT: 37414888-9 | Tel: (344) 557-0796 x170 | Email: Annetta99@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 109] Raynor, Towne and Greenholt (Kunde LLC)
+   NIT: 98317246-4 | Tel: 1-487-223-1588 x5412 | Email: Eleazar_King-Medhurst9@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 110] Lesch - Romaguera (Fay, VonRueden and Luettgen)
+   NIT: 29378908-1 | Tel: (394) 531-4227 | Email: Fred_Legros@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 111] Zboncak LLC (Grant, O'Reilly and Stark)
+   NIT: 92674172-0 | Tel: 842-403-7544 | Email: Allan70@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 112] Harris - Predovic (Boyle LLC)
+   NIT: 10758583-7 | Tel: (440) 838-9199 x581 | Email: Providenci_Schaden@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 113] Koepp - Spinka (Balistreri, Bogisich and Lesch)
+   NIT: 81644348-6 | Tel: (208) 984-0195 x5601 | Email: Mckayla_Wilderman49@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 114] Kunde - Hagenes (Johnson and Sons)
+   NIT: 34724079-8 | Tel: (900) 746-8080 x968 | Email: Audreanne_Kuhn96@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 115] Mohr Inc (Denesik, Purdy and Block)
+   NIT: 21701062-1 | Tel: 801-260-3366 x998 | Email: Devon.Kerluke@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 116] Connelly LLC (West - Brakus)
+   NIT: 50093980-6 | Tel: 1-220-387-7818 x7820 | Email: Theresa.Beer-Bergnaum@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 117] Osinski - Lockman (Bogisich Inc)
+   NIT: 05668656-3 | Tel: (639) 810-1537 x347 | Email: Jacques.Kilback@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 118] Pacocha, Haag and Shields (Lubowitz, Klocko and Gottlieb)
+   NIT: 35698863-3 | Tel: 1-203-666-1230 x6618 | Email: Raina.Bogan@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 119] Feil Group (Kulas, Turcotte and Wilderman)
+   NIT: 89582178-7 | Tel: 878-222-1845 x21848 | Email: Clara_Jacobson88@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 120] Satterfield, Boyle and Larkin (Strosin - Dibbert)
+   NIT: 82606551-5 | Tel: 1-212-968-8998 x309 | Email: Audreanne57@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 121] Cummerata - Muller (Stokes - Rath)
+   NIT: 37262836-5 | Tel: 705.568.9584 x182 | Email: Mya29@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 122] Jaskolski, Carter and Haag (VonRueden - Zboncak)
+   NIT: 32559210-9 | Tel: 505-211-4006 x32239 | Email: Brad.Windler@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 123] Schmitt, Mitchell and Reichel (Little Group)
+   NIT: 63431082-6 | Tel: (328) 378-9439 x0223 | Email: Freida.Romaguera@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 124] Green - Swaniawski (O'Conner - Schinner)
+   NIT: 95918673-8 | Tel: 718-630-8175 x35833 | Email: Orlo.Swift68@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 125] Kreiger, Rowe and Schaden (Tromp, Aufderhar and Veum)
+   NIT: 81995015-9 | Tel: 1-525-287-9736 x2638 | Email: Athena_Kirlin@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 126] Kuhn - Schuster (Deckow Inc)
+   NIT: 25086937-6 | Tel: 1-829-856-9557 x0234 | Email: Maximillian71@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 127] Kertzmann Group (Rohan - Romaguera)
+   NIT: 30077707-6 | Tel: 1-680-640-5483 x088 | Email: Augustine_Zieme89@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 128] Ryan Group (Heathcote - Upton)
+   NIT: 48697402-0 | Tel: (482) 835-2481 x3759 | Email: Louisa21@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 129] Adams Group (Bashirian - Ortiz)
+   NIT: 10571538-4 | Tel: (912) 359-0639 x8025 | Email: Leanna_Muller10@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 130] Pouros - Gulgowski (Koss - Wehner)
+   NIT: 60928119-9 | Tel: 1-853-536-0677 x8518 | Email: Tavares_Prohaska32@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 131] McDermott, Towne and Mueller (Cole, Corwin and Shanahan)
+   NIT: 94148402-4 | Tel: 976-834-5145 x9873 | Email: Jordy.Crona@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 132] Schoen, Kunde and Corwin (Botsford, Murazik and Simonis)
+   NIT: 66081780-3 | Tel: (811) 525-2769 | Email: Darrell.Luettgen27@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 133] Monahan, Kub and Hammes (Homenick and Sons)
+   NIT: 59428191-8 | Tel: 698-244-0692 x65252 | Email: Chaim.Hettinger19@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 134] Denesik, O'Hara and Rosenbaum (Lesch, Greenholt and Deckow)
+   NIT: 17235162-4 | Tel: 843-518-7538 x29783 | Email: Katlynn.Terry@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 135] Keebler - Cartwright (Reynolds, Willms and Rosenbaum)
+   NIT: 67570504-1 | Tel: 926-221-4548 x2257 | Email: Mackenzie27@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 136] Crona, Abbott and Zemlak (Maggio and Sons)
+   NIT: 76313293-9 | Tel: 202.295.8458 | Email: Matilda22@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 137] King, Crist and Kunde (Cassin Inc)
+   NIT: 41113089-1 | Tel: 371.289.2008 x6590 | Email: Emely_Heathcote@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 138] Willms, Vandervort and Bogan (Johns, Cremin and Rutherford)
+   NIT: 70031962-8 | Tel: 1-384-534-2638 x1929 | Email: Haleigh.Schultz@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 139] Goyette, Prohaska and Kuhic (Walsh LLC)
+   NIT: 38623502-6 | Tel: 562-728-9657 | Email: Genesis5@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 140] Sauer and Sons (Pouros, Stark and Pfannerstill)
+   NIT: 81817609-8 | Tel: 689.329.5672 | Email: Oceane_Lowe4@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 141] Kirlin and Sons (Hintz, Okuneva and Koepp)
+   NIT: 69815277-5 | Tel: 1-315-350-3289 x9659 | Email: Marjory.Vandervort@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 142] Hauck - Smitham (Spencer Group)
+   NIT: 28284263-8 | Tel: 807-886-1573 | Email: Caitlyn.Reinger@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 143] Hodkiewicz, Leffler and Rau (Collins - Greenholt)
+   NIT: 95408697-4 | Tel: 817.279.1191 x704 | Email: Royce.Becker14@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 144] Conroy - Wolf (Block Group)
+   NIT: 83193643-6 | Tel: 688-414-8244 x06452 | Email: Lela_Kertzmann@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 145] Orn, Spencer and Russel (Dicki, Okuneva and Wisoky)
+   NIT: 01930620-3 | Tel: (246) 919-3951 x472 | Email: Linnie.Gutkowski31@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 146] Corwin Inc (Kozey Group)
+   NIT: 96642497-4 | Tel: 919.592.9504 x958 | Email: Alfreda42@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 147] Ratke - Hammes (Treutel - Kutch)
+   NIT: 75944260-9 | Tel: (541) 710-7097 x5556 | Email: Deshawn_Gibson44@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 148] Stanton - Cole (Torphy Inc)
+   NIT: 68984054-9 | Tel: (282) 927-7065 x8023 | Email: Kristopher_Green51@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 149] Gulgowski - Erdman (Witting, Jones and Reichel)
+   NIT: 09885992-1 | Tel: (271) 548-4867 x6882 | Email: Jeramie_Connelly-Ryan@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 150] Ondricka Group (Nolan, Bailey and Stokes)
+   NIT: 79189498-9 | Tel: 1-934-261-7914 x813 | Email: Aric76@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 151] Boehm - Rath (Jenkins LLC)
+   NIT: 93135169-3 | Tel: 610.291.3675 x097 | Email: Kellie60@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 152] Carroll Group (Gleason Group)
+   NIT: 23096143-7 | Tel: 1-470-238-0185 x7635 | Email: Amie.Roberts24@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 153] Dare, Casper and Bradtke (Bradtke, Walsh and DuBuque)
+   NIT: 78274179-2 | Tel: (722) 596-7444 x094 | Email: Ora22@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 154] Grimes Group (Spinka, Becker and O'Connell)
+   NIT: 21384454-4 | Tel: 1-358-496-2398 x5286 | Email: Evans_Wilderman80@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 155] Rutherford LLC (Maggio Group)
+   NIT: 51342034-9 | Tel: (251) 853-9828 | Email: May23@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 156] Beahan Group (Harris LLC)
+   NIT: 88847353-4 | Tel: 1-946-287-4301 x286 | Email: Audreanne55@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 157] Hudson Group (Kirlin - Runolfsdottir)
+   NIT: 07225844-4 | Tel: 1-504-637-4633 x1388 | Email: Marco_Goyette@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 158] Kuhlman and Sons (Green Group)
+   NIT: 56925509-4 | Tel: 1-596-232-6938 x2059 | Email: Rick23@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 159] Stamm - Pollich (Effertz - Little)
+   NIT: 69550235-3 | Tel: (404) 271-8661 | Email: Pearline.Dietrich@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 160] Pouros and Sons (Roberts Inc)
+   NIT: 19624511-2 | Tel: 806-670-7970 x78877 | Email: Susana.Rowe@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 161] Reilly LLC (Ruecker, VonRueden and Conn)
+   NIT: 04213962-9 | Tel: 411-554-6954 x81505 | Email: Fannie.DuBuque@hotmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 162] Ritchie - Farrell (Keebler - Wyman)
+   NIT: 42530783-7 | Tel: 314.257.6236 | Email: Gladyce_Gutmann10@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 163] Rippin - Kub (Witting, Conroy and Hermiston)
+   NIT: 35087327-8 | Tel: 442-673-5997 x708 | Email: Reina_Predovic@yahoo.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 164] Debug Supplier (Debug Commercial)
+   NIT: DEBUG-NIT-SUP | Tel: 12345678 | Email: debug@sup.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 165] Supplier 0 - Batz and Sons (Commercial 0)
+   NIT: NIT-0-1764287843965 | Tel: 12345678 | Email: supplier0@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 166] Supplier 1 - Wehner, Murphy and Weimann (Commercial 1)
+   NIT: NIT-1-1764287843993 | Tel: 12345678 | Email: supplier1@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 167] Supplier 2 - Hessel Inc (Commercial 2)
+   NIT: NIT-2-1764287843996 | Tel: 12345678 | Email: supplier2@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 168] Supplier 3 - Boyle Inc (Commercial 3)
+   NIT: NIT-3-1764287844000 | Tel: 12345678 | Email: supplier3@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 169] Supplier 4 - Volkman, Harris and Pfannerstill (Commercial 4)
+   NIT: NIT-4-1764287844003 | Tel: 12345678 | Email: supplier4@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 170] Supplier 5 - Beahan, Nikolaus and Lehner (Commercial 5)
+   NIT: NIT-5-1764287844008 | Tel: 12345678 | Email: supplier5@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 171] Supplier 6 - Koelpin Group (Commercial 6)
+   NIT: NIT-6-1764287844015 | Tel: 12345678 | Email: supplier6@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 172] Supplier 7 - Torp - Tremblay (Commercial 7)
+   NIT: NIT-7-1764287844020 | Tel: 12345678 | Email: supplier7@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 173] Supplier 8 - Hilll, Zboncak and Green (Commercial 8)
+   NIT: NIT-8-1764287844025 | Tel: 12345678 | Email: supplier8@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 174] Supplier 9 - Simonis, Lueilwitz and Hegmann (Commercial 9)
+   NIT: NIT-9-1764287844028 | Tel: 12345678 | Email: supplier9@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 175] Supplier 10 - Jakubowski - Thompson (Commercial 10)
+   NIT: NIT-10-1764287844032 | Tel: 12345678 | Email: supplier10@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 176] Supplier 11 - Koss LLC (Commercial 11)
+   NIT: NIT-11-1764287844037 | Tel: 12345678 | Email: supplier11@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 177] Supplier 12 - Schmidt, Kilback and Huel (Commercial 12)
+   NIT: NIT-12-1764287844041 | Tel: 12345678 | Email: supplier12@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 178] Supplier 13 - Kuphal - Morissette (Commercial 13)
+   NIT: NIT-13-1764287844045 | Tel: 12345678 | Email: supplier13@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 179] Supplier 14 - Dickinson LLC (Commercial 14)
+   NIT: NIT-14-1764287844050 | Tel: 12345678 | Email: supplier14@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 180] Supplier 15 - Bradtke, Osinski and Hane (Commercial 15)
+   NIT: NIT-15-1764287844053 | Tel: 12345678 | Email: supplier15@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 181] Supplier 16 - Heller, Reichel and Hoppe (Commercial 16)
+   NIT: NIT-16-1764287844057 | Tel: 12345678 | Email: supplier16@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 182] Supplier 17 - McDermott Group (Commercial 17)
+   NIT: NIT-17-1764287844063 | Tel: 12345678 | Email: supplier17@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 183] Supplier 18 - Luettgen Group (Commercial 18)
+   NIT: NIT-18-1764287844067 | Tel: 12345678 | Email: supplier18@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 184] Supplier 19 - Kuhlman, Reynolds and Windler (Commercial 19)
+   NIT: NIT-19-1764287844071 | Tel: 12345678 | Email: supplier19@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 185] Supplier 0 - Hermiston - McCullough (Commercial 0)
+   NIT: NIT-0-1764287866538 | Tel: 12345678 | Email: supplier0@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 186] Supplier 1 - Runolfsson, Robel and Effertz (Commercial 1)
+   NIT: NIT-1-1764287866545 | Tel: 12345678 | Email: supplier1@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 187] Supplier 2 - Lebsack, Schamberger and Boyer (Commercial 2)
+   NIT: NIT-2-1764287866547 | Tel: 12345678 | Email: supplier2@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 188] Supplier 3 - Bosco - Bogan (Commercial 3)
+   NIT: NIT-3-1764287866550 | Tel: 12345678 | Email: supplier3@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 189] Supplier 4 - Spinka LLC (Commercial 4)
+   NIT: NIT-4-1764287866551 | Tel: 12345678 | Email: supplier4@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 190] Supplier 5 - Simonis, Tremblay and Ward (Commercial 5)
+   NIT: NIT-5-1764287866553 | Tel: 12345678 | Email: supplier5@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 191] Supplier 6 - Wilkinson, Morar and Windler (Commercial 6)
+   NIT: NIT-6-1764287866555 | Tel: 12345678 | Email: supplier6@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 192] Supplier 7 - Ratke, Bahringer and Dach (Commercial 7)
+   NIT: NIT-7-1764287866558 | Tel: 12345678 | Email: supplier7@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 193] Supplier 8 - Romaguera, Lemke and Kuhn (Commercial 8)
+   NIT: NIT-8-1764287866560 | Tel: 12345678 | Email: supplier8@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 194] Supplier 9 - Abbott - Hilll (Commercial 9)
+   NIT: NIT-9-1764287866562 | Tel: 12345678 | Email: supplier9@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 195] Supplier 10 - Bergnaum - Kirlin (Commercial 10)
+   NIT: NIT-10-1764287866563 | Tel: 12345678 | Email: supplier10@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 196] Supplier 11 - Ruecker LLC (Commercial 11)
+   NIT: NIT-11-1764287866565 | Tel: 12345678 | Email: supplier11@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 197] Supplier 12 - Bednar Inc (Commercial 12)
+   NIT: NIT-12-1764287866567 | Tel: 12345678 | Email: supplier12@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 198] Supplier 13 - Wyman - Halvorson (Commercial 13)
+   NIT: NIT-13-1764287866568 | Tel: 12345678 | Email: supplier13@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 199] Supplier 14 - Brakus, Bogisich and Schulist (Commercial 14)
+   NIT: NIT-14-1764287866570 | Tel: 12345678 | Email: supplier14@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 200] Supplier 15 - Rohan - Lockman (Commercial 15)
+   NIT: NIT-15-1764287866572 | Tel: 12345678 | Email: supplier15@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 201] Supplier 16 - Rohan, Gulgowski and Miller (Commercial 16)
+   NIT: NIT-16-1764287866574 | Tel: 12345678 | Email: supplier16@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 202] Supplier 17 - Ratke - Lowe (Commercial 17)
+   NIT: NIT-17-1764287866576 | Tel: 12345678 | Email: supplier17@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 203] Supplier 18 - Hermiston and Sons (Commercial 18)
+   NIT: NIT-18-1764287866577 | Tel: 12345678 | Email: supplier18@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 204] Supplier 19 - Collins - Feil (Commercial 19)
+   NIT: NIT-19-1764287866579 | Tel: 12345678 | Email: supplier19@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 205] Debug Sup (N/A)
+   NIT: DBG-SUP | Tel: N/A | Email: N/A
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 206] Supplier 0 - Ruecker Inc (Commercial 0)
+   NIT: NIT-0-1764288161464 | Tel: 12345678 | Email: supplier0@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 207] Supplier 1 - MacGyver - Miller (Commercial 1)
+   NIT: NIT-1-1764288161475 | Tel: 12345678 | Email: supplier1@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 208] Supplier 2 - Christiansen - Cummings (Commercial 2)
+   NIT: NIT-2-1764288161480 | Tel: 12345678 | Email: supplier2@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 209] Supplier 3 - Renner - Klocko (Commercial 3)
+   NIT: NIT-3-1764288161486 | Tel: 12345678 | Email: supplier3@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 210] Supplier 4 - Waters - Walter (Commercial 4)
+   NIT: NIT-4-1764288161495 | Tel: 12345678 | Email: supplier4@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 211] Supplier 5 - Muller, Raynor and Dibbert (Commercial 5)
+   NIT: NIT-5-1764288161498 | Tel: 12345678 | Email: supplier5@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 212] Supplier 6 - Kuhlman, Treutel and Wolf (Commercial 6)
+   NIT: NIT-6-1764288161502 | Tel: 12345678 | Email: supplier6@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 213] Supplier 7 - Cartwright, Emmerich and Lebsack (Commercial 7)
+   NIT: NIT-7-1764288161508 | Tel: 12345678 | Email: supplier7@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 214] Supplier 8 - Baumbach - Bradtke (Commercial 8)
+   NIT: NIT-8-1764288161518 | Tel: 12345678 | Email: supplier8@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 215] Supplier 9 - Lind, West and Larkin (Commercial 9)
+   NIT: NIT-9-1764288161522 | Tel: 12345678 | Email: supplier9@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 216] Supplier 10 - Goyette, Ryan and Hilll (Commercial 10)
+   NIT: NIT-10-1764288161527 | Tel: 12345678 | Email: supplier10@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 217] Supplier 11 - Dach Inc (Commercial 11)
+   NIT: NIT-11-1764288161530 | Tel: 12345678 | Email: supplier11@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 218] Supplier 12 - Rogahn, Gusikowski and Wisozk (Commercial 12)
+   NIT: NIT-12-1764288161535 | Tel: 12345678 | Email: supplier12@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 219] Supplier 13 - Mueller Inc (Commercial 13)
+   NIT: NIT-13-1764288161539 | Tel: 12345678 | Email: supplier13@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 220] Supplier 14 - Farrell - Dickens (Commercial 14)
+   NIT: NIT-14-1764288161545 | Tel: 12345678 | Email: supplier14@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 221] Supplier 15 - Emard - Franecki (Commercial 15)
+   NIT: NIT-15-1764288161549 | Tel: 12345678 | Email: supplier15@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 222] Supplier 16 - Kozey, Dickens and Ziemann (Commercial 16)
+   NIT: NIT-16-1764288161555 | Tel: 12345678 | Email: supplier16@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 223] Supplier 17 - Cruickshank, Zemlak and Kemmer (Commercial 17)
+   NIT: NIT-17-1764288161559 | Tel: 12345678 | Email: supplier17@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 224] Supplier 18 - Brekke, Schumm and McClure (Commercial 18)
+   NIT: NIT-18-1764288161565 | Tel: 12345678 | Email: supplier18@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 225] Supplier 19 - Schroeder LLC (Commercial 19)
+   NIT: NIT-19-1764288161568 | Tel: 12345678 | Email: supplier19@test.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 5] Aceros de Guatemala (Aceros GT)
+   NIT: 555555-5 | Tel: 2777-8888 | Email: ventas@acerosgt.com
+   Status: ÔØî Inactive
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 6] xcvxcvxv (xcvxcvxv)
+   NIT: 465325-4 | Tel: 4563215987 | Email: N/A
+   Status: ÔØî Inactive
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+­ƒÅó [ID: 27] Volkman - Padberg (Russel, Lesch and Rodriguez)
+   NIT: 34501428-4 | Tel: 651-417-0114 | Email: Ashlynn_Nitzsche42@gmail.com
+   Status: Ô£à Active
+   Products Supplied: 0
+   Purchase Orders: 0
+   Total Purchased Volume: Q0.00
+   ­ƒæÑ Contacts: None
+---------------------------------------------------
+
+­ƒôª Top Products by Supplier (Sample):
+
+   Distribuidora Ferretera S.A.:
+      - [PLO-001] Tubo PVC 1/2" (Price: Q12.50)
+      - [PLO-002] Codo PVC 1/2" (Price: Q3.50)
+      - [ELE-001] Cable THW #12 (Price: Q4.25)
+      ... and 50 more.
+
+   Herramientas Stanley:
+      - [HER-001] Martillo de U├▒a 16oz (Price: Q45.00)
+      - [HER-002] Destornillador Phillips #2 (Price: Q25.00)
+      - [HER-003] Llave Inglesa 12" (Price: Q85.00)
+
+   Cementos Progreso S.A.:
+      - [MAT-001] Cemento UGC 4060psi (Price: Q85.00)
+      - [MAT-002] Cal Hidratada (Price: Q35.00)
+
+   Pinturas Sherwin Williams:
+      - [PIN-001] Pintura Latex Blanco (Price: Q285.00)

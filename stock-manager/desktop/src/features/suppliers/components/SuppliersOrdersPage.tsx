@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { formatCurrency } from '@/shared/utils/format';
 import { usePurchaseOrders } from '../hooks/usePurchaseOrders';
 import { useSuppliers } from '../hooks/useSuppliers';
@@ -63,6 +64,39 @@ const SuppliersOrdersPage = () => {
     setIsUploadModalOpen(true);
   };
 
+  const columns: Column<PurchaseOrder>[] = useMemo(() => [
+    { key: 'orderNumber', header: 'Orden', accessor: 'orderNumber' },
+    { key: 'supplierName', header: 'Proveedor', accessor: 'supplierName' },
+    { key: 'date', header: 'Fecha', accessor: (order) => new Date(order.date).toLocaleDateString() },
+    { key: 'total', header: 'Monto', accessor: (order) => formatCurrency(order.total), className: 'align-right' },
+    {
+      key: 'status',
+      header: 'Estado',
+      render: (order) => (
+        <span className={`badge-status ${order.status.toLowerCase()}`}>{order.status}</span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (order) => (
+        <div className="supplier-actions">
+          <button type="button" onClick={() => openDetailModal(order)} title="Ver Detalle">
+            🔍
+          </button>
+          {order.status !== 'RECIBIDA' && order.status !== 'CANCELADA' && (
+            <button type="button" onClick={() => openReceiveModal(order)} title="Recibir Mercadería">
+              📦
+            </button>
+          )}
+          <button type="button" onClick={() => openUploadModal(order)} title="Subir Factura">
+            📄
+          </button>
+        </div>
+      ),
+    },
+  ], []);
+
   return (
     <main className="suppliers-view app-view is-visible" id="suppliers-orders-view" data-app-view>
       <section className="suppliers-toolbar">
@@ -108,56 +142,13 @@ const SuppliersOrdersPage = () => {
           </div>
         </header>
         <div className="data-table-wrapper">
-          <table className="supplier-table">
-            <thead>
-              <tr>
-                <th>Orden</th>
-                <th>Proveedor</th>
-                <th>Fecha</th>
-                <th className="align-right">Monto</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && orders.length === 0 && (
-                <tr><td colSpan={6} className="text-center">Cargando...</td></tr>
-              )}
-              {!loading && orders.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="muted">
-                    No hay órdenes con estos filtros.
-                  </td>
-                </tr>
-              )}
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>{order.orderNumber}</td>
-                  <td>{order.supplierName}</td>
-                  <td>{new Date(order.date).toLocaleDateString()}</td>
-                  <td className="align-right">{formatCurrency(order.total)}</td>
-                  <td>
-                    <span className={`badge-status ${order.status.toLowerCase()}`}>{order.status}</span>
-                  </td>
-                  <td>
-                    <div className="supplier-actions">
-                      <button type="button" onClick={() => openDetailModal(order)} title="Ver Detalle">
-                        🔍
-                      </button>
-                      {order.status !== 'RECIBIDA' && order.status !== 'CANCELADA' && (
-                        <button type="button" onClick={() => openReceiveModal(order)} title="Recibir Mercadería">
-                          📦
-                        </button>
-                      )}
-                      <button type="button" onClick={() => openUploadModal(order)} title="Subir Factura">
-                        �
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            data={orders}
+            columns={columns}
+            keyField="id"
+            loading={loading}
+            emptyMessage="No hay órdenes con estos filtros."
+          />
         </div>
       </article>
 

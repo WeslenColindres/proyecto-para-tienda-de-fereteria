@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { useSuppliers } from '../hooks/useSuppliers';
 import { productsApi } from '@/shared/api/products';
 import { CreatePurchaseOrderPayload } from '../types';
@@ -73,6 +74,31 @@ export const CreatePurchaseOrderModal = ({ isOpen, onClose, onSubmit }: Props) =
             items: prev.items.filter((_, i) => i !== index)
         }));
     };
+
+    const columns: Column<any>[] = useMemo(() => [
+        {
+            key: 'productName',
+            header: 'Producto',
+            render: (item) => {
+                const product = products.find(p => p.id === item.productId);
+                return product?.name || item.productId;
+            }
+        },
+        { key: 'quantity', header: 'Cant.', accessor: 'quantity' },
+        { key: 'unitCost', header: 'Costo', accessor: (item) => formatCurrency(item.unitCost) },
+        { key: 'total', header: 'Total', accessor: (item) => formatCurrency(item.quantity * item.unitCost) },
+        {
+            key: 'actions',
+            header: '',
+            render: (item) => {
+                // We need index to remove.
+                // Assuming we add an 'index' property to the data passed to DataTable
+                return (
+                    <button type="button" onClick={() => handleRemoveItem(item.index)} className="text-red">&times;</button>
+                );
+            }
+        },
+    ], [products]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -161,40 +187,16 @@ export const CreatePurchaseOrderModal = ({ isOpen, onClose, onSubmit }: Props) =
                             <button type="button" onClick={handleAddItem} disabled={!selectedProduct}>Agregar</button>
                         </div>
 
-                        <table className="items-table">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Cant.</th>
-                                    <th>Costo</th>
-                                    <th>Total</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {formData.items.map((item, idx) => {
-                                    const product = products.find(p => p.id === item.productId);
-                                    return (
-                                        <tr key={idx}>
-                                            <td>{product?.name || item.productId}</td>
-                                            <td>{item.quantity}</td>
-                                            <td>{formatCurrency(item.unitCost)}</td>
-                                            <td>{formatCurrency(item.quantity * item.unitCost)}</td>
-                                            <td>
-                                                <button type="button" onClick={() => handleRemoveItem(idx)} className="text-red">&times;</button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colSpan={3} className="text-right"><strong>Total:</strong></td>
-                                    <td><strong>{formatCurrency(total)}</strong></td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                        <DataTable
+                            data={formData.items.map((item, index) => ({ ...item, index, id: index }))} // Add index and id
+                            columns={columns}
+                            keyField="id"
+                            className="items-table"
+                            emptyMessage="No hay productos agregados"
+                        />
+                        <div className="mt-2 text-right">
+                            <strong>Total: {formatCurrency(total)}</strong>
+                        </div>
                     </div>
 
                     <div className="form-group">

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { customersApi } from '@/shared/api/customers';
 import { formatCurrency, formatDate } from '@/shared/utils/format';
 import type { CustomerItem } from '@/shared/types/customers';
@@ -50,7 +51,34 @@ const ClientHistoryView = () => {
         };
 
         fetchSales();
+        fetchSales();
     }, [selectedClient, page]);
+
+    const columns: Column<any>[] = useMemo(() => [
+        { key: 'date', header: 'Fecha', accessor: (sale) => formatDate(sale.date) },
+        { key: 'documentNumber', header: 'Documento', accessor: 'documentNumber', className: 'font-mono' },
+        {
+            key: 'status',
+            header: 'Estado',
+            render: (sale) => (
+                <span className={`px-2 py-1 rounded text-xs ${sale.status === 'pagado' ? 'bg-green-500/20 text-green-400' :
+                    sale.status === 'anulado' ? 'bg-red-500/20 text-red-400' :
+                        'bg-yellow-500/20 text-yellow-400'
+                    }`}>
+                    {sale.status}
+                </span>
+            ),
+        },
+        { key: 'total', header: 'Total', accessor: (sale) => formatCurrency(sale.total), className: 'text-right font-mono' },
+        {
+            key: 'actions',
+            header: 'Acciones',
+            render: () => (
+                <button className="text-blue-400 hover:text-blue-300 text-sm">Ver Detalle</button>
+            ),
+            className: 'text-center',
+        },
+    ], []);
 
     return (
         <div className="client-history-view h-full flex flex-col gap-4">
@@ -112,43 +140,16 @@ const ClientHistoryView = () => {
 
             {selectedClient && (
                 <section className="sales-list flex-1 overflow-auto bg-white/5 rounded-lg border border-white/10">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-white/5 sticky top-0">
-                            <tr>
-                                <th className="p-3 font-medium text-muted">Fecha</th>
-                                <th className="p-3 font-medium text-muted">Documento</th>
-                                <th className="p-3 font-medium text-muted">Estado</th>
-                                <th className="p-3 font-medium text-muted text-right">Total</th>
-                                <th className="p-3 font-medium text-muted text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr><td colSpan={5} className="p-8 text-center text-muted">Cargando historial...</td></tr>
-                            ) : sales.length === 0 ? (
-                                <tr><td colSpan={5} className="p-8 text-center text-muted">No hay compras registradas</td></tr>
-                            ) : (
-                                sales.map((sale) => (
-                                    <tr key={sale.id} className="border-b border-white/5 hover:bg-white/5">
-                                        <td className="p-3">{formatDate(sale.date)}</td>
-                                        <td className="p-3 font-mono">{sale.documentNumber}</td>
-                                        <td className="p-3">
-                                            <span className={`px-2 py-1 rounded text-xs ${sale.status === 'pagado' ? 'bg-green-500/20 text-green-400' :
-                                                    sale.status === 'anulado' ? 'bg-red-500/20 text-red-400' :
-                                                        'bg-yellow-500/20 text-yellow-400'
-                                                }`}>
-                                                {sale.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-3 text-right font-mono">{formatCurrency(sale.total)}</td>
-                                        <td className="p-3 text-center">
-                                            <button className="text-blue-400 hover:text-blue-300 text-sm">Ver Detalle</button>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                    <DataTable
+                        data={sales}
+                        columns={columns}
+                        keyField="id"
+                        loading={loading}
+                        emptyMessage="No hay compras registradas"
+                        className="w-full text-left border-collapse"
+                        headerClassName="bg-white/5 sticky top-0"
+                        rowClassName="border-b border-white/5 hover:bg-white/5"
+                    />
                 </section>
             )}
 

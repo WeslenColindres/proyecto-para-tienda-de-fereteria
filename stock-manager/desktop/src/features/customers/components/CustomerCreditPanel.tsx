@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { formatCurrency } from '@/shared/utils/format';
 import type { CustomerItem, CustomerCreditRow } from '@/shared/types/customers';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 
 type Props = {
   customer?: CustomerItem | null;
@@ -9,6 +11,14 @@ type Props = {
 
 const CustomerCreditPanel = ({ customer, creditRows, onPay }: Props) => {
   const creditUsedPct = customer?.creditLimit ? Math.round(((customer.creditUsed ?? 0) / customer.creditLimit) * 100) : 0;
+
+  const columns: Column<CustomerCreditRow>[] = useMemo(() => [
+    { key: 'customer', header: 'Cliente', accessor: 'customer' },
+    { key: 'limit', header: 'Limite', accessor: (row) => formatCurrency(row.limit) },
+    { key: 'used', header: 'Usado', accessor: (row) => formatCurrency(row.used) },
+    { key: 'available', header: 'Disponible', accessor: (row) => formatCurrency(row.available) },
+    { key: 'daysToDue', header: 'Dias', accessor: 'daysToDue' },
+  ], []);
 
   return (
     <article className="customer-card">
@@ -40,28 +50,13 @@ const CustomerCreditPanel = ({ customer, creditRows, onPay }: Props) => {
         </div>
       </div>
 
-      <table className="report-table">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Limite</th>
-            <th>Usado</th>
-            <th>Disponible</th>
-            <th>Dias</th>
-          </tr>
-        </thead>
-        <tbody>
-          {creditRows.map((row) => (
-            <tr key={row.customer}>
-              <td>{row.customer}</td>
-              <td>{formatCurrency(row.limit)}</td>
-              <td>{formatCurrency(row.used)}</td>
-              <td>{formatCurrency(row.available)}</td>
-              <td>{row.daysToDue}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        data={creditRows}
+        columns={columns}
+        keyField="customer"
+        emptyMessage="No hay información de crédito"
+        className="report-table"
+      />
     </article>
   );
 };

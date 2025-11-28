@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { PurchaseOrder } from '../types';
 import { formatCurrency } from '@/shared/utils/format';
 
@@ -8,6 +10,13 @@ interface Props {
 }
 
 export const PurchaseOrderDetailModal = ({ isOpen, onClose, order }: Props) => {
+    const columns: Column<any>[] = useMemo(() => [
+        { key: 'productName', header: 'Producto', accessor: (item) => item.productName || item.productId },
+        { key: 'quantity', header: 'Cant.', accessor: 'quantity' },
+        { key: 'unitCost', header: 'Costo Unit.', accessor: (item) => formatCurrency(item.unitCost) },
+        { key: 'total', header: 'Total', accessor: (item) => formatCurrency(item.total) },
+    ], []);
+
     if (!isOpen || !order) return null;
 
     return (
@@ -35,40 +44,28 @@ export const PurchaseOrderDetailModal = ({ isOpen, onClose, order }: Props) => {
                     </div>
 
                     <h4 className="mt-4">Productos</h4>
-                    <table className="items-table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cant.</th>
-                                <th>Costo Unit.</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {order.items.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td>{item.productName || item.productId}</td>
-                                    <td>{item.quantity}</td>
-                                    <td>{formatCurrency(item.unitCost)}</td>
-                                    <td>{formatCurrency(item.total)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colSpan={3} className="text-right"><strong>Subtotal:</strong></td>
-                                <td>{formatCurrency(order.subtotal)}</td>
-                            </tr>
-                            <tr>
-                                <td colSpan={3} className="text-right"><strong>Impuestos:</strong></td>
-                                <td>{formatCurrency(order.tax)}</td>
-                            </tr>
-                            <tr>
-                                <td colSpan={3} className="text-right"><strong>Total:</strong></td>
-                                <td><strong>{formatCurrency(order.total)}</strong></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <h4 className="mt-4">Productos</h4>
+                    <DataTable
+                        data={order.items}
+                        columns={columns}
+                        keyField="productId" // Assuming productId is unique in items
+                        className="items-table"
+                    />
+
+                    <div className="mt-4 flex flex-col items-end gap-1">
+                        <div className="flex justify-between w-48">
+                            <strong>Subtotal:</strong>
+                            <span>{formatCurrency(order.subtotal)}</span>
+                        </div>
+                        <div className="flex justify-between w-48">
+                            <strong>Impuestos:</strong>
+                            <span>{formatCurrency(order.tax)}</span>
+                        </div>
+                        <div className="flex justify-between w-48 text-lg">
+                            <strong>Total:</strong>
+                            <strong>{formatCurrency(order.total)}</strong>
+                        </div>
+                    </div>
 
                     {order.notes && (
                         <div className="mt-4">

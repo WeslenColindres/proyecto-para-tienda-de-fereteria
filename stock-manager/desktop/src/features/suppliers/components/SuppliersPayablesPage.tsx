@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import {
   DollarSign,
   Calendar,
@@ -91,6 +92,86 @@ export const SuppliersPayablesPage: React.FC = () => {
         );
     }
   };
+
+  const columns: Column<AccountsPayableItem>[] = useMemo(() => [
+    {
+      key: 'supplier',
+      header: 'Proveedor',
+      render: (account) => (
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs mr-3">
+            {account.supplierName.substring(0, 2).toUpperCase()}
+          </div>
+          <div className="text-sm font-medium text-slate-900 dark:text-white">{account.supplierName}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'invoice',
+      header: 'Factura',
+      render: (account) => (
+        <div>
+          <div className="text-sm text-slate-900 dark:text-white font-medium">{account.invoiceNumber}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">{formatDate(account.invoiceDate)}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'dueDate',
+      header: 'Vencimiento',
+      render: (account) => (
+        <div>
+          <div className="text-sm text-slate-900 dark:text-white">{formatDate(account.dueDate)}</div>
+          {new Date(account.dueDate) < new Date() && account.status !== 'pagada' && (
+            <span className="text-xs text-red-500 font-medium">Vencida</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'totalAmount',
+      header: 'Monto Total',
+      accessor: (account) => formatCurrency(account.totalAmount),
+      className: 'text-right font-medium text-slate-900 dark:text-white',
+    },
+    {
+      key: 'pendingAmount',
+      header: 'Pendiente',
+      accessor: (account) => formatCurrency(account.pendingAmount),
+      className: 'text-right font-bold text-blue-600 dark:text-blue-400',
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      render: (account) => getStatusBadge(account.status),
+      className: 'text-center flex justify-center',
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (account) => (
+        <div className="flex items-center justify-end gap-2">
+          {account.status !== 'pagada' && (
+            <button
+              onClick={() => openPaymentModal(account)}
+              className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+              title="Registrar Pago"
+            >
+              <DollarSign className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            onClick={() => openDetailModal(account)}
+            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            title="Ver Detalle"
+          >
+            <FileText className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+      className: 'text-right',
+    },
+  ], []);
 
   // Calculate totals from aging report or accounts list
   const totalPending = accounts.reduce((sum, acc) => sum + (acc.status !== 'pagada' ? acc.pendingAmount : 0), 0);
@@ -195,86 +276,13 @@ export const SuppliersPayablesPage: React.FC = () => {
       {/* Accounts List */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 dark:bg-slate-700/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Proveedor</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Factura</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vencimiento</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Monto Total</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pendiente</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-                    Cargando cuentas por pagar...
-                  </td>
-                </tr>
-              ) : accounts.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-                    No se encontraron cuentas por pagar
-                  </td>
-                </tr>
-              ) : (
-                accounts.map((account) => (
-                  <tr key={account.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs mr-3">
-                          {account.supplierName.substring(0, 2).toUpperCase()}
-                        </div>
-                        <div className="text-sm font-medium text-slate-900 dark:text-white">{account.supplierName}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-900 dark:text-white font-medium">{account.invoiceNumber}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">{formatDate(account.invoiceDate)}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-900 dark:text-white">{formatDate(account.dueDate)}</div>
-                      {new Date(account.dueDate) < new Date() && account.status !== 'pagada' && (
-                        <span className="text-xs text-red-500 font-medium">Vencida</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-900 dark:text-white font-medium">
-                      {formatCurrency(account.totalAmount)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-blue-600 dark:text-blue-400">
-                      {formatCurrency(account.pendingAmount)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                      {getStatusBadge(account.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        {account.status !== 'pagada' && (
-                          <button
-                            onClick={() => openPaymentModal(account)}
-                            className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
-                            title="Registrar Pago"
-                          >
-                            <DollarSign className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => openDetailModal(account)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title="Ver Detalle"
-                        >
-                          <FileText className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <DataTable
+            data={accounts}
+            columns={columns}
+            keyField="id"
+            loading={loading}
+            emptyMessage="No se encontraron cuentas por pagar"
+          />
         </div>
 
         {/* Pagination */}

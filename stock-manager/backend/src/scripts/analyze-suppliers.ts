@@ -1,15 +1,4 @@
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const pool = new Pool({
-    user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'stock_manager',
-    password: process.env.DB_PASSWORD || 'postgres',
-    port: 5432, // Force port 5432 as per previous debugging
-});
+import pool from '../infrastructure/database/postgres';
 
 async function analyzeSuppliers() {
     const client = await pool.connect();

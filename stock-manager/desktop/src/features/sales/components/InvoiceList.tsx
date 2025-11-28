@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { salesApi } from '@/shared/api/sales';
 import { useSalesChunks } from '@/shared/hooks/useSalesChunks';
-import type { SaleDocumentType, SaleStatus } from '@/shared/types/sales';
+import type { SaleDocumentType, SaleStatus, SaleDetail } from '@/shared/types/sales';
 import { cn } from '@/shared/utils/cn';
 import SaleReportModal from './SaleReportModal';
 import * as XLSX from 'xlsx';
@@ -124,6 +125,59 @@ const InvoiceList = () => {
 
     const pagesCount = Math.max(1, Math.ceil(total / pageSize));
 
+    const columns: Column<SaleDetail>[] = useMemo(() => [
+        {
+            key: 'date',
+            header: 'Fecha',
+            render: (sale) => (
+                <span className="text-slate-400">
+                    {new Date(sale.datetime).toLocaleDateString()} <span className="text-xs text-slate-600">{new Date(sale.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </span>
+            ),
+            className: 'whitespace-nowrap',
+        },
+        { key: 'docNumber', header: 'Documento', accessor: 'docNumber', className: 'font-mono text-white' },
+        {
+            key: 'client',
+            header: 'Cliente',
+            render: (sale) => (
+                <div>
+                    <div className="font-medium text-slate-200">{sale.clientName}</div>
+                    <div className="text-xs text-slate-500">NIT: {sale.clientNit}</div>
+                </div>
+            ),
+        },
+        {
+            key: 'total',
+            header: 'Total',
+            accessor: (sale) => formatMoney(sale.total),
+            className: 'text-right font-mono font-medium text-emerald-400',
+        },
+        {
+            key: 'status',
+            header: 'Estado',
+            render: (sale) => (
+                <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', statusStyles[sale.status])}>
+                    {statusLabel[sale.status]}
+                </span>
+            ),
+            className: 'text-center',
+        },
+        {
+            key: 'actions',
+            header: 'Acciones',
+            render: (sale) => (
+                <button
+                    onClick={() => setSelectedSale(sale.id)}
+                    className="text-indigo-400 hover:text-indigo-300 font-medium text-xs uppercase tracking-wide"
+                >
+                    Ver Detalle
+                </button>
+            ),
+            className: 'text-right',
+        },
+    ], []);
+
     return (
         <section className="flex flex-col gap-6 text-slate-100" data-tailwind-view="invoice-list">
             <div className={cn(panelBase, 'flex flex-col gap-6 px-6 py-6 lg:flex-row lg:items-end lg:justify-between bg-gradient-to-r from-indigo-950/40 to-slate-950/40')}>
@@ -197,55 +251,16 @@ const InvoiceList = () => {
             <div className="grid gap-6 xl:grid-cols-[1fr_300px]">
                 <div className={cn(panelBase, 'overflow-hidden')}>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
-                                <tr>
-                                    <th className="px-6 py-4 font-semibold">Fecha</th>
-                                    <th className="px-6 py-4 font-semibold">Documento</th>
-                                    <th className="px-6 py-4 font-semibold">Cliente</th>
-                                    <th className="px-6 py-4 font-semibold text-right">Total</th>
-                                    <th className="px-6 py-4 font-semibold text-center">Estado</th>
-                                    <th className="px-6 py-4 font-semibold text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {displayedData.map((sale) => (
-                                    <tr key={sale.id} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 text-slate-400 whitespace-nowrap">
-                                            {new Date(sale.datetime).toLocaleDateString()} <span className="text-xs text-slate-600">{new Date(sale.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-white">{sale.docNumber}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-slate-200">{sale.clientName}</div>
-                                            <div className="text-xs text-slate-500">NIT: {sale.clientNit}</div>
-                                        </td>
-                                        <td className="px-6 py-4 text-right font-mono font-medium text-emerald-400">
-                                            {formatMoney(sale.total)}
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', statusStyles[sale.status])}>
-                                                {statusLabel[sale.status]}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button
-                                                onClick={() => setSelectedSale(sale.id)}
-                                                className="text-indigo-400 hover:text-indigo-300 font-medium text-xs uppercase tracking-wide"
-                                            >
-                                                Ver Detalle
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {displayedData.length === 0 && !loading && (
-                                    <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                                            No se encontraron facturas con los filtros seleccionados.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                        <DataTable
+                            data={displayedData}
+                            columns={columns}
+                            keyField="id"
+                            loading={loading}
+                            emptyMessage="No se encontraron facturas con los filtros seleccionados."
+                            className="w-full text-left text-sm"
+                            headerClassName="bg-white/5 text-xs uppercase tracking-wider text-slate-400"
+                            rowClassName="hover:bg-white/5 transition-colors"
+                        />
                     </div>
 
                     {/* Pagination */}

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { inventoryApi } from '@/shared/api/inventory';
 import { ApiError } from '@/shared/api/types';
 import {
@@ -59,6 +60,45 @@ const ProductsStockPage = () => {
     }
     setIsModalOpen(true);
   };
+
+  const detailColumns: Column<any>[] = useMemo(() => [
+    { key: 'product', header: 'Producto', accessor: 'product' },
+    { key: 'stock', header: 'Stock', accessor: 'stock', className: 'font-bold' },
+    { key: 'value', header: 'Valor', accessor: (item) => formatCurrency(item.value) },
+    { key: 'last', header: 'Ultimo mov.', accessor: 'last' },
+    { key: 'rotation', header: 'Rotacion', accessor: 'rotation' },
+    { key: 'warehouse', header: 'Almacen', accessor: 'warehouse' },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (item) => (
+        <button
+          className="icon-btn"
+          title="Ajustar Stock"
+          onClick={() => handleOpenAdjustment({ id: 0, name: item.product })}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+        >
+          ✏️
+        </button>
+      ),
+    },
+  ], []);
+
+  const warehouseColumns: Column<any>[] = useMemo(() => [
+    { key: 'warehouse', header: 'Almacen', accessor: 'warehouse' },
+    { key: 'products', header: 'Productos', accessor: 'products' },
+    { key: 'value', header: 'Valor', accessor: (item) => formatCurrency(item.value) },
+    { key: 'percentage', header: '% Total', accessor: (item) => `${item.percentage}%` },
+    {
+      key: 'capacity',
+      header: 'Capacidad',
+      render: (item) => (
+        <div style={{ width: '100px', height: '8px', background: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: `${item.capacity}%`, height: '100%', background: 'var(--success-color, #28a745)' }}></div>
+        </div>
+      ),
+    },
+  ], []);
 
   return (
     <section className="products-view app-view is-visible" data-app-view="productos-stock">
@@ -125,71 +165,22 @@ const ProductsStockPage = () => {
 
             <h4 style={{ margin: '0 0 1rem', borderBottom: '1px solid var(--border-color, #eee)', paddingBottom: '0.5rem' }}>Detalle por producto</h4>
             <div style={{ overflowX: 'auto' }}>
-              <table className="simple-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: 'var(--bg-hover, #f8f9fa)', textAlign: 'left' }}>
-                    <th style={{ padding: '0.8rem' }}>Producto</th>
-                    <th style={{ padding: '0.8rem' }}>Stock</th>
-                    <th style={{ padding: '0.8rem' }}>Valor</th>
-                    <th style={{ padding: '0.8rem' }}>Ultimo mov.</th>
-                    <th style={{ padding: '0.8rem' }}>Rotacion</th>
-                    <th style={{ padding: '0.8rem' }}>Almacen</th>
-                    <th style={{ padding: '0.8rem' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.detail.map((item, index) => (
-                    <tr key={`${item.product}-${index}`} style={{ borderBottom: '1px solid var(--border-color, #eee)' }}>
-                      <td style={{ padding: '0.8rem' }}>{item.product}</td>
-                      <td style={{ padding: '0.8rem', fontWeight: 'bold' }}>{item.stock}</td>
-                      <td style={{ padding: '0.8rem' }}>{formatCurrency(item.value)}</td>
-                      <td style={{ padding: '0.8rem' }}>{item.last}</td>
-                      <td style={{ padding: '0.8rem' }}>{item.rotation}</td>
-                      <td style={{ padding: '0.8rem' }}>{item.warehouse}</td>
-                      <td style={{ padding: '0.8rem' }}>
-                        <button
-                          className="icon-btn"
-                          title="Ajustar Stock"
-                          onClick={() => handleOpenAdjustment({ id: 0, name: item.product })}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
-                        >
-                          ✏️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                data={report.detail}
+                columns={detailColumns}
+                keyField="product" // Assuming product name is unique for this report view or use index if needed
+                emptyMessage="No hay detalles de inventario"
+              />
             </div>
 
             <h4 style={{ margin: '2rem 0 1rem', borderBottom: '1px solid var(--border-color, #eee)', paddingBottom: '0.5rem' }}>Stock por almacen</h4>
             <div style={{ overflowX: 'auto' }}>
-              <table className="simple-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: 'var(--bg-hover, #f8f9fa)', textAlign: 'left' }}>
-                    <th style={{ padding: '0.8rem' }}>Almacen</th>
-                    <th style={{ padding: '0.8rem' }}>Productos</th>
-                    <th style={{ padding: '0.8rem' }}>Valor</th>
-                    <th style={{ padding: '0.8rem' }}>% Total</th>
-                    <th style={{ padding: '0.8rem' }}>Capacidad</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.warehouses.map((warehouse) => (
-                    <tr key={warehouse.warehouse} style={{ borderBottom: '1px solid var(--border-color, #eee)' }}>
-                      <td style={{ padding: '0.8rem' }}>{warehouse.warehouse}</td>
-                      <td style={{ padding: '0.8rem' }}>{warehouse.products}</td>
-                      <td style={{ padding: '0.8rem' }}>{formatCurrency(warehouse.value)}</td>
-                      <td style={{ padding: '0.8rem' }}>{warehouse.percentage}%</td>
-                      <td style={{ padding: '0.8rem' }}>
-                        <div style={{ width: '100px', height: '8px', background: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ width: `${warehouse.capacity}%`, height: '100%', background: 'var(--success-color, #28a745)' }}></div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                data={report.warehouses}
+                columns={warehouseColumns}
+                keyField="warehouse"
+                emptyMessage="No hay información de almacenes"
+              />
             </div>
           </article>
         </section>

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { PurchaseOrder, ReceiveOrderPayload } from '../types';
 import { formatCurrency } from '@/shared/utils/format';
 
@@ -20,6 +21,28 @@ export const ReceivePurchaseOrderModal = ({ isOpen, onClose, order, onSubmit }: 
             item.productId === productId ? { ...item, quantity: qty } : item
         ));
     };
+
+    const columns: Column<any>[] = useMemo(() => [
+        { key: 'productName', header: 'Producto', accessor: (item) => item.productName || item.productId },
+        { key: 'quantity', header: 'Solicitado', accessor: 'quantity' },
+        {
+            key: 'received',
+            header: 'Recibido',
+            render: (item) => {
+                const received = receivedItems.find(r => r.productId === item.productId)?.quantity || 0;
+                return (
+                    <input
+                        type="number"
+                        min="0"
+                        max={item.quantity}
+                        value={received}
+                        onChange={e => handleQuantityChange(item.productId, parseInt(e.target.value))}
+                        style={{ width: '80px' }}
+                    />
+                );
+            },
+        },
+    ], [receivedItems]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,36 +69,12 @@ export const ReceivePurchaseOrderModal = ({ isOpen, onClose, order, onSubmit }: 
 
                 <form onSubmit={handleSubmit} className="modal-body">
                     <div className="items-section">
-                        <table className="items-table">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Solicitado</th>
-                                    <th>Recibido</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {order.items.map((item) => {
-                                    const received = receivedItems.find(r => r.productId === item.productId)?.quantity || 0;
-                                    return (
-                                        <tr key={item.productId}>
-                                            <td>{item.productName || item.productId}</td>
-                                            <td>{item.quantity}</td>
-                                            <td>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    max={item.quantity}
-                                                    value={received}
-                                                    onChange={e => handleQuantityChange(item.productId, parseInt(e.target.value))}
-                                                    style={{ width: '80px' }}
-                                                />
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                        <DataTable
+                            data={order.items}
+                            columns={columns}
+                            keyField="productId"
+                            className="items-table"
+                        />
                     </div>
 
                     <div className="modal-actions">

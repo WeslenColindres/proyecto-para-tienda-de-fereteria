@@ -1,35 +1,32 @@
 // src/features/dashboard/components/LowStockTable.tsx
+import { useMemo } from 'react';
 import type { DashboardData } from '@/shared/types/dashboard';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 
 type LowStockTableProps = {
   items: DashboardData['lowStock'];
 };
 
 const LowStockTable = ({ items }: LowStockTableProps) => {
+  const columns: Column<any>[] = useMemo(() => [
+    { key: 'product', header: 'Producto', accessor: 'product' },
+    { key: 'stock', header: 'Stock', accessor: 'stock' },
+    { key: 'min', header: 'Min', accessor: 'min' },
+  ], []);
+
   return (
     <article className="card">
       <header className="card-header" style={{ marginBottom: 10 }}>
         <h3 style={{ margin: 0 }}>Stock bajo</h3>
       </header>
       <div className="data-table-wrapper">
-        <table className="table-stock" id="table-stock">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Stock</th>
-              <th>Min</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((row) => (
-              <tr key={row.product}>
-                <td>{row.product}</td>
-                <td>{row.stock}</td>
-                <td>{row.min}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          data={items}
+          columns={columns}
+          keyField="product"
+          emptyMessage="No hay productos con stock bajo"
+          className="table-stock"
+        />
       </div>
       <div className="table-actions" style={{ textAlign: 'right', marginTop: 12 }}>
         <button

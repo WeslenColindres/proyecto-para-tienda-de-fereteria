@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
+import type { DocumentSeriesConfig } from '@/shared/types/configuration';
 import { useConfiguration } from '../hooks/useConfiguration';
 import Button from '@/ui/atoms/Button/Button';
 import Card from '@/ui/atoms/Card/Card';
@@ -6,6 +8,41 @@ import Card from '@/ui/atoms/Card/Card';
 export const DocumentSeriesPanel = () => {
     const { documentSeries, loading } = useConfiguration();
     const [showAddModal, setShowAddModal] = useState(false);
+
+    const columns: Column<DocumentSeriesConfig>[] = useMemo(() => [
+        { key: 'documentType', header: 'Tipo', accessor: 'documentType', className: 'text-white font-medium' },
+        { key: 'series', header: 'Serie', accessor: 'series', className: 'text-blue-400 font-mono' },
+        {
+            key: 'range',
+            header: 'Rango',
+            render: (series) => (
+                <span className="text-gray-300 text-sm">
+                    {series.startNumber} - {series.endNumber}
+                </span>
+            ),
+        },
+        { key: 'currentNumber', header: 'Actual', accessor: 'currentNumber', className: 'text-white font-bold' },
+        {
+            key: 'isActive',
+            header: 'Estado',
+            render: (series) => (
+                <span className={`text-xs px-2 py-1 rounded-full ${series.isActive
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-gray-700 text-gray-400'
+                    }`}>
+                    {series.isActive ? 'Activa' : 'Inactiva'}
+                </span>
+            ),
+        },
+        {
+            key: 'actions',
+            header: 'Acciones',
+            render: () => (
+                <button className="text-blue-400 hover:text-blue-300 text-sm mr-3">Editar</button>
+            ),
+            className: 'text-right',
+        },
+    ], []);
 
     if (loading && !documentSeries.length) {
         return <div className="p-6 text-gray-400">Cargando series...</div>;
@@ -25,48 +62,15 @@ export const DocumentSeriesPanel = () => {
 
             <Card className="p-0 overflow-hidden bg-gray-900/50 border-white/10">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-black/20 text-gray-400 text-xs uppercase">
-                            <tr>
-                                <th className="px-6 py-3 font-medium">Tipo</th>
-                                <th className="px-6 py-3 font-medium">Serie</th>
-                                <th className="px-6 py-3 font-medium">Rango</th>
-                                <th className="px-6 py-3 font-medium">Actual</th>
-                                <th className="px-6 py-3 font-medium">Estado</th>
-                                <th className="px-6 py-3 font-medium text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {documentSeries.map((series) => (
-                                <tr key={series.id} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-4 text-white font-medium">{series.documentType}</td>
-                                    <td className="px-6 py-4 text-blue-400 font-mono">{series.series}</td>
-                                    <td className="px-6 py-4 text-gray-300 text-sm">
-                                        {series.startNumber} - {series.endNumber}
-                                    </td>
-                                    <td className="px-6 py-4 text-white font-bold">{series.currentNumber}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`text-xs px-2 py-1 rounded-full ${series.isActive
-                                                ? 'bg-green-500/20 text-green-400'
-                                                : 'bg-gray-700 text-gray-400'
-                                            }`}>
-                                            {series.isActive ? 'Activa' : 'Inactiva'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="text-blue-400 hover:text-blue-300 text-sm mr-3">Editar</button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {documentSeries.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                                        No hay series configuradas. Debes crear al menos una para facturar.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <DataTable
+                        data={documentSeries}
+                        columns={columns}
+                        keyField="id"
+                        emptyMessage="No hay series configuradas. Debes crear al menos una para facturar."
+                        className="w-full text-left"
+                        headerClassName="bg-black/20 text-gray-400 text-xs uppercase"
+                        rowClassName="hover:bg-white/5 transition-colors"
+                    />
                 </div>
             </Card>
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
 import { ACTIVE_ITEM_TO_REPORT, FAVORITE_REPORTS, REPORT_MENU, REPORT_VIEWS, SCHEDULED_REPORTS, SEND_HISTORY } from '@/shared/data/reports';
 import type { ReportId } from '@/shared/types/reports';
 import { DESKTOP_BREAKPOINT, TABLET_BREAKPOINT } from '@/shared/constants/layout';
@@ -116,7 +117,17 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
     }
   };
 
-  const tableRows = data.length > 0 ? mapDataToRows(selectedReport, data) : view.table.rows;
+  const tableRows = (data.length > 0 ? mapDataToRows(selectedReport, data) : view.table.rows).map((row, idx) => ({ ...row, id: (row as any).id || idx }));
+
+  const columns: Column<any>[] = useMemo(() => {
+    return tableColumns.map((col) => ({
+      key: col.id,
+      header: col.label,
+      accessor: col.id,
+      className: col.align === 'right' ? 'text-right' : '',
+      headerClassName: col.align === 'right' ? 'text-right' : '',
+    }));
+  }, [tableColumns]);
 
   const toolbarTitle = useMemo(() => {
     const mainCategory = REPORT_MENU.find((cat) => cat.items.some((it) => it.id === selectedReport));
@@ -290,28 +301,20 @@ const ReportsView = ({ activeItem }: ReportsViewProps) => {
               {error ? (
                 <div className="error-message">Error cargando datos: {error}</div>
               ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      {tableColumns.map((col) => (
-                        <th key={col.id} style={{ width: col.width ?? 'auto', textAlign: col.align ?? 'left' }}>
-                          {col.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tableRows.map((row, idx) => (
-                      <tr key={`${view.id}-${idx}`}>
-                        {tableColumns.map((col) => (
-                          <td key={`${col.id}-${idx}`} className={col.align === 'right' ? 'align-right' : ''}>
-                            {row[col.id] as string}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  data={tableRows}
+                  columns={columns}
+                  keyField="id" // Assuming rows have an id or unique key, if not we might need to generate one or use index
+                  // If rows don't have id, DataTable uses keyField. If keyField is not in item, it might fail or use undefined.
+                  // Let's check if rows have IDs. mapDataToRows returns objects without explicit IDs usually.
+                  // We might need to add IDs or use a column as key.
+                  // For now, let's use a workaround if needed, but DataTable expects keyField.
+                  // If I pass a non-existent key, it uses it as key.
+                  // I'll add an index-based ID to rows if they don't have one.
+                  // Or I can modify DataTable to accept a key generator.
+                  // But for now, let's map rows to include an ID.
+                  emptyMessage="No hay datos para mostrar"
+                />
               )}
             </div>
             <footer className="table-footer">

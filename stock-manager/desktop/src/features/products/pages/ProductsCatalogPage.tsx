@@ -16,21 +16,8 @@ import type {
 import Modal from '@/ui/molecules/Modal/Modal';
 import { Drawer } from '@/ui/molecules/Drawer/Drawer';
 import { ProductImportModal } from '../components/ProductImportModal';
-import { LucideSearch, LucidePlus, LucideFilter, LucideDownload, LucideEdit, LucideTrash2, LucideRefreshCw, LucideAlertTriangle, LucideCheckCircle, LucideXCircle } from 'lucide-react';
-
-const SortableHeader = ({ label, field, currentSort, currentDir, onSort }: any) => (
-  <th
-    onClick={() => onSort(field)}
-    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 transition-colors ${currentSort === field ? 'bg-gray-50 text-blue-600' : ''}`}
-  >
-    <div className="flex items-center gap-2">
-      {label}
-      {currentSort === field && (
-        <span>{currentDir === 'ASC' ? '↑' : '↓'}</span>
-      )}
-    </div>
-  </th>
-);
+import { DataTable, type Column } from '@/ui/molecules/Table/DataTable';
+import { LucideSearch, LucidePlus, LucideFilter, LucideDownload, LucideEdit, LucideTrash2, LucideRefreshCw, LucideCheckCircle, LucideAlertTriangle } from 'lucide-react';
 
 const stockState = (product: ProductItem): 'ok' | 'low' | 'critical' | 'preventive' => {
   if (product.stock === 0 || product.stock < product.minStock * 0.5) return 'critical';
@@ -231,15 +218,170 @@ const ProductsCatalogPage = () => {
     }
   };
 
-  const handleSort = (field: string) => {
-    const isAsc = filters.orderBy === field && filters.orderDir === 'ASC';
+  const handleSort = (field: string, direction: 'asc' | 'desc') => {
     setFilters(prev => ({
       ...prev,
       orderBy: field,
-      orderDir: isAsc ? 'DESC' : 'ASC',
+      orderDir: direction === 'asc' ? 'ASC' : 'DESC',
       page: 1
     }));
   };
+
+  const columns: Column<ProductItem>[] = useMemo(() => [
+    {
+      key: 'select',
+      header: '',
+      render: (product) => (
+        <input
+          type="checkbox"
+          checked={product.id === selectedId}
+          readOnly
+          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+      ),
+      sortable: false,
+      className: 'w-10',
+    },
+    {
+      key: 'sku',
+      header: 'Código',
+      accessor: 'code',
+      sortable: true,
+      className: 'font-medium text-gray-900',
+    },
+    {
+      key: 'name',
+      header: 'Nombre',
+      render: (product) => (
+        <div>
+          <div className="font-medium">{product.name}</div>
+          {product.barcode && <div className="text-xs text-gray-400">{product.barcode}</div>}
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      key: 'category',
+      header: 'Categoría',
+      accessor: (p) => p.categoryName || '-',
+      sortable: false,
+      className: 'text-gray-500',
+    },
+    {
+      key: 'stock',
+      header: 'Stock',
+      render: (product) => {
+        const state = stockState(product);
+        const stockColors = {
+          ok: 'bg-green-500',
+          low: 'bg-yellow-500',
+          critical: 'bg-red-500',
+          preventive: 'bg-blue-500',
+        };
+        return (
+          <div className="flex items-center gap-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${stockColors[state]}`} title={`Estado: ${state}`}></span>
+            {product.stock} {product.unit}
+          </div>
+        );
+      },
+      sortable: true,
+    },
+    {
+      key: 'price',
+      header: 'Precio',
+      accessor: (p) => formatCurrency(p.price),
+      sortable: true,
+      className: 'font-medium text-gray-900',
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      render: (product) => {
+        const statusColors = {
+          activo: 'bg-green-100 text-green-800',
+          inactivo: 'bg-gray-100 text-gray-800',
+          descontinuado: 'bg-red-100 text-red-800',
+        };
+        return (
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[product.status]}`}>
+            {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+          </span>
+        );
+      },
+      sortable: false,
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (product) => (
+        <button
+          className="text-gray-400 hover:text-blue-600 p-1 rounded-full hover:bg-blue-50 transition-colors"
+          onClick={(e) => { e.stopPropagation(); handleEdit(product.id); }}
+          title="Editar"
+        >
+          <LucideEdit className="w-4 h-4" />
+        </button>
+      ),
+      sortable: false,
+      className: 'text-right',
+    },
+  ], [selectedId, handleEdit]);
+
+  const supplierColumns: Column<any>[] = useMemo(() => [
+    {
+      key: 'name',
+      header: 'Proveedor',
+      accessor: (ps) => ps.nombre_proveedor || 'Proveedor ' + ps.id_proveedor
+    },
+    {
+      key: 'code',
+      header: 'Código',
+      accessor: (ps) => ps.codigo_producto_proveedor || '-',
+      className: 'text-gray-500'
+    },
+    {
+      key: 'cost',
+      header: 'Costo',
+      render: (ps) => (
+        <div className="flex items-center justify-end gap-1">
+          <span className="text-gray-400 text-xs">Q</span>
+          <input
+            type="number"
+            step="0.01"
+            className="w-20 p-1 text-right border border-transparent hover:border-gray-300 rounded focus:border-blue-500 outline-none bg-transparent"
+            defaultValue={ps.precio_costo}
+            onBlur={(e) => handleUpdateSupplierPrice(ps.id_proveedor, e.target.value)}
+          />
+        </div>
+      ),
+      className: 'text-right',
+    },
+    {
+      key: 'main',
+      header: 'Principal',
+      render: (ps) => ps.es_proveedor_principal ? (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+          Principal
+        </span>
+      ) : '-',
+      className: 'text-center',
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (ps) => (
+        <button
+          className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50"
+          onClick={() => handleRemoveSupplier(ps.id_proveedor)}
+          title="Eliminar"
+        >
+          <LucideTrash2 className="w-4 h-4" />
+        </button>
+      ),
+      className: 'text-center',
+    },
+  ], [handleUpdateSupplierPrice, handleRemoveSupplier]);
 
   return (
     <main className="flex flex-col h-full bg-gray-50 overflow-hidden">
@@ -333,107 +475,24 @@ const ProductsCatalogPage = () => {
       <div className="flex-1 overflow-auto p-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
-                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                  </th>
-                  <SortableHeader label="Código" field="sku" currentSort={filters.orderBy} currentDir={filters.orderDir} onSort={handleSort} />
-                  <SortableHeader label="Nombre" field="nombre" currentSort={filters.orderBy} currentDir={filters.orderDir} onSort={handleSort} />
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                  <SortableHeader label="Stock" field="stock" currentSort={filters.orderBy} currentDir={filters.orderDir} onSort={handleSort} />
-                  <SortableHeader label="Precio" field="precio" currentSort={filters.orderBy} currentDir={filters.orderDir} onSort={handleSort} />
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse">
-                      <td className="px-6 py-4"><div className="h-4 w-4 bg-gray-200 rounded"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-20 bg-gray-200 rounded"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-48 bg-gray-200 rounded"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-200 rounded"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-16 bg-gray-200 rounded"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-20 bg-gray-200 rounded"></div></td>
-                      <td className="px-6 py-4"><div className="h-6 w-16 bg-gray-200 rounded-full"></div></td>
-                      <td className="px-6 py-4"><div className="h-8 w-8 bg-gray-200 rounded ml-auto"></div></td>
-                    </tr>
-                  ))
-                ) : products.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                      <div className="flex flex-col items-center gap-3">
-                        <LucideSearch className="w-12 h-12 text-gray-300" />
-                        <p className="text-lg font-medium">No se encontraron productos</p>
-                        <p className="text-sm">Intenta ajustar los filtros o crea un nuevo producto.</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  products.map((product) => {
-                    const state = stockState(product);
-                    const statusColors = {
-                      activo: 'bg-green-100 text-green-800',
-                      inactivo: 'bg-gray-100 text-gray-800',
-                      descontinuado: 'bg-red-100 text-red-800',
-                    };
-                    const stockColors = {
-                      ok: 'bg-green-500',
-                      low: 'bg-yellow-500',
-                      critical: 'bg-red-500',
-                      preventive: 'bg-blue-500',
-                    };
-
-                    return (
-                      <tr
-                        key={product.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer group"
-                        onClick={() => handleEdit(product.id)}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            checked={product.id === selectedId}
-                            readOnly
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.code}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          <div className="font-medium">{product.name}</div>
-                          {product.barcode && <div className="text-xs text-gray-400">{product.barcode}</div>}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.categoryName || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2.5 h-2.5 rounded-full ${stockColors[state]}`} title={`Estado: ${state}`}></span>
-                            {product.stock} {product.unit}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(product.price)}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[product.status]}`}>
-                            {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            className="text-gray-400 hover:text-blue-600 p-1 rounded-full hover:bg-blue-50 transition-colors opacity-0 group-hover:opacity-100"
-                            onClick={(e) => { e.stopPropagation(); handleEdit(product.id); }}
-                            title="Editar"
-                          >
-                            <LucideEdit className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+            <DataTable
+              data={products}
+              columns={columns}
+              keyField="id"
+              selectedId={selectedId}
+              onSelect={selectProduct}
+              onDoubleClick={(item) => handleEdit(item.id)}
+              loading={loading}
+              emptyMessage="No se encontraron productos. Intenta ajustar los filtros o crea un nuevo producto."
+              onSort={(key, dir) => {
+                let field = key;
+                if (key === 'name') field = 'nombre';
+                if (key === 'price') field = 'precio';
+                handleSort(field, dir);
+              }}
+              sortBy={filters.orderBy}
+              sortDirection={filters.orderDir === 'ASC' ? 'asc' : 'desc'}
+            />
           </div>
 
           {/* Pagination */}
@@ -730,61 +789,12 @@ const ProductsCatalogPage = () => {
             </div>
 
             <div className="border border-gray-200 rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-600 border-b border-gray-200">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium">Proveedor</th>
-                    <th className="px-4 py-3 text-left font-medium">Código</th>
-                    <th className="px-4 py-3 text-right font-medium">Costo</th>
-                    <th className="px-4 py-3 text-center font-medium">Principal</th>
-                    <th className="px-4 py-3 text-center font-medium">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {productSuppliers.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-gray-500 italic">
-                        No hay proveedores asignados a este producto
-                      </td>
-                    </tr>
-                  ) : (
-                    productSuppliers.map((ps) => (
-                      <tr key={ps.id_proveedor} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-gray-900">{ps.nombre_proveedor || 'Proveedor ' + ps.id_proveedor}</td>
-                        <td className="px-4 py-3 text-gray-500">{ps.codigo_producto_proveedor || '-'}</td>
-                        <td className="px-4 py-3 text-right font-medium text-gray-900">
-                          <div className="flex items-center justify-end gap-1">
-                            <span className="text-gray-400 text-xs">Q</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              className="w-20 p-1 text-right border border-transparent hover:border-gray-300 rounded focus:border-blue-500 outline-none bg-transparent"
-                              defaultValue={ps.precio_costo}
-                              onBlur={(e) => handleUpdateSupplierPrice(ps.id_proveedor, e.target.value)}
-                            />
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          {ps.es_proveedor_principal ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                              Principal
-                            </span>
-                          ) : '-'}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button
-                            className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50"
-                            onClick={() => handleRemoveSupplier(ps.id_proveedor)}
-                            title="Eliminar"
-                          >
-                            <LucideTrash2 className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              <DataTable
+                data={productSuppliers}
+                columns={supplierColumns}
+                keyField="id_proveedor"
+                emptyMessage="No hay proveedores asignados a este producto"
+              />
             </div>
           </div>
         )}
@@ -901,16 +911,18 @@ const ProductsCatalogPage = () => {
         </div>
       </Modal>
 
-      {showImportModal && (
-        <ProductImportModal
-          onClose={() => setShowImportModal(false)}
-          onSuccess={() => {
-            reload();
-            setShowImportModal(false);
-          }}
-        />
-      )}
-    </main>
+      {
+        showImportModal && (
+          <ProductImportModal
+            onClose={() => setShowImportModal(false)}
+            onSuccess={() => {
+              reload();
+              setShowImportModal(false);
+            }}
+          />
+        )
+      }
+    </main >
   );
 };
 
