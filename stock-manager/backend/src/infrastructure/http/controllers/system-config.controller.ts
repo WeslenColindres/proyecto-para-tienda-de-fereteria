@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { SystemConfigRepository } from '../../domain/ports/system-config.repository';
-import { SystemConfig } from '../../domain/entities/system-config.entity';
+import { SystemConfigRepository } from '../../../domain/ports/system-config.repository';
+import { SystemConfig } from '../../../domain/entities/system-config.entity';
 
 export class SystemConfigController {
     constructor(private readonly configRepository: SystemConfigRepository) { }

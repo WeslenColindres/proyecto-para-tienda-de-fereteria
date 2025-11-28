@@ -1,0 +1,5 @@
+﻿src/infrastructure/http/controllers/purchase-orders.controller.ts(8,15): error TS2339: Property 'id' does not exist on type 'PurchaseOrder'.
+src/infrastructure/repositories/postgres-product.repository.ts(133,31): error TS2339: Property 'imageUrl' does not exist on type 'ProductProps'.
+src/infrastructure/repositories/postgres-product.repository.ts(159,31): error TS2339: Property 'imageUrl' does not exist on type 'ProductProps'.
+src/infrastructure/repositories/postgres-system-config.repository.ts(4,10): error TS2614: Module '"../database/postgres"' has no exported member 'db'. Did you mean to use 'import db from "../database/postgres"' instead?
+src/scripts/verify-backend.ts(32,31): error TS2554: Expected 2 arguments, but got 1.

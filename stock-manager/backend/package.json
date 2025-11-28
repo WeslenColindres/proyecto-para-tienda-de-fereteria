@@ -5,6 +5,8 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "seed": "tsx src/scripts/seed.ts",
+    "seed:extensive": "tsx src/scripts/seed-extensive.ts",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js"
   },
@@ -31,6 +33,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/multer": "^2.0.0",

@@ -23,6 +23,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     });
 };
 
+
 export const authorizeRole = (allowedRoles: number[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user || !allowedRoles.includes(req.user.roleId)) {
@@ -30,4 +31,23 @@ export const authorizeRole = (allowedRoles: number[]) => {
         }
         next();
     };
+};
+
+// Optional authentication - validates token if present, but allows request to proceed without it
+export const authenticateTokenOptional = (req: AuthRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return next();
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET || 'secret_key', (err, user) => {
+        if (err) {
+            // If token is invalid, proceed as unauthenticated
+            return next();
+        }
+        req.user = user;
+        next();
+    });
 };
